@@ -9,6 +9,7 @@ import (
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type Server struct {
@@ -25,6 +26,8 @@ func New(port string) (*Server, error) {
 
 	grpcServer := grpc.NewServer()
 	event.RegisterEventServiceServer(grpcServer, NewEventService())
+
+	reflection.Register(grpcServer)
 
 	return &Server{grpcServer, lis}, nil
 }

@@ -22,7 +22,7 @@ func main() {
 
 	cfg := config.New()
 
-	if cfg != nil {
+	if cfg == nil {
 		mainLogger.Fatal(ctx, "failed to read config")
 	}
 
