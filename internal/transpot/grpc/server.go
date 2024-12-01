@@ -35,9 +35,6 @@ func (s *Server) Start(ctx context.Context) error {
 	return s.grpcServer.Serve(s.listener)
 }
 
-func (s *Server) Stop(ctx context.Context) {
+func (s *Server) Stop() {
 	s.grpcServer.GracefulStop()
-	l := logger.GetLoggerFromCtx(ctx)
-
-	l.Info(ctx, "gRPC server stopped")
 }
