@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package event;
+
+option go_package = "pkg/api/event";
+
+service EventService {
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+  rpc ReadEvent(ReadEventRequest) returns (ReadEventResponse);
+  rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse);
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
+  rpc ListEventsByInterests(ListEventsByInterestsRequest) returns (ListEventsByInterestsResponse);
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc ListUsersToChat(ListUsersToChatRequest) returns (ListUsersToChatResponse);
+  rpc ListEventsByUser(ListEventsByUserRequest) returns (ListEventsByUserResponse);
+}
+
+message Event {
+  int64 id = 1;
+  int64 creator_id = 2;
+  string title = 3;
+  string description = 4;
+  string time = 5;
+  string place = 6;
+}
+
+message Participant {
+  int64 user_id = 1;
+  string name = 2;
+  string interests = 3;
+}
+
+message CreateEventRequest {
+  Event event = 1;
+}
+
+message CreateEventResponse {
+  int64 event_id = 1;
+}
+
+message ReadEventRequest {
+  int64 event_id = 1;
+}
+
+message ReadEventResponse {
+  Event event = 1;
+}
+
+message UpdateEventRequest {
+  Event event = 1;
+}
+
+message UpdateEventResponse {
+  string message = 1;
+}
+
+message DeleteEventRequest {
+  int64 event_id = 1;
+}
+
+message DeleteEventResponse {
+  string message = 1; 
+}
+
+message ListEventsRequest {}
+
+message ListEventsResponse {
+  repeated Event events = 1;
+}
+
+message ListEventsByInterestsRequest {
+  int64 user_id = 1;
+}
+
+message ListEventsByInterestsResponse {
+  repeated Event events = 1;
+}
+
+message RegisterUserRequest {
+  Participant participant = 1;
+}
+
+message RegisterUserResponse {
+  string message = 1;
+}
+
+message UpdateUserRequest {
+  Participant participant = 1;
+}
+
+message UpdateUserResponse {
+  string message = 1;
+}
+
+message ListUsersToChatRequest {
+  int64 event_id = 1;
+}
+
+message ListUsersToChatResponse {
+  repeated Participant participants = 1;
+}
+
+message ListEventsByUserRequest {
+  int64 user_id = 1;
+}
+
+message ListEventsByUserResponse {
+  repeated Event events = 1;
+}
