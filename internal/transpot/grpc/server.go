@@ -1,9 +1,8 @@
-package server
+package grpc
 
 import (
 	"context"
 	"event_service/internal/logger"
-	"event_service/internal/transpot/grpc/service"
 	"net"
 
 	"event_service/pkg/api/proto/event"
@@ -17,17 +16,17 @@ type Server struct {
 	listener   net.Listener
 }
 
-func New(ctx context.Context, port string) *Server {
-	l := logger.GetLoggerFromCtx(ctx)
+func New(port string) (*Server, error) {
 	lis, err := net.Listen("tcp", ":"+port)
+
 	if err != nil {
-		l.Fatal(ctx, "failed to listen", zap.String("err: ", err.Error()))
+		return nil, err
 	}
 
 	grpcServer := grpc.NewServer()
-	event.RegisterEventServiceServer(grpcServer, service.NewEventService())
+	event.RegisterEventServiceServer(grpcServer, NewEventService())
 
-	return &Server{grpcServer, lis}
+	return &Server{grpcServer, lis}, nil
 }
 
 func (s *Server) Start(ctx context.Context) error {
