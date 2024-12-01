@@ -15,6 +15,7 @@ const (
 type Logger interface {
 	Info(ctx context.Context, msg string, fields ...zap.Field)
 	Error(ctx context.Context, msg string, fields ...zap.Field)
+	Fatal(ctx context.Context, msg string, fields ...zap.Field)
 }
 
 type logger struct {
@@ -38,6 +39,15 @@ func (l logger) Error(ctx context.Context, msg string, fields ...zap.Field) {
 		fields = append(fields, zap.String(RequestID, ctx.Value(RequestID).(string)))
 	}
 	l.logger.Error(msg, fields...)
+}
+
+func (l logger) Fatal(ctx context.Context, msg string, fields ...zap.Field) {
+	fields = append(fields, zap.String(ServiceName, l.serviceName))
+
+	if ctx.Value(RequestID) != nil {
+		fields = append(fields, zap.String(RequestID, ctx.Value(RequestID).(string)))
+	}
+	l.logger.Fatal(msg, fields...)
 }
 
 func New(serviceName string) Logger {
