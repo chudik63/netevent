@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  events:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      GRPC_SERVER_PORT: ${GRPC_SERVER_PORT}
+      MIGRATIONS_PATH: ${MIGRATIONS_PATH}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+    ports:
+      - "${GRPC_SERVER_PORT}:${GRPC_SERVER_PORT}"
+    networks:
+      - eventservice
+
   postgres:
     image: "postgres:latest"
     volumes:
@@ -9,8 +26,15 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_HOST: ${POSTGRES_HOST}
     ports:
-      - "5432:5432"
-      
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    networks:
+      - eventservice
+
 volumes:
   postgres_data:
+
+networks:
+  eventservice:
