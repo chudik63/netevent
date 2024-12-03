@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"event_service/internal/config"
+	"event_service/internal/database/postgres"
 	"event_service/internal/logger"
 	"event_service/internal/transpot/grpc"
+	"event_service/pkg/migrator"
 	"os"
 	"os/signal"
 	"syscall"
@@ -20,11 +22,16 @@ func main() {
 	mainLogger := logger.New(serviceName)
 	ctx := context.WithValue(context.Background(), logger.LoggerKey, mainLogger)
 
-	cfg := config.New()
+	cfg, err := config.New()
 
-	if cfg == nil {
-		mainLogger.Fatal(ctx, "failed to read config")
+	if err != nil {
+		mainLogger.Fatal(ctx, "failed to read config", zap.String("err", err.Error()))
 	}
+
+	db := postgres.New(ctx, cfg.Config)
+	_ = db
+
+	migrator.Start(ctx, cfg)
 
 	grpcServer, err := grpc.New(cfg.GRPCServerPort)
 	if err != nil {
