@@ -1,11 +1,13 @@
 package repository
 
-import "database/sql"
+import (
+	"event_service/internal/database/postgres"
+)
 
 type EventRepository struct {
-	db *sql.DB
+	db postgres.DB
 }
 
-func New(db *sql.DB) *EventRepository {
+func New(db postgres.DB) *EventRepository {
 	return &EventRepository{db}
 }

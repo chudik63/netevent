@@ -18,7 +18,11 @@ type Config struct {
 	DbName   string `env:"POSTGRES_DB"`
 }
 
-func New(ctx context.Context, config Config) *sql.DB {
+type DB struct {
+	*sql.DB
+}
+
+func New(ctx context.Context, config Config) DB {
 	l := logger.GetLoggerFromCtx(ctx)
 
 	dsn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable host=%s port=%s", config.UserName, config.Password, config.DbName, config.Host, config.Port)
@@ -27,11 +31,10 @@ func New(ctx context.Context, config Config) *sql.DB {
 	if err != nil {
 		l.Fatal(ctx, "failed to open database", zap.String("err", err.Error()))
 	}
-	defer db.Close()
 
 	if err := db.Ping(); err != nil {
-		l.Error(ctx, "failed to ping database", zap.String("err", err.Error()))
+		l.Fatal(ctx, "failed to ping database", zap.String("err", err.Error()))
 	}
 
-	return db
+	return DB{db}
 }
