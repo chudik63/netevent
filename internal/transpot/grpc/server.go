@@ -17,7 +17,7 @@ type Server struct {
 	listener   net.Listener
 }
 
-func New(port string) (*Server, error) {
+func New(port string, service Service) (*Server, error) {
 	lis, err := net.Listen("tcp", ":"+port)
 
 	if err != nil {
@@ -25,7 +25,7 @@ func New(port string) (*Server, error) {
 	}
 
 	grpcServer := grpc.NewServer()
-	event.RegisterEventServiceServer(grpcServer, NewEventService())
+	event.RegisterEventServiceServer(grpcServer, NewEventService(service))
 
 	reflection.Register(grpcServer)
 

@@ -5,6 +5,8 @@ import (
 	"event_service/internal/config"
 	"event_service/internal/database/postgres"
 	"event_service/internal/logger"
+	"event_service/internal/repository"
+	"event_service/internal/service"
 	"event_service/internal/transpot/grpc"
 	"event_service/pkg/migrator"
 	"os"
@@ -33,7 +35,10 @@ func main() {
 
 	migrator.Start(ctx, cfg)
 
-	grpcServer, err := grpc.New(cfg.GRPCServerPort)
+	eventRepository := repository.New(db)
+	eventService := service.New(eventRepository)
+
+	grpcServer, err := grpc.New(cfg.GRPCServerPort, eventService)
 	if err != nil {
 		mainLogger.Fatal(ctx, "failed to listen", zap.String("err: ", err.Error()))
 	}

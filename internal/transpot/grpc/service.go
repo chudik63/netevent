@@ -5,12 +5,16 @@ import (
 	"event_service/pkg/api/proto/event"
 )
 
-type EventService struct {
-	event.UnimplementedEventServiceServer
+type Service interface {
 }
 
-func NewEventService() *EventService {
-	return &EventService{}
+type EventService struct {
+	event.UnimplementedEventServiceServer
+	service Service
+}
+
+func NewEventService(s Service) *EventService {
+	return &EventService{service: s}
 }
 
 func (s *EventService) CreateEvent(context.Context, *event.CreateEventRequest) (*event.CreateEventResponse, error) {
