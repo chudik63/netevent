@@ -2,7 +2,11 @@ module gitlab.crja72.ru/gospec/go9/netevent/notification-service
 
 go 1.23.2
 
-require github.com/ilyakaznacheev/cleanenv v1.5.0
+require (
+	github.com/ilyakaznacheev/cleanenv v1.5.0
+	github.com/jmoiron/sqlx v1.4.0
+	github.com/lib/pq v1.10.9
+)
 
 require (
 	github.com/BurntSushi/toml v1.4.0 // indirect

@@ -15,7 +15,7 @@ func Start() error {
 	}
 
 	gm := gmail.New(cfg.GmailConfig)
-	err = gm.Send("test", domain.Message{
+	err = gm.Send("test", domain.Notification{
 		UserName:   "Denis",
 		EventName:  "Test",
 		EventTime:  "22.04.2025",

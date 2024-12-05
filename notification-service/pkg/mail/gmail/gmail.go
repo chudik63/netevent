@@ -34,7 +34,7 @@ func New(cfg GmailConfig) *Gmail {
 	}
 }
 
-func (g *Gmail) Send(subject string, msg domain.Message, to string) error {
+func (g *Gmail) Send(subject string, msg domain.Notification, to string) error {
 	var body bytes.Buffer
 
 	if err := g.mailTemplate.Execute(&body, msg); err != nil {

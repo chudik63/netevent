@@ -1,6 +1,7 @@
 package domain
 
-type Message struct {
+type Notification struct {
+	ID         int64
 	UserName   string
 	EventName  string
 	EventTime  string
