@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"net/smtp"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/domain"
-	"gopkg.in/gomail.v2"
 )
 
 const templatePath = "./templates/mail.html"
@@ -20,14 +20,16 @@ type GmailConfig struct {
 
 type Gmail struct {
 	mailTemplate *template.Template
-	dialer       *gomail.Dialer
+	auth         smtp.Auth
+	address      string
 	from         string
 }
 
 func New(cfg GmailConfig) *Gmail {
 	return &Gmail{
 		mailTemplate: template.Must(template.ParseFiles(templatePath)),
-		dialer:       gomail.NewDialer(cfg.GmailHost, cfg.GmailPort, cfg.GmailUsername, cfg.GmailPassword),
+		auth:         smtp.PlainAuth("", cfg.GmailUsername, cfg.GmailPassword, cfg.GmailHost),
+		address:      fmt.Sprintf("%s:%d", cfg.GmailHost, cfg.GmailPort),
 		from:         cfg.GmailUsername,
 	}
 }
@@ -39,13 +41,12 @@ func (g *Gmail) Send(subject string, msg domain.Message, to string) error {
 		return fmt.Errorf("failed to execute mail template: %w", err)
 	}
 
-	m := gomail.NewMessage()
-	m.SetHeader("From", g.from)
-	m.SetHeader("To", to)
-	m.SetHeader("Subject", subject)
-	m.SetBody("text/html", body.String())
+	headers := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";"
+	mail := "Subject: " + subject + "\n" +
+		headers + "\n\n" +
+		body.String()
 
-	if err := g.dialer.DialAndSend(m); err != nil {
+	if err := smtp.SendMail(g.address, g.auth, g.from, []string{to}, []byte(mail)); err != nil {
 		return fmt.Errorf("failed to send mail: %w", err)
 	}
 
