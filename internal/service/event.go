@@ -33,11 +33,15 @@ func New(repo EventReposiory) *EventService {
 }
 
 func (s *EventService) CreateEvent(ctx context.Context, event *models.Event) (int64, error) {
-	return 0, nil
+	id, err := s.repository.CreateEvent(ctx, event)
+
+	return id, err
 }
 
 func (s *EventService) ReadEvent(ctx context.Context, eventID int64) (*models.Event, error) {
-	return nil, nil
+	event, err := s.repository.ReadEvent(ctx, eventID)
+
+	return event, err
 }
 
 func (s *EventService) UpdateEvent(ctx context.Context, event *models.Event) error {

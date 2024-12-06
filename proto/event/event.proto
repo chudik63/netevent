@@ -46,7 +46,7 @@ message ReadEventRequest {
 }
 
 message ReadEventResponse {
-  Event event = 1;
+  Event event = 2;
 }
 
 message UpdateEventRequest {

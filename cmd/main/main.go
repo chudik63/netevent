@@ -38,7 +38,7 @@ func main() {
 	eventRepository := repository.New(db)
 	eventService := service.New(eventRepository)
 
-	grpcServer, err := grpc.New(cfg.GRPCServerPort, eventService)
+	grpcServer, err := grpc.New(ctx, cfg.GRPCServerPort, eventService)
 	if err != nil {
 		mainLogger.Fatal(ctx, "failed to listen", zap.String("err: ", err.Error()))
 	}

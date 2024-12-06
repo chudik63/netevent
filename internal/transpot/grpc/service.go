@@ -76,7 +76,22 @@ func (s *EventService) ListUsersToChat(ctx context.Context, req *event.ListUsers
 }
 
 func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventRequest) (*event.ReadEventResponse, error) {
-	return nil, nil
+	resp, err := s.service.ReadEvent(ctx, req.GetEventId())
+
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to read event", zap.String("err", err.Error()))
+		return nil, err
+	}
+
+	return &event.ReadEventResponse{
+		Event: &event.Event{
+			CreatorId:   resp.CreatorID,
+			Title:       resp.Title,
+			Description: resp.Description,
+			Time:        resp.Time,
+			Place:       resp.Place,
+		},
+	}, nil
 }
 
 func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUserRequest) (*event.RegisterUserResponse, error) {
