@@ -14,11 +14,11 @@ type Service interface {
 	ReadEvent(ctx context.Context, eventID int64) (*models.Event, error)
 	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, eventID int64) error
-	ListEvents(ctx context.Context) []models.Event
+	ListEventsByCreator(ctx context.Context, creatorID int64) []*models.Event
 	RegisterUser(ctx context.Context, participant *models.Participant) error
 	UpdateUser(ctx context.Context, participant *models.Participant) error
-	ListUsersToChat(ctx context.Context, eventID int64) []models.Participant
-	ListEventsByUser(ctx context.Context, userID int64) []models.Event
+	ListUsersToChat(ctx context.Context, eventID int64) []*models.Participant
+	ListEventsByUser(ctx context.Context, userID int64) []*models.Event
 }
 
 type EventService struct {
@@ -68,7 +68,7 @@ func (s *EventService) DeleteEvent(ctx context.Context, req *event.DeleteEventRe
 	}, nil
 }
 
-func (s *EventService) ListEvents(ctx context.Context, req *event.ListEventsRequest) (*event.ListEventsResponse, error) {
+func (s *EventService) ListEventsByCreator(ctx context.Context, req *event.ListEventsByCreatorRequest) (*event.ListEventsByCreatorResponse, error) {
 	return nil, nil
 }
 
