@@ -14,11 +14,11 @@ type Service interface {
 	ReadEvent(ctx context.Context, eventID int64) (*models.Event, error)
 	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, eventID int64) error
-	ListEventsByCreator(ctx context.Context, creatorID int64) []*models.Event
+	ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error)
 	RegisterUser(ctx context.Context, participant *models.Participant) error
 	UpdateUser(ctx context.Context, participant *models.Participant) error
-	ListUsersToChat(ctx context.Context, eventID int64) []*models.Participant
-	ListEventsByUser(ctx context.Context, userID int64) []*models.Event
+	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
+	ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error)
 }
 
 type EventService struct {
@@ -69,7 +69,28 @@ func (s *EventService) DeleteEvent(ctx context.Context, req *event.DeleteEventRe
 }
 
 func (s *EventService) ListEventsByCreator(ctx context.Context, req *event.ListEventsByCreatorRequest) (*event.ListEventsByCreatorResponse, error) {
-	return nil, nil
+	resp, err := s.service.ListEventsByCreator(ctx, req.GetCreatorId())
+
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list events", zap.String("err", err.Error()))
+		return nil, err
+	}
+
+	events := make([]*event.Event, 0, len(resp))
+	for _, e := range resp {
+		events = append(events, &event.Event{
+			EventId:     e.EventID,
+			CreatorId:   e.CreatorID,
+			Title:       e.Title,
+			Description: e.Description,
+			Time:        e.Time,
+			Place:       e.Place,
+		})
+	}
+
+	return &event.ListEventsByCreatorResponse{
+		Events: events,
+	}, nil
 }
 
 func (s *EventService) ListEventsByInterests(ctx context.Context, req *event.ListEventsByInterestsRequest) (*event.ListEventsByInterestsResponse, error) {

@@ -10,14 +10,14 @@ type OrganizatorEventReposiory interface {
 	ReadEvent(ctx context.Context, eventID int64) (*models.Event, error)
 	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, eventID int64) error
-	ListEventsByCreator(ctx context.Context, creatorID int64) []*models.Event
+	ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error)
 }
 
 type UserEventRepository interface {
 	RegisterUser(ctx context.Context, participant *models.Participant) error
 	UpdateUser(ctx context.Context, participant *models.Participant) error
-	ListUsersToChat(ctx context.Context, eventID int64) []*models.Participant
-	ListEventsByUser(ctx context.Context, userID int64) []*models.Event
+	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
+	ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error)
 }
 
 type EventReposiory interface {
@@ -52,8 +52,8 @@ func (s *EventService) DeleteEvent(ctx context.Context, eventID int64) error {
 	return s.repository.DeleteEvent(ctx, eventID)
 }
 
-func (s *EventService) ListEventsByCreator(ctx context.Context, creatorID int64) []*models.Event {
-	return []*models.Event{}
+func (s *EventService) ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error) {
+	return s.repository.ListEventsByCreator(ctx, creatorID)
 }
 
 func (s *EventService) RegisterUser(ctx context.Context, participant *models.Participant) error {
@@ -64,10 +64,10 @@ func (s *EventService) UpdateUser(ctx context.Context, participant *models.Parti
 	return nil
 }
 
-func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) []*models.Participant {
-	return []*models.Participant{}
+func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
+	return []*models.Participant{}, nil
 }
 
-func (s *EventService) ListEventsByUser(ctx context.Context, userID int64) []*models.Event {
-	return []*models.Event{}
+func (s *EventService) ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error) {
+	return []*models.Event{}, nil
 }
