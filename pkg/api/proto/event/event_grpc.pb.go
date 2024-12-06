@@ -23,7 +23,7 @@ const (
 	EventService_ReadEvent_FullMethodName             = "/event.EventService/ReadEvent"
 	EventService_UpdateEvent_FullMethodName           = "/event.EventService/UpdateEvent"
 	EventService_DeleteEvent_FullMethodName           = "/event.EventService/DeleteEvent"
-	EventService_ListEvents_FullMethodName            = "/event.EventService/ListEvents"
+	EventService_ListEventsByCreator_FullMethodName   = "/event.EventService/ListEventsByCreator"
 	EventService_ListEventsByInterests_FullMethodName = "/event.EventService/ListEventsByInterests"
 	EventService_RegisterUser_FullMethodName          = "/event.EventService/RegisterUser"
 	EventService_UpdateUser_FullMethodName            = "/event.EventService/UpdateUser"
@@ -39,7 +39,7 @@ type EventServiceClient interface {
 	ReadEvent(ctx context.Context, in *ReadEventRequest, opts ...grpc.CallOption) (*ReadEventResponse, error)
 	UpdateEvent(ctx context.Context, in *UpdateEventRequest, opts ...grpc.CallOption) (*UpdateEventResponse, error)
 	DeleteEvent(ctx context.Context, in *DeleteEventRequest, opts ...grpc.CallOption) (*DeleteEventResponse, error)
-	ListEvents(ctx context.Context, in *ListEventsRequest, opts ...grpc.CallOption) (*ListEventsResponse, error)
+	ListEventsByCreator(ctx context.Context, in *ListEventsByCreatorRequest, opts ...grpc.CallOption) (*ListEventsByCreatorResponse, error)
 	ListEventsByInterests(ctx context.Context, in *ListEventsByInterestsRequest, opts ...grpc.CallOption) (*ListEventsByInterestsResponse, error)
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
@@ -95,10 +95,10 @@ func (c *eventServiceClient) DeleteEvent(ctx context.Context, in *DeleteEventReq
 	return out, nil
 }
 
-func (c *eventServiceClient) ListEvents(ctx context.Context, in *ListEventsRequest, opts ...grpc.CallOption) (*ListEventsResponse, error) {
+func (c *eventServiceClient) ListEventsByCreator(ctx context.Context, in *ListEventsByCreatorRequest, opts ...grpc.CallOption) (*ListEventsByCreatorResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListEventsResponse)
-	err := c.cc.Invoke(ctx, EventService_ListEvents_FullMethodName, in, out, cOpts...)
+	out := new(ListEventsByCreatorResponse)
+	err := c.cc.Invoke(ctx, EventService_ListEventsByCreator_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ type EventServiceServer interface {
 	ReadEvent(context.Context, *ReadEventRequest) (*ReadEventResponse, error)
 	UpdateEvent(context.Context, *UpdateEventRequest) (*UpdateEventResponse, error)
 	DeleteEvent(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error)
-	ListEvents(context.Context, *ListEventsRequest) (*ListEventsResponse, error)
+	ListEventsByCreator(context.Context, *ListEventsByCreatorRequest) (*ListEventsByCreatorResponse, error)
 	ListEventsByInterests(context.Context, *ListEventsByInterestsRequest) (*ListEventsByInterestsResponse, error)
 	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
@@ -191,8 +191,8 @@ func (UnimplementedEventServiceServer) UpdateEvent(context.Context, *UpdateEvent
 func (UnimplementedEventServiceServer) DeleteEvent(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteEvent not implemented")
 }
-func (UnimplementedEventServiceServer) ListEvents(context.Context, *ListEventsRequest) (*ListEventsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListEvents not implemented")
+func (UnimplementedEventServiceServer) ListEventsByCreator(context.Context, *ListEventsByCreatorRequest) (*ListEventsByCreatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListEventsByCreator not implemented")
 }
 func (UnimplementedEventServiceServer) ListEventsByInterests(context.Context, *ListEventsByInterestsRequest) (*ListEventsByInterestsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListEventsByInterests not implemented")
@@ -302,20 +302,20 @@ func _EventService_DeleteEvent_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _EventService_ListEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListEventsRequest)
+func _EventService_ListEventsByCreator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListEventsByCreatorRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EventServiceServer).ListEvents(ctx, in)
+		return srv.(EventServiceServer).ListEventsByCreator(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: EventService_ListEvents_FullMethodName,
+		FullMethod: EventService_ListEventsByCreator_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventServiceServer).ListEvents(ctx, req.(*ListEventsRequest))
+		return srv.(EventServiceServer).ListEventsByCreator(ctx, req.(*ListEventsByCreatorRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -434,8 +434,8 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _EventService_DeleteEvent_Handler,
 		},
 		{
-			MethodName: "ListEvents",
-			Handler:    _EventService_ListEvents_Handler,
+			MethodName: "ListEventsByCreator",
+			Handler:    _EventService_ListEventsByCreator_Handler,
 		},
 		{
 			MethodName: "ListEventsByInterests",
