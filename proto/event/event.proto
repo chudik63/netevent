@@ -18,6 +18,7 @@ service EventService {
 }
 
 message Event {
+  int64 event_id = 1;
   int64 creator_id = 2;
   string title = 3;
   string description = 4;
