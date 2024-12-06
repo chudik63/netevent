@@ -47,11 +47,28 @@ func (r *EventRepository) ReadEvent(ctx context.Context, eventID int64) (*models
 }
 
 func (r *EventRepository) UpdateEvent(ctx context.Context, event *models.Event) error {
-	return nil
+	_, err := sq.Update("public.events").
+		Set("creator_id", event.CreatorID).
+		Set("title", event.Title).
+		Set("description", event.Description).
+		Set("time", event.Time).
+		Set("place", event.Place).
+		Where(sq.Eq{"id": event.EventID}).
+		PlaceholderFormat(sq.Dollar).
+		RunWith(r.db).
+		Exec()
+
+	return err
 }
 
 func (r *EventRepository) DeleteEvent(ctx context.Context, eventID int64) error {
-	return nil
+	_, err := sq.Delete("public.events").
+		Where(sq.Eq{"id": strconv.FormatInt(eventID, 10)}).
+		PlaceholderFormat(sq.Dollar).
+		RunWith(r.db).
+		Exec()
+
+	return err
 }
 
 func (r *EventRepository) ListEvents(ctx context.Context) []models.Event {

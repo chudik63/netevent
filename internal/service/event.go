@@ -45,11 +45,11 @@ func (s *EventService) ReadEvent(ctx context.Context, eventID int64) (*models.Ev
 }
 
 func (s *EventService) UpdateEvent(ctx context.Context, event *models.Event) error {
-	return nil
+	return s.repository.UpdateEvent(ctx, event)
 }
 
 func (s *EventService) DeleteEvent(ctx context.Context, eventID int64) error {
-	return nil
+	return s.repository.DeleteEvent(ctx, eventID)
 }
 
 func (s *EventService) ListEvents(ctx context.Context) []models.Event {

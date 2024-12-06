@@ -56,7 +56,16 @@ func (s *EventService) CreateEvent(ctx context.Context, req *event.CreateEventRe
 }
 
 func (s *EventService) DeleteEvent(ctx context.Context, req *event.DeleteEventRequest) (*event.DeleteEventResponse, error) {
-	return nil, nil
+	err := s.service.DeleteEvent(ctx, req.GetEventId())
+
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to delete event", zap.String("err", err.Error()))
+		return nil, err
+	}
+
+	return &event.DeleteEventResponse{
+		Message: "OK",
+	}, nil
 }
 
 func (s *EventService) ListEvents(ctx context.Context, req *event.ListEventsRequest) (*event.ListEventsResponse, error) {
@@ -85,6 +94,7 @@ func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventReques
 
 	return &event.ReadEventResponse{
 		Event: &event.Event{
+			EventId:     resp.EventID,
 			CreatorId:   resp.CreatorID,
 			Title:       resp.Title,
 			Description: resp.Description,
@@ -99,7 +109,23 @@ func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUser
 }
 
 func (s *EventService) UpdateEvent(ctx context.Context, req *event.UpdateEventRequest) (*event.UpdateEventResponse, error) {
-	return nil, nil
+	err := s.service.UpdateEvent(ctx, &models.Event{
+		EventID:     req.Event.GetEventId(),
+		CreatorID:   req.Event.GetCreatorId(),
+		Title:       req.Event.GetTitle(),
+		Description: req.Event.GetDescription(),
+		Time:        req.Event.GetTime(),
+		Place:       req.Event.GetPlace(),
+	})
+
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to update event", zap.String("err", err.Error()))
+		return nil, err
+	}
+
+	return &event.UpdateEventResponse{
+		Message: "OK",
+	}, nil
 }
 
 func (s *EventService) UpdateUser(ctx context.Context, req *event.UpdateUserRequest) (*event.UpdateUserResponse, error) {
