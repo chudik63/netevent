@@ -12,7 +12,7 @@ service EventService {
   rpc ListEventsByCreator(ListEventsByCreatorRequest) returns (ListEventsByCreatorResponse);
   rpc ListEventsByInterests(ListEventsByInterestsRequest) returns (ListEventsByInterestsResponse);
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc SetChatStatus(SetChatStatusRequest) returns (SetChatStatusResponse);
   rpc ListUsersToChat(ListUsersToChatRequest) returns (ListUsersToChatResponse);
   rpc ListEventsByUser(ListEventsByUserRequest) returns (ListEventsByUserResponse);
 }
@@ -89,18 +89,21 @@ message ListEventsByInterestsResponse {
 message RegisterUserRequest {
   string request_id = 1; 
   Participant participant = 2;
+  int64 event_id = 3;
 }
 
 message RegisterUserResponse {
   string message = 1;
 }
 
-message UpdateUserRequest {
+message SetChatStatusRequest {
   string request_id = 1; 
-  Participant participant = 2;
+  int64 participant_id = 2;
+  int64 event_id = 3;
+  bool is_ready = 4;
 }
 
-message UpdateUserResponse {
+message SetChatStatusResponse {
   string message = 1;
 }
 
