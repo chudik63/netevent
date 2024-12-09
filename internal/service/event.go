@@ -59,7 +59,7 @@ func (s *EventService) ListEventsByCreator(ctx context.Context, creatorID int64)
 }
 
 func (s *EventService) RegisterUser(ctx context.Context, participant *models.Participant, eventID int64) error {
-	return s.RegisterUser(ctx, participant, eventID)
+	return s.repository.RegisterUser(ctx, participant, eventID)
 }
 
 func (s *EventService) SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error {

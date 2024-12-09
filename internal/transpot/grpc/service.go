@@ -135,11 +135,11 @@ func (s *EventService) ListUsersToChat(ctx context.Context, req *event.ListUsers
 	}
 
 	participants := make([]*event.Participant, 0, len(resp))
-	for _, u := range resp {
+	for _, p := range resp {
 		participants = append(participants, &event.Participant{
-			UserId:    u.UserID,
-			Name:      u.Name,
-			Interests: strings.Join(u.Interests, ", "),
+			UserId:    p.UserID,
+			Name:      p.Name,
+			Interests: strings.Join(p.Interests, ", "),
 		})
 	}
 
@@ -170,8 +170,8 @@ func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventReques
 
 func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUserRequest) (*event.RegisterUserResponse, error) {
 	err := s.service.RegisterUser(ctx, &models.Participant{
-		UserID: req.Participant.GetUserId(),
-		Name:   req.Participant.GetName(),
+		UserID: req.GetParticipant().GetUserId(),
+		Name:   req.GetParticipant().GetName(),
 	},
 		req.GetEventId(),
 	)

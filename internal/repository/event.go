@@ -134,7 +134,7 @@ func (r *EventRepository) SetChatStatus(ctx context.Context, participantID int64
 }
 
 func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
-	rows, err := sq.Select("*").
+	rows, err := sq.Select("public.participants.user_id, public.participants.name").
 		From("public.registrations").
 		LeftJoin("public.participants ON public.registrations.participant_id = public.participants.id").
 		Where(sq.Eq{"public.registrations.event_id": strconv.FormatInt(eventID, 10), "public.registrations.ready_to_chat": "true"}).
