@@ -3,6 +3,7 @@ services:
     build: .
     depends_on:
       - postgres
+    restart: always
     environment:
       GRPC_SERVER_PORT: ${GRPC_SERVER_PORT}
       MIGRATIONS_PATH: ${MIGRATIONS_PATH}
