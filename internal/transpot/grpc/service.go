@@ -5,8 +5,11 @@ import (
 	"event_service/internal/logger"
 	"event_service/internal/models"
 	"event_service/pkg/api/proto/event"
+	"strings"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Service interface {
@@ -15,9 +18,10 @@ type Service interface {
 	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, eventID int64) error
 	ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error)
-	RegisterUser(ctx context.Context, participant *models.Participant) error
-	UpdateUser(ctx context.Context, participant *models.Participant) error
+	RegisterUser(ctx context.Context, participant *models.Participant, eventID int64) error
+	SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
+	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
 	ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error)
 }
 
@@ -47,7 +51,7 @@ func (s *EventService) CreateEvent(ctx context.Context, req *event.CreateEventRe
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to create event", zap.String("err", err.Error()))
-		return nil, err
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &event.CreateEventResponse{
@@ -60,7 +64,7 @@ func (s *EventService) DeleteEvent(ctx context.Context, req *event.DeleteEventRe
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to delete event", zap.String("err", err.Error()))
-		return nil, err
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &event.DeleteEventResponse{
@@ -73,7 +77,7 @@ func (s *EventService) ListEventsByCreator(ctx context.Context, req *event.ListE
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list events", zap.String("err", err.Error()))
-		return nil, err
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	events := make([]*event.Event, 0, len(resp))
@@ -98,11 +102,50 @@ func (s *EventService) ListEventsByInterests(ctx context.Context, req *event.Lis
 }
 
 func (s *EventService) ListEventsByUser(ctx context.Context, req *event.ListEventsByUserRequest) (*event.ListEventsByUserResponse, error) {
-	return nil, nil
+	resp, err := s.service.ListEventsByUser(ctx, req.GetUserId())
+
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list events", zap.String("err", err.Error()))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	events := make([]*event.Event, 0, len(resp))
+	for _, e := range resp {
+		events = append(events, &event.Event{
+			EventId:     e.EventID,
+			CreatorId:   e.CreatorID,
+			Title:       e.Title,
+			Description: e.Description,
+			Time:        e.Time,
+			Place:       e.Place,
+		})
+	}
+
+	return &event.ListEventsByUserResponse{
+		Events: events,
+	}, nil
 }
 
 func (s *EventService) ListUsersToChat(ctx context.Context, req *event.ListUsersToChatRequest) (*event.ListUsersToChatResponse, error) {
-	return nil, nil
+	resp, err := s.service.ListUsersToChat(ctx, req.GetEventId())
+
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list users to chat", zap.String("err", err.Error()))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	participants := make([]*event.Participant, 0, len(resp))
+	for _, u := range resp {
+		participants = append(participants, &event.Participant{
+			UserId:    u.UserID,
+			Name:      u.Name,
+			Interests: strings.Join(u.Interests, ", "),
+		})
+	}
+
+	return &event.ListUsersToChatResponse{
+		Participants: participants,
+	}, nil
 }
 
 func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventRequest) (*event.ReadEventResponse, error) {
@@ -110,7 +153,7 @@ func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventReques
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to read event", zap.String("err", err.Error()))
-		return nil, err
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &event.ReadEventResponse{
@@ -126,7 +169,21 @@ func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventReques
 }
 
 func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUserRequest) (*event.RegisterUserResponse, error) {
-	return nil, nil
+	err := s.service.RegisterUser(ctx, &models.Participant{
+		UserID: req.Participant.GetUserId(),
+		Name:   req.Participant.GetName(),
+	},
+		req.GetEventId(),
+	)
+
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to register user", zap.String("err", err.Error()))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &event.RegisterUserResponse{
+		Message: "OK",
+	}, nil
 }
 
 func (s *EventService) UpdateEvent(ctx context.Context, req *event.UpdateEventRequest) (*event.UpdateEventResponse, error) {
@@ -141,7 +198,7 @@ func (s *EventService) UpdateEvent(ctx context.Context, req *event.UpdateEventRe
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to update event", zap.String("err", err.Error()))
-		return nil, err
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &event.UpdateEventResponse{
@@ -149,6 +206,15 @@ func (s *EventService) UpdateEvent(ctx context.Context, req *event.UpdateEventRe
 	}, nil
 }
 
-func (s *EventService) UpdateUser(ctx context.Context, req *event.UpdateUserRequest) (*event.UpdateUserResponse, error) {
-	return nil, nil
+func (s *EventService) SetChatStatus(ctx context.Context, req *event.SetChatStatusRequest) (*event.SetChatStatusResponse, error) {
+	err := s.service.SetChatStatus(ctx, req.GetParticipantId(), req.GetEventId(), req.GetIsReady())
+
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to set chat status", zap.String("err", err.Error()))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &event.SetChatStatusResponse{
+		Message: "OK",
+	}, nil
 }

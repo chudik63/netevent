@@ -31,7 +31,6 @@ func main() {
 	}
 
 	db := postgres.New(ctx, cfg.Config)
-	_ = db
 
 	migrator.Start(ctx, cfg)
 

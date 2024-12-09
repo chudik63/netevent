@@ -14,14 +14,16 @@ type OrganizatorEventReposiory interface {
 }
 
 type UserEventRepository interface {
-	RegisterUser(ctx context.Context, participant *models.Participant) error
-	UpdateUser(ctx context.Context, participant *models.Participant) error
+	RegisterUser(ctx context.Context, participant *models.Participant, eventID int64) error
+	SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
 	ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error)
+	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
 }
 
 type EventReposiory interface {
 	OrganizatorEventReposiory
+	UserEventRepository
 }
 
 type EventService struct {
@@ -56,18 +58,22 @@ func (s *EventService) ListEventsByCreator(ctx context.Context, creatorID int64)
 	return s.repository.ListEventsByCreator(ctx, creatorID)
 }
 
-func (s *EventService) RegisterUser(ctx context.Context, participant *models.Participant) error {
-	return nil
+func (s *EventService) RegisterUser(ctx context.Context, participant *models.Participant, eventID int64) error {
+	return s.RegisterUser(ctx, participant, eventID)
 }
 
-func (s *EventService) UpdateUser(ctx context.Context, participant *models.Participant) error {
-	return nil
+func (s *EventService) SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error {
+	return s.repository.SetChatStatus(ctx, participantID, eventID, isReady)
 }
 
 func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
-	return []*models.Participant{}, nil
+	return s.repository.ListUsersToChat(ctx, eventID)
 }
 
 func (s *EventService) ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error) {
+	return s.repository.ListEventsByUser(ctx, userID)
+}
+
+func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {
 	return []*models.Event{}, nil
 }
