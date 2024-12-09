@@ -24,6 +24,7 @@ type UserEventRepository interface {
 type EventReposiory interface {
 	OrganizatorEventReposiory
 	UserEventRepository
+	ListEvents(ctx context.Context) ([]*models.Event, error)
 }
 
 type EventService struct {
@@ -35,15 +36,11 @@ func New(repo EventReposiory) *EventService {
 }
 
 func (s *EventService) CreateEvent(ctx context.Context, event *models.Event) (int64, error) {
-	id, err := s.repository.CreateEvent(ctx, event)
-
-	return id, err
+	return s.repository.CreateEvent(ctx, event)
 }
 
 func (s *EventService) ReadEvent(ctx context.Context, eventID int64) (*models.Event, error) {
-	event, err := s.repository.ReadEvent(ctx, eventID)
-
-	return event, err
+	return s.repository.ReadEvent(ctx, eventID)
 }
 
 func (s *EventService) UpdateEvent(ctx context.Context, event *models.Event) error {
@@ -52,6 +49,10 @@ func (s *EventService) UpdateEvent(ctx context.Context, event *models.Event) err
 
 func (s *EventService) DeleteEvent(ctx context.Context, eventID int64) error {
 	return s.repository.DeleteEvent(ctx, eventID)
+}
+
+func (s *EventService) ListEvents(ctx context.Context) ([]*models.Event, error) {
+	return s.repository.ListEvents(ctx)
 }
 
 func (s *EventService) ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error) {

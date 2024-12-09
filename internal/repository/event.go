@@ -71,6 +71,34 @@ func (r *EventRepository) DeleteEvent(ctx context.Context, eventID int64) error 
 	return err
 }
 
+func (r *EventRepository) ListEvents(ctx context.Context) ([]*models.Event, error) {
+	rows, err := sq.Select("*").
+		From("public.events").
+		PlaceholderFormat(sq.Dollar).
+		RunWith(r.db).
+		Query()
+	defer rows.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var events []*models.Event
+	for rows.Next() {
+		var event models.Event
+		if err := rows.Scan(&event.EventID, &event.CreatorID, &event.Title, &event.Description, &event.Time, &event.Place); err != nil {
+			return nil, err
+		}
+		events = append(events, &event)
+	}
+
+	if rows.Err() != nil {
+		return nil, err
+	}
+
+	return events, nil
+}
+
 func (r *EventRepository) ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error) {
 	rows, err := sq.Select("*").
 		From("public.events").

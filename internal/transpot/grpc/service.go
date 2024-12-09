@@ -17,6 +17,7 @@ type Service interface {
 	ReadEvent(ctx context.Context, eventID int64) (*models.Event, error)
 	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, eventID int64) error
+	ListEvents(ctx context.Context) ([]*models.Event, error)
 	ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error)
 	RegisterUser(ctx context.Context, participant *models.Participant, eventID int64) error
 	SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error
@@ -69,6 +70,31 @@ func (s *EventService) DeleteEvent(ctx context.Context, req *event.DeleteEventRe
 
 	return &event.DeleteEventResponse{
 		Message: "OK",
+	}, nil
+}
+
+func (s *EventService) ListEvents(ctx context.Context, req *event.ListEventsRequest) (*event.ListEventsResponse, error) {
+	resp, err := s.service.ListEvents(ctx)
+
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list events", zap.String("err", err.Error()))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	events := make([]*event.Event, 0, len(resp))
+	for _, e := range resp {
+		events = append(events, &event.Event{
+			EventId:     e.EventID,
+			CreatorId:   e.CreatorID,
+			Title:       e.Title,
+			Description: e.Description,
+			Time:        e.Time,
+			Place:       e.Place,
+		})
+	}
+
+	return &event.ListEventsResponse{
+		Events: events,
 	}, nil
 }
 
