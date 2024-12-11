@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "auth/pkg/proto/proto";
+option go_package = "gitlab.crja72.ru/gospec/go9/netevent/auth_service/pkg/proto/proto";
 package protobf;
 
 service AuthService {
