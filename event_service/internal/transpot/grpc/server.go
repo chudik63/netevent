@@ -5,7 +5,6 @@ import (
 	"net"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
-
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/api/proto/event"
 
 	"go.uber.org/zap"
@@ -18,7 +17,7 @@ type Server struct {
 	listener   net.Listener
 }
 
-func New(ctx context.Context, port string, service Service) (*Server, error) {
+func NewServer(ctx context.Context, port string, service Service) (*Server, error) {
 	lis, err := net.Listen("tcp", ":"+port)
 
 	if err != nil {
