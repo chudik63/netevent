@@ -29,14 +29,16 @@ type Service interface {
 
 type EventService struct {
 	event.UnimplementedEventServiceServer
+	client  *Client
 	service Service
 	logger  logger.Logger
 }
 
-func NewEventService(ctx context.Context, s Service) *EventService {
+func NewEventService(ctx context.Context, c *Client, s Service) *EventService {
 	l := logger.GetLoggerFromCtx(ctx)
 
 	return &EventService{
+		client:  c,
 		service: s,
 		logger:  l,
 	}
@@ -196,9 +198,16 @@ func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventReques
 }
 
 func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUserRequest) (*event.RegisterUserResponse, error) {
-	err := s.service.RegisterUser(ctx, &models.Participant{
-		UserID: req.GetParticipant().GetUserId(),
-		Name:   req.GetParticipant().GetName(),
+	interests, err := s.client.GetUserInterests(ctx, req.GetParticipant().GetUserId())
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to request auth service", zap.String("err", err.Error()))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	err = s.service.RegisterUser(ctx, &models.Participant{
+		UserID:    req.GetParticipant().GetUserId(),
+		Name:      req.GetParticipant().GetName(),
+		Interests: interests,
 	},
 		req.GetEventId(),
 	)
