@@ -2,7 +2,8 @@ package config
 
 import (
 	"errors"
-	"event_service/internal/database/postgres"
+
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/postgres"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )

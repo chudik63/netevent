@@ -2,10 +2,11 @@ package grpc
 
 import (
 	"context"
-	"event_service/internal/logger"
-	"event_service/internal/models"
-	"event_service/pkg/api/proto/event"
 	"strings"
+
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/api/proto/event"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"

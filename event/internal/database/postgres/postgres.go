@@ -3,8 +3,9 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"event_service/internal/logger"
 	"fmt"
+
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
 
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"

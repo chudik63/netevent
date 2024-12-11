@@ -2,9 +2,10 @@ package repository
 
 import (
 	"context"
-	"event_service/internal/database/postgres"
-	"event_service/internal/models"
 	"strconv"
+
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/postgres"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
 
 	sq "github.com/Masterminds/squirrel"
 )

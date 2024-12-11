@@ -2,7 +2,8 @@ package service
 
 import (
 	"context"
-	"event_service/internal/models"
+
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
 )
 
 type OrganizatorEventReposiory interface {
