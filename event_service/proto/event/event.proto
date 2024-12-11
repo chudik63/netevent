@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+package event;
+
+option go_package = "pkg/api/event";
+
+service EventService {
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+  rpc ReadEvent(ReadEventRequest) returns (ReadEventResponse);
+  rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse);
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
+  rpc ListEventsByCreator(ListEventsByCreatorRequest) returns (ListEventsByCreatorResponse);
+  rpc ListEventsByInterests(ListEventsByInterestsRequest) returns (ListEventsByInterestsResponse);
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+  rpc SetChatStatus(SetChatStatusRequest) returns (SetChatStatusResponse);
+  rpc ListUsersToChat(ListUsersToChatRequest) returns (ListUsersToChatResponse);
+  rpc ListEventsByUser(ListEventsByUserRequest) returns (ListEventsByUserResponse);
+}
+
+message Event {
+  int64 event_id = 1;
+  int64 creator_id = 2;
+  string title = 3;
+  string description = 4;
+  string time = 5;
+  string place = 6;
+}
+
+message Participant {
+  int64 user_id = 1;
+  string name = 2;
+  string interests = 3;
+}
+
+message CreateEventRequest {
+  string request_id = 1; 
+  Event event = 2;
+}
+
+message CreateEventResponse {
+  int64 event_id = 1;
+}
+
+message ReadEventRequest {
+  string request_id = 1; 
+  int64 event_id = 2;
+}
+
+message ReadEventResponse {
+  Event event = 2;
+}
+
+message UpdateEventRequest {
+  string request_id = 1; 
+  Event event = 2;
+}
+
+message UpdateEventResponse {
+  string message = 1;
+}
+
+message DeleteEventRequest {
+  string request_id = 1; 
+  int64 event_id = 2;
+}
+
+message DeleteEventResponse {
+  string message = 1; 
+}
+
+message ListEventsRequest {
+  string request_id = 1; 
+}
+
+message ListEventsResponse {
+  repeated Event events = 1;
+}
+
+message ListEventsByCreatorRequest {
+  string request_id = 1; 
+  int64 creator_id = 2;
+}
+
+message ListEventsByCreatorResponse {
+  repeated Event events = 1;
+}
+
+message ListEventsByInterestsRequest {
+  string request_id = 1; 
+  int64 user_id = 2;
+}
+
+message ListEventsByInterestsResponse {
+  repeated Event events = 2;
+}
+
+message RegisterUserRequest {
+  string request_id = 1; 
+  Participant participant = 2;
+  int64 event_id = 3;
+}
+
+message RegisterUserResponse {
+  string message = 1;
+}
+
+message SetChatStatusRequest {
+  string request_id = 1; 
+  int64 participant_id = 2;
+  int64 event_id = 3;
+  bool is_ready = 4;
+}
+
+message SetChatStatusResponse {
+  string message = 1;
+}
+
+message ListUsersToChatRequest {
+  string request_id = 1; 
+  int64 event_id = 2;
+}
+
+message ListUsersToChatResponse {
+  repeated Participant participants = 1;
+}
+
+message ListEventsByUserRequest {
+  string request_id = 1; 
+  int64 user_id = 2;
+}
+
+message ListEventsByUserResponse {
+  repeated Event events = 1;
+}
