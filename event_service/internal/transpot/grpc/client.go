@@ -13,16 +13,12 @@ type Client struct {
 	target string
 }
 
-func NewClient(cfg config.Config) *Client {
+func NewClient(cfg *config.Config) *Client {
 	return &Client{cfg.AuthServerHost + ":" + cfg.AuthServerPort}
 }
 
-func (c Client) GetConnector(ctx context.Context) (*grpc.ClientConn, error) {
-	return grpc.NewClient(c.target, grpc.WithTransportCredentials(insecure.NewCredentials()))
-}
-
-func (c Client) GetUserInterests(ctx context.Context, userID int64) ([]string, error) {
-	conn, err := c.GetConnector(ctx)
+func (c *Client) GetUserInterests(ctx context.Context, userID int64) ([]string, error) {
+	conn, err := c.getConnector()
 	if err != nil {
 		return nil, err
 	}
@@ -35,4 +31,8 @@ func (c Client) GetUserInterests(ctx context.Context, userID int64) ([]string, e
 	})
 
 	return response.GetInterests(), err
+}
+
+func (c *Client) getConnector() (*grpc.ClientConn, error) {
+	return grpc.NewClient(c.target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 }

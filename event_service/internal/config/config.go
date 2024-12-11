@@ -12,6 +12,9 @@ type Config struct {
 	postgres.Config
 	MigrationsPath string `env:"MIGRATIONS_PATH"`
 	GRPCServerPort string `env:"GRPC_SERVER_PORT"`
+
+	AuthServerPort string `env:"AUTH_SERVER_PORT"`
+	AuthServerHost string `env:"AUTH_SERVER_HOST"`
 }
 
 func New() (*Config, error) {
