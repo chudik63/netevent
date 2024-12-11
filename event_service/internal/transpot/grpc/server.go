@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/config"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/api/proto/event"
 
@@ -17,15 +18,17 @@ type Server struct {
 	listener   net.Listener
 }
 
-func NewServer(ctx context.Context, port string, service Service) (*Server, error) {
-	lis, err := net.Listen("tcp", ":"+port)
+func NewServer(ctx context.Context, cfg *config.Config, service Service) (*Server, error) {
+	lis, err := net.Listen("tcp", ":"+cfg.GRPCServerPort)
 
 	if err != nil {
 		return nil, err
 	}
 
 	grpcServer := grpc.NewServer()
-	event.RegisterEventServiceServer(grpcServer, NewEventService(ctx, service))
+	authClient := NewClient(cfg)
+
+	event.RegisterEventServiceServer(grpcServer, NewEventService(ctx, authClient, service))
 
 	reflection.Register(grpcServer)
 
