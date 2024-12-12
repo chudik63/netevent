@@ -8,4 +8,5 @@ type Event struct {
 	Time         string
 	Place        string
 	Participants []Participant
+	Topics       []string
 }
