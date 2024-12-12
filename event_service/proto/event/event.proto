@@ -25,6 +25,7 @@ message Event {
   string description = 4;
   string time = 5;
   string place = 6;
+  repeated string interests = 7;
 }
 
 message Participant {
