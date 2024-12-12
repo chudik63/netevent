@@ -1,1 +1,0 @@
-docker-compose --env-file ./configs/config.env up
