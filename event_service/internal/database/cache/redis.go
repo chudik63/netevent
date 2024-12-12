@@ -2,9 +2,12 @@ package cache
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
+
+const Durability = 20 * time.Minute
 
 type RedisConfig struct {
 	Host string `env:"REDIS_HOST" env-default:"localhost"`
