@@ -2,7 +2,11 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"strconv"
 
+	"github.com/redis/go-redis/v9"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/cache"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 )
@@ -20,11 +24,15 @@ type Repository interface {
 }
 
 type EventService struct {
-	repository Repository
+	repository  Repository
+	redisClient *redis.Client
 }
 
-func New(repo Repository) *EventService {
-	return &EventService{repository: repo}
+func New(repo Repository, redis *redis.Client) *EventService {
+	return &EventService{
+		repository:  repo,
+		redisClient: redis,
+	}
 }
 
 func (s *EventService) CreateEvent(ctx context.Context, event *models.Event) (int64, error) {
@@ -60,7 +68,27 @@ func (s *EventService) SetChatStatus(ctx context.Context, participantID int64, e
 }
 
 func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
-	return s.repository.ListUsersToChat(ctx, eventID)
+	cacheKey := "readyToChat:" + strconv.FormatInt(eventID, 10)
+
+	cachedData, err := s.redisClient.Get(ctx, cacheKey).Result()
+	if err == nil && cachedData != "" {
+		var participants []*models.Participant
+		if err := json.Unmarshal([]byte(cachedData), &participants); err == nil {
+			return participants, nil
+		}
+	}
+
+	participants, err := s.repository.ListUsersToChat(ctx, eventID)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := json.Marshal(participants)
+	if err == nil {
+		s.redisClient.Set(ctx, cacheKey, data, cache.Durability)
+	}
+
+	return participants, nil
 }
 
 func (s *EventService) ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error) {
