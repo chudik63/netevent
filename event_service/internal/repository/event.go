@@ -275,6 +275,53 @@ func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64) ([
 }
 
 func (r *EventRepository) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {
+	var interests []string
+	err := sq.Select("i.interest").
+		From("public.interests i").
+		Join("public.participants p ON p.user_id = i.participant_id").
+		Where(sq.Eq{"i.participant_id": userID}).
+		PlaceholderFormat(sq.Dollar).
+		RunWith(r.db).
+		QueryRow().
+		Scan(pq.Array(&interests))
 
-	return []*models.Event{}, nil
+	if err != nil {
+		return nil, err
+	}
+
+	var events []*models.Event
+	query := sq.Select("e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE(array_agg(t.topic), '{}') AS topics").
+		From("public.events e").
+		LeftJoin("public.topics t ON e.id = t.event_id").
+		PlaceholderFormat(sq.Dollar).
+		RunWith(r.db)
+
+	for _, interest := range interests {
+		query = query.Where(sq.Like{"t.topic": "%" + interest + "%"})
+	}
+
+	rows, err := query.Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var event models.Event
+		var topics pq.StringArray
+
+		if err := rows.Scan(&event.EventID, &event.CreatorID, &event.Title, &event.Description, &event.Time, &event.Place, &topics); err != nil {
+			return nil, err
+		}
+
+		event.Topics = []string(topics)
+
+		events = append(events, &event)
+	}
+
+	if rows.Err() != nil {
+		return nil, err
+	}
+
+	return events, nil
 }

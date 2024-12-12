@@ -11,7 +11,7 @@ import (
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/service"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/transpot/grpc"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/transport/grpc"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/migrator"
 
 	"go.uber.org/zap"
