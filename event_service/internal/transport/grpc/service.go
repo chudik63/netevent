@@ -29,16 +29,14 @@ type Service interface {
 
 type EventService struct {
 	event.UnimplementedEventServiceServer
-	client  *Client
 	service Service
 	logger  logger.Logger
 }
 
-func NewEventService(ctx context.Context, c *Client, s Service) *EventService {
+func NewEventService(ctx context.Context, s Service) *EventService {
 	l := logger.GetLoggerFromCtx(ctx)
 
 	return &EventService{
-		client:  c,
 		service: s,
 		logger:  l,
 	}

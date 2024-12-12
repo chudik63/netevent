@@ -68,5 +68,5 @@ func (s *EventService) ListEventsByUser(ctx context.Context, userID int64) ([]*m
 }
 
 func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {
-	return []*models.Event{}, nil
+	return s.repository.ListEventsByInterests(ctx, userID)
 }

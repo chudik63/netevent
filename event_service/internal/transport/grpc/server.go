@@ -26,9 +26,8 @@ func NewServer(ctx context.Context, cfg *config.Config, service Service) (*Serve
 	}
 
 	grpcServer := grpc.NewServer()
-	authClient := NewClient(cfg)
 
-	event.RegisterEventServiceServer(grpcServer, NewEventService(ctx, authClient, service))
+	event.RegisterEventServiceServer(grpcServer, NewEventService(ctx, service))
 
 	reflection.Register(grpcServer)
 
