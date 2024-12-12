@@ -42,6 +42,22 @@ func NewEventService(ctx context.Context, s Service) *EventService {
 	}
 }
 
+func convertEventsToGRPC(events []*models.Event) []*event.Event {
+	grpcEvents := make([]*event.Event, 0, len(events))
+	for _, e := range events {
+		grpcEvents = append(grpcEvents, &event.Event{
+			EventId:     e.EventID,
+			CreatorId:   e.CreatorID,
+			Title:       e.Title,
+			Description: e.Description,
+			Time:        e.Time,
+			Place:       e.Place,
+			Interests:   e.Topics,
+		})
+	}
+	return grpcEvents
+}
+
 func (s *EventService) CreateEvent(ctx context.Context, req *event.CreateEventRequest) (*event.CreateEventResponse, error) {
 	resp, err := s.service.CreateEvent(ctx, &models.Event{
 		CreatorID:   req.Event.GetCreatorId(),
@@ -83,21 +99,8 @@ func (s *EventService) ListEvents(ctx context.Context, req *event.ListEventsRequ
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	events := make([]*event.Event, 0, len(resp))
-	for _, e := range resp {
-		events = append(events, &event.Event{
-			EventId:     e.EventID,
-			CreatorId:   e.CreatorID,
-			Title:       e.Title,
-			Description: e.Description,
-			Time:        e.Time,
-			Place:       e.Place,
-			Interests:   e.Topics,
-		})
-	}
-
 	return &event.ListEventsResponse{
-		Events: events,
+		Events: convertEventsToGRPC(resp),
 	}, nil
 }
 
@@ -109,21 +112,8 @@ func (s *EventService) ListEventsByCreator(ctx context.Context, req *event.ListE
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	events := make([]*event.Event, 0, len(resp))
-	for _, e := range resp {
-		events = append(events, &event.Event{
-			EventId:     e.EventID,
-			CreatorId:   e.CreatorID,
-			Title:       e.Title,
-			Description: e.Description,
-			Time:        e.Time,
-			Place:       e.Place,
-			Interests:   e.Topics,
-		})
-	}
-
 	return &event.ListEventsByCreatorResponse{
-		Events: events,
+		Events: convertEventsToGRPC(resp),
 	}, nil
 }
 
@@ -135,21 +125,8 @@ func (s *EventService) ListEventsByInterests(ctx context.Context, req *event.Lis
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	events := make([]*event.Event, 0, len(resp))
-	for _, e := range resp {
-		events = append(events, &event.Event{
-			EventId:     e.EventID,
-			CreatorId:   e.CreatorID,
-			Title:       e.Title,
-			Description: e.Description,
-			Time:        e.Time,
-			Place:       e.Place,
-			Interests:   e.Topics,
-		})
-	}
-
 	return &event.ListEventsByInterestsResponse{
-		Events: events,
+		Events: convertEventsToGRPC(resp),
 	}, nil
 }
 
@@ -161,21 +138,8 @@ func (s *EventService) ListEventsByUser(ctx context.Context, req *event.ListEven
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	events := make([]*event.Event, 0, len(resp))
-	for _, e := range resp {
-		events = append(events, &event.Event{
-			EventId:     e.EventID,
-			CreatorId:   e.CreatorID,
-			Title:       e.Title,
-			Description: e.Description,
-			Time:        e.Time,
-			Place:       e.Place,
-			Interests:   e.Topics,
-		})
-	}
-
 	return &event.ListEventsByUserResponse{
-		Events: events,
+		Events: convertEventsToGRPC(resp),
 	}, nil
 }
 
