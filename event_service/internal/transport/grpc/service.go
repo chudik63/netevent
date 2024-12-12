@@ -49,6 +49,7 @@ func (s *EventService) CreateEvent(ctx context.Context, req *event.CreateEventRe
 		Description: req.Event.GetDescription(),
 		Time:        req.Event.GetTime(),
 		Place:       req.Event.GetPlace(),
+		Topics:      req.Event.GetInterests(),
 	})
 
 	if err != nil {
@@ -91,6 +92,7 @@ func (s *EventService) ListEvents(ctx context.Context, req *event.ListEventsRequ
 			Description: e.Description,
 			Time:        e.Time,
 			Place:       e.Place,
+			Interests:   e.Topics,
 		})
 	}
 
@@ -116,6 +118,7 @@ func (s *EventService) ListEventsByCreator(ctx context.Context, req *event.ListE
 			Description: e.Description,
 			Time:        e.Time,
 			Place:       e.Place,
+			Interests:   e.Topics,
 		})
 	}
 
@@ -125,7 +128,29 @@ func (s *EventService) ListEventsByCreator(ctx context.Context, req *event.ListE
 }
 
 func (s *EventService) ListEventsByInterests(ctx context.Context, req *event.ListEventsByInterestsRequest) (*event.ListEventsByInterestsResponse, error) {
-	return nil, nil
+	resp, err := s.service.ListEventsByInterests(ctx, req.GetUserId())
+
+	if err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list events by interests", zap.String("err", err.Error()))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	events := make([]*event.Event, 0, len(resp))
+	for _, e := range resp {
+		events = append(events, &event.Event{
+			EventId:     e.EventID,
+			CreatorId:   e.CreatorID,
+			Title:       e.Title,
+			Description: e.Description,
+			Time:        e.Time,
+			Place:       e.Place,
+			Interests:   e.Topics,
+		})
+	}
+
+	return &event.ListEventsByInterestsResponse{
+		Events: events,
+	}, nil
 }
 
 func (s *EventService) ListEventsByUser(ctx context.Context, req *event.ListEventsByUserRequest) (*event.ListEventsByUserResponse, error) {
@@ -145,6 +170,7 @@ func (s *EventService) ListEventsByUser(ctx context.Context, req *event.ListEven
 			Description: e.Description,
 			Time:        e.Time,
 			Place:       e.Place,
+			Interests:   e.Topics,
 		})
 	}
 
@@ -191,6 +217,7 @@ func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventReques
 			Description: resp.Description,
 			Time:        resp.Time,
 			Place:       resp.Place,
+			Interests:   resp.Topics,
 		},
 	}, nil
 }
@@ -216,6 +243,7 @@ func (s *EventService) UpdateEvent(ctx context.Context, req *event.UpdateEventRe
 		Description: req.Event.GetDescription(),
 		Time:        req.Event.GetTime(),
 		Place:       req.Event.GetPlace(),
+		Topics:      req.Event.GetInterests(),
 	})
 
 	if err != nil {
