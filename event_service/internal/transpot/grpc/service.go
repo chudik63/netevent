@@ -20,7 +20,7 @@ type Service interface {
 	DeleteEvent(ctx context.Context, eventID int64) error
 	ListEvents(ctx context.Context) ([]*models.Event, error)
 	ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error)
-	RegisterUser(ctx context.Context, participant *models.Participant, eventID int64) error
+	RegisterUser(ctx context.Context, userID int64, eventID int64) error
 	SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
 	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
@@ -198,19 +198,7 @@ func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventReques
 }
 
 func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUserRequest) (*event.RegisterUserResponse, error) {
-	interests, err := s.client.GetUserInterests(ctx, req.GetParticipant().GetUserId())
-	if err != nil {
-		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to request auth service", zap.String("err", err.Error()))
-		return nil, status.Errorf(codes.Internal, err.Error())
-	}
-
-	err = s.service.RegisterUser(ctx, &models.Participant{
-		UserID:    req.GetParticipant().GetUserId(),
-		Name:      req.GetParticipant().GetName(),
-		Interests: interests,
-	},
-		req.GetEventId(),
-	)
+	err := s.service.RegisterUser(ctx, req.GetUserId(), req.GetEventId())
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to register user", zap.String("err", err.Error()))

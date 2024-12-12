@@ -97,7 +97,7 @@ message ListEventsByInterestsResponse {
 
 message RegisterUserRequest {
   string request_id = 1; 
-  Participant participant = 2;
+  int64 user_id = 2;
   int64 event_id = 3;
 }
 

@@ -4,35 +4,26 @@ import (
 	"context"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 )
 
-type OrganizatorEventReposiory interface {
+type Repository interface {
 	CreateEvent(ctx context.Context, event *models.Event) (int64, error)
 	ReadEvent(ctx context.Context, eventID int64) (*models.Event, error)
 	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, eventID int64) error
-	ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error)
-}
-
-type UserEventRepository interface {
-	RegisterUser(ctx context.Context, participant *models.Participant, eventID int64) error
+	ListEvents(ctx context.Context, equations repository.Creds) ([]*models.Event, error)
+	RegisterUser(ctx context.Context, userID int64, eventID int64) error
 	SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
-	ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error)
 	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
 }
 
-type EventReposiory interface {
-	OrganizatorEventReposiory
-	UserEventRepository
-	ListEvents(ctx context.Context) ([]*models.Event, error)
-}
-
 type EventService struct {
-	repository EventReposiory
+	repository Repository
 }
 
-func New(repo EventReposiory) *EventService {
+func New(repo Repository) *EventService {
 	return &EventService{repository: repo}
 }
 
@@ -53,15 +44,15 @@ func (s *EventService) DeleteEvent(ctx context.Context, eventID int64) error {
 }
 
 func (s *EventService) ListEvents(ctx context.Context) ([]*models.Event, error) {
-	return s.repository.ListEvents(ctx)
+	return s.repository.ListEvents(ctx, repository.Creds{})
 }
 
 func (s *EventService) ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error) {
-	return s.repository.ListEventsByCreator(ctx, creatorID)
+	return s.repository.ListEvents(ctx, repository.Creds{"creator_id": creatorID})
 }
 
-func (s *EventService) RegisterUser(ctx context.Context, participant *models.Participant, eventID int64) error {
-	return s.repository.RegisterUser(ctx, participant, eventID)
+func (s *EventService) RegisterUser(ctx context.Context, userID int64, eventID int64) error {
+	return s.repository.RegisterUser(ctx, userID, eventID)
 }
 
 func (s *EventService) SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error {
@@ -73,7 +64,7 @@ func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*m
 }
 
 func (s *EventService) ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error) {
-	return s.repository.ListEventsByUser(ctx, userID)
+	return s.repository.ListEvents(ctx, repository.Creds{"user_id": userID})
 }
 
 func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {

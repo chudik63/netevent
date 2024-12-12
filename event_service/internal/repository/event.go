@@ -8,7 +8,10 @@ import (
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/lib/pq"
 )
+
+type Creds map[string]interface{}
 
 type EventRepository struct {
 	db postgres.DB
@@ -21,34 +24,83 @@ func New(db postgres.DB) *EventRepository {
 func (r *EventRepository) CreateEvent(ctx context.Context, event *models.Event) (int64, error) {
 	var id int64
 
-	err := sq.Insert("public.events").
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	err = sq.Insert("public.events").
 		Columns("creator_id", "title", "description", "time", "place").
 		Values(event.CreatorID, event.Title, event.Description, event.Time, event.Place).
 		Suffix("RETURNING id").
 		PlaceholderFormat(sq.Dollar).
-		RunWith(r.db).
+		RunWith(tx).
 		QueryRow().
 		Scan(&id)
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
 
-	return id, err
+	if len(event.Topics) > 0 {
+		insert := sq.Insert("public.topics").
+			Columns("event_id", "topic").
+			PlaceholderFormat(sq.Dollar).
+			RunWith(tx)
+
+		for _, topic := range event.Topics {
+			insert = insert.Values(id, topic)
+		}
+
+		_, err = insert.Exec()
+		if err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 func (r *EventRepository) ReadEvent(ctx context.Context, eventID int64) (*models.Event, error) {
 	var event models.Event
 
-	err := sq.Select("*").
-		From("public.events").
-		Where(sq.Eq{"id": strconv.FormatInt(eventID, 10)}).
+	var topics pq.StringArray
+
+	err := sq.Select(
+		"e.id AS event_id",
+		"e.creator_id",
+		"e.title",
+		"e.description",
+		"e.time",
+		"e.place",
+		"COALESCE(array_agg(t.topic), '{}') AS topics",
+	).
+		From("public.events e").
+		LeftJoin("public.topics t ON e.id = t.event_id").
+		Where(sq.Eq{"e.id": strconv.FormatInt(eventID, 10)}).
+		GroupBy("e.id, e.creator_id, e.title, e.description, e.time, e.place").
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db).
 		QueryRow().
-		Scan(&event.EventID, &event.CreatorID, &event.Title, &event.Description, &event.Time, &event.Place)
+		Scan(&event.EventID, &event.CreatorID, &event.Title, &event.Description, &event.Time, &event.Place, &topics)
+
+	event.Topics = []string(topics)
 
 	return &event, err
 }
 
 func (r *EventRepository) UpdateEvent(ctx context.Context, event *models.Event) error {
-	_, err := sq.Update("public.events").
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = sq.Update("public.events").
 		Set("creator_id", event.CreatorID).
 		Set("title", event.Title).
 		Set("description", event.Description).
@@ -56,94 +108,124 @@ func (r *EventRepository) UpdateEvent(ctx context.Context, event *models.Event) 
 		Set("place", event.Place).
 		Where(sq.Eq{"id": event.EventID}).
 		PlaceholderFormat(sq.Dollar).
-		RunWith(r.db).
+		RunWith(tx).
 		Exec()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
-	return err
+	_, err = sq.Delete("public.topics").
+		Where(sq.Eq{"event_id": event.EventID}).
+		PlaceholderFormat(sq.Dollar).
+		RunWith(tx).
+		Exec()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if len(event.Topics) > 0 {
+		insert := sq.Insert("public.topics").
+			Columns("event_id", "topic").
+			PlaceholderFormat(sq.Dollar).
+			RunWith(tx)
+
+		for _, topic := range event.Topics {
+			insert = insert.Values(event.EventID, topic)
+		}
+
+		_, err = insert.Exec()
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *EventRepository) DeleteEvent(ctx context.Context, eventID int64) error {
-	_, err := sq.Delete("public.events").
-		Where(sq.Eq{"id": strconv.FormatInt(eventID, 10)}).
-		PlaceholderFormat(sq.Dollar).
-		RunWith(r.db).
-		Exec()
-
-	return err
-}
-
-func (r *EventRepository) ListEvents(ctx context.Context) ([]*models.Event, error) {
-	rows, err := sq.Select("*").
-		From("public.events").
-		PlaceholderFormat(sq.Dollar).
-		RunWith(r.db).
-		Query()
-	defer rows.Close()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var events []*models.Event
-	for rows.Next() {
-		var event models.Event
-		if err := rows.Scan(&event.EventID, &event.CreatorID, &event.Title, &event.Description, &event.Time, &event.Place); err != nil {
-			return nil, err
-		}
-		events = append(events, &event)
-	}
-
-	if rows.Err() != nil {
-		return nil, err
-	}
-
-	return events, nil
-}
-
-func (r *EventRepository) ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error) {
-	rows, err := sq.Select("*").
-		From("public.events").
-		Where(sq.Eq{"creator_id": strconv.FormatInt(creatorID, 10)}).
-		PlaceholderFormat(sq.Dollar).
-		RunWith(r.db).
-		Query()
-	defer rows.Close()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var events []*models.Event
-	for rows.Next() {
-		var event models.Event
-		if err := rows.Scan(&event.EventID, &event.CreatorID, &event.Title, &event.Description, &event.Time, &event.Place); err != nil {
-			return nil, err
-		}
-		events = append(events, &event)
-	}
-
-	if rows.Err() != nil {
-		return nil, err
-	}
-
-	return events, nil
-}
-
-func (r *EventRepository) RegisterUser(ctx context.Context, participant *models.Participant, eventID int64) error {
-	_, err := sq.Insert("public.participants").
-		Columns("user_id", "name").
-		Values(participant.UserID, participant.Name).
-		PlaceholderFormat(sq.Dollar).
-		RunWith(r.db).
-		Exec()
-
+	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	_, err = sq.Insert("public.registrations").
+	_, err = sq.Delete("public.topics").
+		Where(sq.Eq{"event_id": eventID}).
+		PlaceholderFormat(sq.Dollar).
+		RunWith(tx).
+		Exec()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = sq.Delete("public.events").
+		Where(sq.Eq{"id": eventID}).
+		PlaceholderFormat(sq.Dollar).
+		RunWith(tx).
+		Exec()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *EventRepository) ListEvents(ctx context.Context, equations Creds) ([]*models.Event, error) {
+	query := sq.Select("e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE(array_agg(t.topic), '{}') AS topics").
+		From("public.events e").
+		LeftJoin("public.topics t ON e.id = t.event_id").
+		GroupBy("e.id").
+		PlaceholderFormat(sq.Dollar).
+		RunWith(r.db)
+
+	for key, value := range equations {
+		query = query.Where(sq.Eq{key: value})
+	}
+
+	rows, err := query.Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var events []*models.Event
+
+	for rows.Next() {
+		var event models.Event
+		var topics pq.StringArray
+
+		if err := rows.Scan(&event.EventID, &event.CreatorID, &event.Title, &event.Description, &event.Time, &event.Place, &topics); err != nil {
+			return nil, err
+		}
+
+		event.Topics = []string(topics)
+
+		events = append(events, &event)
+	}
+
+	if rows.Err() != nil {
+		return nil, err
+	}
+
+	return events, nil
+}
+
+func (r *EventRepository) RegisterUser(ctx context.Context, userID int64, eventID int64) error {
+	_, err := sq.Insert("public.registrations").
 		Columns("event_id", "participant_id").
-		Values(eventID, participant.UserID).
+		Values(eventID, userID).
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db).
 		Exec()
@@ -192,37 +274,7 @@ func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64) ([
 	return users, nil
 }
 
-func (r *EventRepository) ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error) {
-	rows, err := sq.Select("public.events.id", "creator_id", "title", "description", "time", "place").
-		From("public.registrations").
-		LeftJoin("public.events ON public.events.id = public.registrations.event_id").
-		LeftJoin("public.participants ON public.participants.id = public.registrations.participant_id").
-		Where(sq.Eq{"public.participants.user_id": strconv.FormatInt(userID, 10)}).
-		PlaceholderFormat(sq.Dollar).
-		RunWith(r.db).
-		Query()
-	defer rows.Close()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var events []*models.Event
-	for rows.Next() {
-		var event models.Event
-		if err := rows.Scan(&event.EventID, &event.CreatorID, &event.Title, &event.Description, &event.Time, &event.Place); err != nil {
-			return nil, err
-		}
-		events = append(events, &event)
-	}
-
-	if rows.Err() != nil {
-		return nil, err
-	}
-
-	return events, nil
-}
-
 func (r *EventRepository) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {
+
 	return []*models.Event{}, nil
 }
