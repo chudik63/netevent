@@ -76,7 +76,8 @@ func (s *EventService) RegisterUser(ctx context.Context, userID int64, eventID i
 
 	participant, err := s.repository.ReadParticipant(ctx, userID)
 
-	err = s.producer.Produce(
+	s.producer.Produce(
+		ctx,
 		kafka.Message{
 			UserEmail:  participant.Email,
 			UserName:   participant.Name,

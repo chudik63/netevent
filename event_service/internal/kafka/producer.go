@@ -3,7 +3,7 @@ package kafka
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
@@ -17,6 +17,7 @@ const (
 
 type Producer struct {
 	producer *kafka.Producer
+	logger   logger.Logger
 }
 
 func NewProducer(ctx context.Context, adress string) (*Producer, error) {
@@ -31,13 +32,17 @@ func NewProducer(ctx context.Context, adress string) (*Producer, error) {
 		l.Fatal(ctx, "failed to create kafka producer", zap.String("err", err.Error()))
 	}
 
-	return &Producer{producer: p}, nil
+	return &Producer{
+		producer: p,
+		logger:   l,
+	}, nil
 }
 
-func (p *Producer) Produce(message Message, topic string) error {
+func (p *Producer) Produce(ctx context.Context, message Message, topic string) {
 	messageJSON, err := json.Marshal(message)
 	if err != nil {
-		return err
+		p.logger.Error(context.Background(), "kafka: failed to read message", zap.String("err", err.Error()))
+		return
 	}
 
 	kafkaMsg := &kafka.Message{
@@ -50,23 +55,22 @@ func (p *Producer) Produce(message Message, topic string) error {
 
 	kafkaChan := make(chan kafka.Event)
 
-	go func() {
+	go func(ctx context.Context) {
+		defer close(kafkaChan)
 		if err := p.producer.Produce(kafkaMsg, kafkaChan); err != nil {
 			kafkaChan <- kafka.NewError(kafka.ErrUnknown, err.Error(), false)
 		}
-	}()
 
-	select {
-	case e := <-kafkaChan:
-		switch ev := e.(type) {
-		case *kafka.Message:
-			return nil
-		case *kafka.Error:
-			return ev
-		default:
-			return errors.New("unknown event type")
+		select {
+		case e := <-kafkaChan:
+			switch ev := e.(type) {
+			case *kafka.Error:
+				p.logger.Error(ctx, "kafka: failed to send message", zap.String("err", ev.Error()))
+			default:
+				p.logger.Error(ctx, "kafka: unknown event type", zap.String("event", fmt.Sprintf("%T", e)))
+			}
 		}
-	}
+	}(ctx)
 }
 
 func (p *Producer) Close() {
