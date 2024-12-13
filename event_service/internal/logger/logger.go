@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -50,13 +51,43 @@ func (l logger) Fatal(ctx context.Context, msg string, fields ...zap.Field) {
 	l.logger.Fatal(msg, fields...)
 }
 
-func New(serviceName string) Logger {
-	zapLogger, _ := zap.NewProduction()
-	defer zapLogger.Sync()
+func New(serviceName string) (Logger, error) {
+	encoderConfig := zapcore.EncoderConfig{
+		TimeKey:        "timestamp",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		MessageKey:     "message",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeDuration: zapcore.StringDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
+	}
+
+	config := zap.Config{
+		Level:            zap.NewAtomicLevelAt(zap.FatalLevel),
+		Development:      true,
+		Encoding:         "console",
+		EncoderConfig:    encoderConfig,
+		OutputPaths:      []string{"stdout"},
+		ErrorOutputPaths: []string{"stderr"},
+	}
+
+	zapLogger, err := config.Build()
+	if err != nil {
+		return nil, err
+	}
+
 	return &logger{
 		serviceName: serviceName,
 		logger:      zapLogger,
-	}
+	}, nil
+}
+
+func (l logger) Stop() {
+	_ = l.logger.Sync()
 }
 
 func GetLoggerFromCtx(ctx context.Context) Logger {

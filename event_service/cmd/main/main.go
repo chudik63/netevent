@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,7 +25,11 @@ const (
 )
 
 func main() {
-	mainLogger := logger.New(serviceName)
+	mainLogger, err := logger.New(serviceName)
+	if err != nil {
+		panic(fmt.Errorf("failed to create logger: %v", err))
+	}
+
 	ctx := context.WithValue(context.Background(), logger.LoggerKey, mainLogger)
 
 	cfg, err := config.New()
