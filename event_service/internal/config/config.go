@@ -17,6 +17,9 @@ type Config struct {
 
 	AuthServerPort string `env:"AUTH_SERVER_PORT"`
 	AuthServerHost string `env:"AUTH_SERVER_HOST"`
+
+	KafkaHost string `env:"KAFKA_HOST"`
+	KafkaPort string `env:"KAFKA_HOST"`
 }
 
 func New() (*Config, error) {
