@@ -3,6 +3,7 @@ services:
     build: .
     depends_on:
       - postgres
+      - redis
     restart: always
     environment:
       GRPC_SERVER_PORT: ${GRPC_SERVER_PORT}
@@ -12,6 +13,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PORT: ${POSTGRES_PORT}
       POSTGRES_HOST: ${POSTGRES_HOST}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
     ports:
       - "${GRPC_SERVER_PORT}:${GRPC_SERVER_PORT}"
     networks:
@@ -32,15 +35,15 @@ services:
     networks:
       - eventservice
     
-    redis:
-      image: redis:latest
-      container_name: redis_container
-      ports:
-        - "${REDIS_PORT}:${REDIS_PORT}"
-      volumes:
-        - redis_data:/data
-      networks:
-        - eventservice
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - redis_data:/data
+    networks:
+      - eventservice
 
 
 volumes:
