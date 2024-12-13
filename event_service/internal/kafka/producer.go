@@ -61,6 +61,8 @@ func (p *Producer) Produce(ctx context.Context, message Message, topic string) {
 			kafkaChan <- kafka.NewError(kafka.ErrUnknown, err.Error(), false)
 		}
 
+		p.logger.Info(ctx, "kafka: message produced")
+
 		select {
 		case e := <-kafkaChan:
 			switch ev := e.(type) {
