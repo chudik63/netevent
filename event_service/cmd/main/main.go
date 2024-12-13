@@ -9,6 +9,7 @@ import (
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/config"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/cache"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/postgres"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/kafka"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/service"
@@ -27,7 +28,6 @@ func main() {
 	ctx := context.WithValue(context.Background(), logger.LoggerKey, mainLogger)
 
 	cfg, err := config.New()
-
 	if err != nil {
 		mainLogger.Fatal(ctx, "failed to read config", zap.String("err", err.Error()))
 	}
@@ -35,10 +35,15 @@ func main() {
 	db := postgres.New(ctx, cfg.Config)
 	redis := cache.New(cfg.RedisConfig)
 
+	producer, err := kafka.NewProducer(ctx, cfg.KafkaHost+":"+cfg.KafkaPort)
+	if err != nil {
+		mainLogger.Fatal(ctx, "failed to create broker", zap.String("err", err.Error()))
+	}
+
 	migrator.Start(ctx, cfg)
 
 	eventRepository := repository.New(db)
-	eventService := service.New(eventRepository, redis)
+	eventService := service.New(eventRepository, redis, producer)
 
 	grpcServer, err := grpc.NewServer(ctx, cfg, eventService)
 	if err != nil {

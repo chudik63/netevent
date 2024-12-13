@@ -7,6 +7,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/cache"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/kafka"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 )
@@ -21,17 +22,20 @@ type Repository interface {
 	SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
 	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
+	ReadParticipant(ctx context.Context, userID int64) (*models.Participant, error)
 }
 
 type EventService struct {
 	repository  Repository
 	redisClient *redis.Client
+	producer    *kafka.Producer
 }
 
-func New(repo Repository, redis *redis.Client) *EventService {
+func New(repo Repository, redis *redis.Client, producer *kafka.Producer) *EventService {
 	return &EventService{
 		repository:  repo,
 		redisClient: redis,
+		producer:    producer,
 	}
 }
 
@@ -60,7 +64,30 @@ func (s *EventService) ListEventsByCreator(ctx context.Context, creatorID int64)
 }
 
 func (s *EventService) RegisterUser(ctx context.Context, userID int64, eventID int64) error {
-	return s.repository.RegisterUser(ctx, userID, eventID)
+	err := s.repository.RegisterUser(ctx, userID, eventID)
+	if err != nil {
+		return err
+	}
+
+	event, err := s.repository.ReadEvent(ctx, eventID)
+	if err != nil {
+		return err
+	}
+
+	participant, err := s.repository.ReadParticipant(ctx, userID)
+
+	err = s.producer.Produce(
+		kafka.Message{
+			UserEmail:  participant.Email,
+			UserName:   participant.Name,
+			EventName:  event.Title,
+			EventTime:  event.Time,
+			EventPlace: event.Place,
+		},
+		kafka.RegistrationTopic,
+	)
+
+	return nil
 }
 
 func (s *EventService) SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error {
