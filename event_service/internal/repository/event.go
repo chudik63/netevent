@@ -233,6 +233,31 @@ func (r *EventRepository) RegisterUser(ctx context.Context, userID int64, eventI
 	return err
 }
 
+func (r *EventRepository) ReadParticipant(ctx context.Context, userID int64) (*models.Participant, error) {
+	var user models.Participant
+
+	var interests pq.StringArray
+
+	err := sq.Select(
+		"p.user_id AS user_id",
+		"p.name",
+		"p.email",
+		"COALESCE(array_agg(i.interest), '{}') AS interests",
+	).
+		From("public.participants p").
+		LeftJoin("public.interests i ON p.user_id = i.participant_id").
+		Where(sq.Eq{"p.user_id": strconv.FormatInt(userID, 10)}).
+		GroupBy("p.user_id, p.name, p.email").
+		PlaceholderFormat(sq.Dollar).
+		RunWith(r.db).
+		QueryRow().
+		Scan(&user.UserID, &user.Name, &user.Email, &interests)
+
+	user.Interests = []string(interests)
+
+	return &user, err
+}
+
 func (r *EventRepository) SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error {
 	_, err := sq.Update("public.registrations").
 		Set("ready_to_chat", isReady).
