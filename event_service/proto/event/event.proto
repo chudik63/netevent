@@ -58,7 +58,6 @@ message UpdateEventRequest {
 }
 
 message UpdateEventResponse {
-  string message = 1;
 }
 
 message DeleteEventRequest {
@@ -67,7 +66,6 @@ message DeleteEventRequest {
 }
 
 message DeleteEventResponse {
-  string message = 1; 
 }
 
 message ListEventsRequest {
@@ -103,7 +101,6 @@ message RegisterUserRequest {
 }
 
 message RegisterUserResponse {
-  string message = 1;
 }
 
 message SetChatStatusRequest {
@@ -114,7 +111,6 @@ message SetChatStatusRequest {
 }
 
 message SetChatStatusResponse {
-  string message = 1;
 }
 
 message ListUsersToChatRequest {
