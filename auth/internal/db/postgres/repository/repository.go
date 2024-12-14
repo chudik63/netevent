@@ -2,8 +2,8 @@ package repository
 
 import (
 	sq "github.com/jmoiron/sqlx"
-	"gitlab.crja72.ru/gospec/go9/netevent/auth_service/internal/db/postgres"
-	"gitlab.crja72.ru/gospec/go9/netevent/auth_service/internal/db/postgres/models"
+	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres"
+	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres/models"
 )
 
 /*

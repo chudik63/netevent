@@ -6,9 +6,9 @@ import (
 	"log"
 	"net"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/auth_service/internal/db/postgres"
-	logger "gitlab.crja72.ru/gospec/go9/netevent/auth_service/pkg/loger"
-	pb "gitlab.crja72.ru/gospec/go9/netevent/auth_service/pkg/proto"
+	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres"
+	logger "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/loger"
+	pb "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/proto"
 
 	"google.golang.org/grpc"
 )

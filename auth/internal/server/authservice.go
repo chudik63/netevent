@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/auth_service/internal/token"
-	pb "gitlab.crja72.ru/gospec/go9/netevent/auth_service/pkg/proto"
+	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/token"
+	pb "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/proto"
 )
 
 type Auth struct {

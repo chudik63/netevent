@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	logger "gitlab.crja72.ru/gospec/go9/netevent/auth_service/pkg/loger"
+	logger "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/loger"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
