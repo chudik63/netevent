@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres"
@@ -37,7 +36,6 @@ func main() {
 
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	wg := &sync.WaitGroup{}
 
 	<-ch
 	go func() {
