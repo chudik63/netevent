@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-option go_package = "gitlab.crja72.ru/gospec/go9/netevent/auth_service/pkg/proto/proto";
+option go_package = "pkg/proto";
 package protobf;
 
 service AuthService {
   rpc Register(RegisterRequest) returns (RegisterResponse);
   rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
   rpc Authorise(AuthoriseRequest) returns (AuthoriseResponse);  
-  rpc GetInterests(GetInterestsRequest) returns (GetInterestsResponse);  //реализую когда определимся с бд
+  rpc GetInterests(GetInterestsRequest) returns (GetInterestsResponse);  
 }
 
 message User {
