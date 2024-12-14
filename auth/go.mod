@@ -3,6 +3,7 @@ module gitlab.crja72.ru/gospec/go9/netevent/auth
 go 1.23.2
 
 require (
+	github.com/Masterminds/squirrel v1.5.4
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jmoiron/sqlx v1.4.0
@@ -15,6 +16,8 @@ require (
 require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
+	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect

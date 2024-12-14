@@ -7,6 +7,7 @@ import (
 	"net"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres"
+	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres/repository"
 	logger "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/loger"
 	pb "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/proto"
 
@@ -30,7 +31,9 @@ func New(ctx context.Context, port string, db *postgres.DB) *Server {
 		grpc.ChainUnaryInterceptor(interceptorLogger(srvLogger)),
 	}
 	s := grpc.NewServer(opts...)
-	pb.RegisterAuthServiceServer(s, &Auth{})
+
+	repo := repository.NewUserRepository(db)
+	pb.RegisterAuthServiceServer(s, &Auth{repo: repo})
 	log.Printf("server listening at %v", lis.Addr())
 
 	return &Server{s, lis, db}
