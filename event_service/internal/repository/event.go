@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"strconv"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/postgres"
@@ -68,7 +70,6 @@ func (r *EventRepository) CreateEvent(ctx context.Context, event *models.Event) 
 
 func (r *EventRepository) ReadEvent(ctx context.Context, eventID int64) (*models.Event, error) {
 	var event models.Event
-
 	var topics pq.StringArray
 
 	err := sq.Select(
@@ -89,9 +90,16 @@ func (r *EventRepository) ReadEvent(ctx context.Context, eventID int64) (*models
 		QueryRow().
 		Scan(&event.EventID, &event.CreatorID, &event.Title, &event.Description, &event.Time, &event.Place, &topics)
 
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrWrongEventId
+		}
+		return nil, err
+	}
+
 	event.Topics = []string(topics)
 
-	return &event, err
+	return &event, nil
 }
 
 func (r *EventRepository) UpdateEvent(ctx context.Context, event *models.Event) error {
@@ -100,7 +108,7 @@ func (r *EventRepository) UpdateEvent(ctx context.Context, event *models.Event) 
 		return err
 	}
 
-	_, err = sq.Update("public.events").
+	res, err := sq.Update("public.events").
 		Set("creator_id", event.CreatorID).
 		Set("title", event.Title).
 		Set("description", event.Description).
@@ -113,6 +121,17 @@ func (r *EventRepository) UpdateEvent(ctx context.Context, event *models.Event) 
 	if err != nil {
 		tx.Rollback()
 		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if rowsAffected == 0 {
+		tx.Rollback()
+		return models.ErrWrongEventId
 	}
 
 	_, err = sq.Delete("public.topics").
@@ -165,7 +184,7 @@ func (r *EventRepository) DeleteEvent(ctx context.Context, eventID int64) error 
 		return err
 	}
 
-	_, err = sq.Delete("public.events").
+	res, err := sq.Delete("public.events").
 		Where(sq.Eq{"id": eventID}).
 		PlaceholderFormat(sq.Dollar).
 		RunWith(tx).
@@ -173,6 +192,17 @@ func (r *EventRepository) DeleteEvent(ctx context.Context, eventID int64) error 
 	if err != nil {
 		tx.Rollback()
 		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if rowsAffected == 0 {
+		tx.Rollback()
+		return models.ErrWrongEventId
 	}
 
 	if err = tx.Commit(); err != nil {
@@ -235,7 +265,6 @@ func (r *EventRepository) RegisterUser(ctx context.Context, userID int64, eventI
 
 func (r *EventRepository) ReadParticipant(ctx context.Context, userID int64) (*models.Participant, error) {
 	var user models.Participant
-
 	var interests pq.StringArray
 
 	err := sq.Select(
@@ -253,15 +282,22 @@ func (r *EventRepository) ReadParticipant(ctx context.Context, userID int64) (*m
 		QueryRow().
 		Scan(&user.UserID, &user.Name, &user.Email, &interests)
 
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrWrongUserId
+		}
+
+		return nil, err
+	}
 	user.Interests = []string(interests)
 
-	return &user, err
+	return &user, nil
 }
 
-func (r *EventRepository) SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error {
+func (r *EventRepository) SetChatStatus(ctx context.Context, userID int64, eventID int64, isReady bool) error {
 	_, err := sq.Update("public.registrations").
 		Set("ready_to_chat", isReady).
-		Where(sq.Eq{"event_id": strconv.FormatInt(eventID, 10), "participant_id": strconv.FormatInt(participantID, 10)}).
+		Where(sq.Eq{"event_id": strconv.FormatInt(eventID, 10), "participant_id": strconv.FormatInt(userID, 10)}).
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db).
 		Exec()

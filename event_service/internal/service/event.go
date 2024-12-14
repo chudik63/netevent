@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strconv"
 
 	"github.com/redis/go-redis/v9"
@@ -19,7 +20,7 @@ type Repository interface {
 	DeleteEvent(ctx context.Context, eventID int64) error
 	ListEvents(ctx context.Context, equations repository.Creds) ([]*models.Event, error)
 	RegisterUser(ctx context.Context, userID int64, eventID int64) error
-	SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error
+	SetChatStatus(ctx context.Context, userID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
 	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
 	ReadParticipant(ctx context.Context, userID int64) (*models.Participant, error)
@@ -64,7 +65,17 @@ func (s *EventService) ListEventsByCreator(ctx context.Context, creatorID int64)
 }
 
 func (s *EventService) RegisterUser(ctx context.Context, userID int64, eventID int64) error {
-	err := s.repository.RegisterUser(ctx, userID, eventID)
+	_, err := s.repository.ReadParticipant(ctx, userID)
+	if errors.Is(err, models.ErrWrongUserId) {
+		return err
+	}
+
+	_, err = s.repository.ReadEvent(ctx, eventID)
+	if errors.Is(err, models.ErrWrongEventId) {
+		return err
+	}
+
+	err = s.repository.RegisterUser(ctx, userID, eventID)
 	if err != nil {
 		return err
 	}
@@ -91,11 +102,26 @@ func (s *EventService) RegisterUser(ctx context.Context, userID int64, eventID i
 	return nil
 }
 
-func (s *EventService) SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error {
-	return s.repository.SetChatStatus(ctx, participantID, eventID, isReady)
+func (s *EventService) SetChatStatus(ctx context.Context, userID int64, eventID int64, isReady bool) error {
+	_, err := s.repository.ReadParticipant(ctx, userID)
+	if errors.Is(err, models.ErrWrongUserId) {
+		return err
+	}
+
+	_, err = s.repository.ReadEvent(ctx, eventID)
+	if errors.Is(err, models.ErrWrongEventId) {
+		return err
+	}
+
+	return s.repository.SetChatStatus(ctx, userID, eventID, isReady)
 }
 
 func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
+	_, err := s.repository.ReadEvent(ctx, eventID)
+	if errors.Is(err, models.ErrWrongEventId) {
+		return nil, err
+	}
+
 	cacheKey := "readyToChat:" + strconv.FormatInt(eventID, 10)
 
 	cachedData, err := s.redisClient.Get(ctx, cacheKey).Result()
@@ -120,9 +146,19 @@ func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*m
 }
 
 func (s *EventService) ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error) {
+	_, err := s.repository.ReadParticipant(ctx, userID)
+	if errors.Is(err, models.ErrWrongUserId) {
+		return nil, err
+	}
+
 	return s.repository.ListEvents(ctx, repository.Creds{"user_id": userID})
 }
 
 func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {
+	_, err := s.repository.ReadParticipant(ctx, userID)
+	if errors.Is(err, models.ErrWrongUserId) {
+		return nil, err
+	}
+
 	return s.repository.ListEventsByInterests(ctx, userID)
 }

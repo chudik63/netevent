@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
@@ -60,12 +61,12 @@ func convertEventsToGRPC(events []*models.Event) []*event.Event {
 
 func (s *EventService) CreateEvent(ctx context.Context, req *event.CreateEventRequest) (*event.CreateEventResponse, error) {
 	resp, err := s.service.CreateEvent(ctx, &models.Event{
-		CreatorID:   req.Event.GetCreatorId(),
-		Title:       req.Event.GetTitle(),
-		Description: req.Event.GetDescription(),
-		Time:        req.Event.GetTime(),
-		Place:       req.Event.GetPlace(),
-		Topics:      req.Event.GetInterests(),
+		CreatorID:   req.GetEvent().GetCreatorId(),
+		Title:       req.GetEvent().GetTitle(),
+		Description: req.GetEvent().GetDescription(),
+		Time:        req.GetEvent().GetTime(),
+		Place:       req.GetEvent().GetPlace(),
+		Topics:      req.GetEvent().GetInterests(),
 	})
 
 	if err != nil {
@@ -83,6 +84,9 @@ func (s *EventService) DeleteEvent(ctx context.Context, req *event.DeleteEventRe
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to delete event", zap.String("err", err.Error()))
+		if errors.Is(err, models.ErrWrongEventId) {
+			return nil, status.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -122,6 +126,9 @@ func (s *EventService) ListEventsByInterests(ctx context.Context, req *event.Lis
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list events by interests", zap.String("err", err.Error()))
+		if errors.Is(err, models.ErrWrongUserId) {
+			return nil, status.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -135,6 +142,9 @@ func (s *EventService) ListEventsByUser(ctx context.Context, req *event.ListEven
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list events", zap.String("err", err.Error()))
+		if errors.Is(err, models.ErrWrongUserId) {
+			return nil, status.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -148,6 +158,9 @@ func (s *EventService) ListUsersToChat(ctx context.Context, req *event.ListUsers
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list users to chat", zap.String("err", err.Error()))
+		if errors.Is(err, models.ErrWrongEventId) {
+			return nil, status.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -170,6 +183,9 @@ func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventReques
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to read event", zap.String("err", err.Error()))
+		if errors.Is(err, models.ErrWrongEventId) {
+			return nil, status.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -191,6 +207,9 @@ func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUser
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to register user", zap.String("err", err.Error()))
+		if errors.Is(err, models.ErrWrongEventId) || errors.Is(err, models.ErrWrongUserId) {
+			return nil, status.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -201,17 +220,20 @@ func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUser
 
 func (s *EventService) UpdateEvent(ctx context.Context, req *event.UpdateEventRequest) (*event.UpdateEventResponse, error) {
 	err := s.service.UpdateEvent(ctx, &models.Event{
-		EventID:     req.Event.GetEventId(),
-		CreatorID:   req.Event.GetCreatorId(),
-		Title:       req.Event.GetTitle(),
-		Description: req.Event.GetDescription(),
-		Time:        req.Event.GetTime(),
-		Place:       req.Event.GetPlace(),
-		Topics:      req.Event.GetInterests(),
+		EventID:     req.GetEvent().GetEventId(),
+		CreatorID:   req.GetEvent().GetCreatorId(),
+		Title:       req.GetEvent().GetTitle(),
+		Description: req.GetEvent().GetDescription(),
+		Time:        req.GetEvent().GetTime(),
+		Place:       req.GetEvent().GetPlace(),
+		Topics:      req.GetEvent().GetInterests(),
 	})
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to update event", zap.String("err", err.Error()))
+		if errors.Is(err, models.ErrWrongEventId) {
+			return nil, status.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -225,6 +247,9 @@ func (s *EventService) SetChatStatus(ctx context.Context, req *event.SetChatStat
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to set chat status", zap.String("err", err.Error()))
+		if errors.Is(err, models.ErrWrongEventId) || errors.Is(err, models.ErrWrongUserId) {
+			return nil, status.Errorf(codes.NotFound, err.Error())
+		}
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
