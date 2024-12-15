@@ -263,12 +263,12 @@ func (r *EventRepository) RegisterUser(ctx context.Context, userID int64, eventI
 	return err
 }
 
-func (r *EventRepository) InsertParticipant(ctx context.Context, participant *models.Participant) (int64, error) {
+func (r *EventRepository) InsertParticipant(ctx context.Context, participant *models.Participant) error {
 	var id int64
 
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	err = sq.Insert("public.participant").
@@ -281,7 +281,7 @@ func (r *EventRepository) InsertParticipant(ctx context.Context, participant *mo
 		Scan(&id)
 	if err != nil {
 		tx.Rollback()
-		return 0, err
+		return err
 	}
 
 	if len(participant.Interests) > 0 {
@@ -297,15 +297,15 @@ func (r *EventRepository) InsertParticipant(ctx context.Context, participant *mo
 		_, err = insert.Exec()
 		if err != nil {
 			tx.Rollback()
-			return 0, err
+			return err
 		}
 	}
 
 	if err = tx.Commit(); err != nil {
-		return 0, err
+		return err
 	}
 
-	return id, nil
+	return nil
 }
 
 func (r *EventRepository) ReadParticipant(ctx context.Context, userID int64) (*models.Participant, error) {
