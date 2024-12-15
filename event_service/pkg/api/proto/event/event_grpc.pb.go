@@ -30,6 +30,7 @@ const (
 	EventService_SetChatStatus_FullMethodName         = "/event.EventService/SetChatStatus"
 	EventService_ListUsersToChat_FullMethodName       = "/event.EventService/ListUsersToChat"
 	EventService_ListEventsByUser_FullMethodName      = "/event.EventService/ListEventsByUser"
+	EventService_AddParticipant_FullMethodName        = "/event.EventService/AddParticipant"
 )
 
 // EventServiceClient is the client API for EventService service.
@@ -47,6 +48,7 @@ type EventServiceClient interface {
 	SetChatStatus(ctx context.Context, in *SetChatStatusRequest, opts ...grpc.CallOption) (*SetChatStatusResponse, error)
 	ListUsersToChat(ctx context.Context, in *ListUsersToChatRequest, opts ...grpc.CallOption) (*ListUsersToChatResponse, error)
 	ListEventsByUser(ctx context.Context, in *ListEventsByUserRequest, opts ...grpc.CallOption) (*ListEventsByUserResponse, error)
+	AddParticipant(ctx context.Context, in *AddParticipantRequest, opts ...grpc.CallOption) (*AddParticipantResponse, error)
 }
 
 type eventServiceClient struct {
@@ -167,6 +169,16 @@ func (c *eventServiceClient) ListEventsByUser(ctx context.Context, in *ListEvent
 	return out, nil
 }
 
+func (c *eventServiceClient) AddParticipant(ctx context.Context, in *AddParticipantRequest, opts ...grpc.CallOption) (*AddParticipantResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddParticipantResponse)
+	err := c.cc.Invoke(ctx, EventService_AddParticipant_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EventServiceServer is the server API for EventService service.
 // All implementations must embed UnimplementedEventServiceServer
 // for forward compatibility.
@@ -182,6 +194,7 @@ type EventServiceServer interface {
 	SetChatStatus(context.Context, *SetChatStatusRequest) (*SetChatStatusResponse, error)
 	ListUsersToChat(context.Context, *ListUsersToChatRequest) (*ListUsersToChatResponse, error)
 	ListEventsByUser(context.Context, *ListEventsByUserRequest) (*ListEventsByUserResponse, error)
+	AddParticipant(context.Context, *AddParticipantRequest) (*AddParticipantResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -224,6 +237,9 @@ func (UnimplementedEventServiceServer) ListUsersToChat(context.Context, *ListUse
 }
 func (UnimplementedEventServiceServer) ListEventsByUser(context.Context, *ListEventsByUserRequest) (*ListEventsByUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListEventsByUser not implemented")
+}
+func (UnimplementedEventServiceServer) AddParticipant(context.Context, *AddParticipantRequest) (*AddParticipantResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddParticipant not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
 func (UnimplementedEventServiceServer) testEmbeddedByValue()                      {}
@@ -444,6 +460,24 @@ func _EventService_ListEventsByUser_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventService_AddParticipant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddParticipantRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).AddParticipant(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_AddParticipant_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).AddParticipant(ctx, req.(*AddParticipantRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // EventService_ServiceDesc is the grpc.ServiceDesc for EventService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -494,6 +528,10 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListEventsByUser",
 			Handler:    _EventService_ListEventsByUser_Handler,
+		},
+		{
+			MethodName: "AddParticipant",
+			Handler:    _EventService_AddParticipant_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -16,6 +16,7 @@ service EventService {
   rpc SetChatStatus(SetChatStatusRequest) returns (SetChatStatusResponse);
   rpc ListUsersToChat(ListUsersToChatRequest) returns (ListUsersToChatResponse);
   rpc ListEventsByUser(ListEventsByUserRequest) returns (ListEventsByUserResponse);
+  rpc AddParticipant(AddParticipantRequest) returns (AddParticipantResponse);
 }
 
 message Event {
@@ -31,7 +32,7 @@ message Event {
 message Participant {
   int64 user_id = 1;
   string name = 2;
-  string interests = 3;
+  repeated string interests = 3;
 }
 
 message CreateEventRequest {
@@ -129,4 +130,12 @@ message ListEventsByUserRequest {
 
 message ListEventsByUserResponse {
   repeated Event events = 1;
+}
+
+message AddParticipantRequest {
+  Participant user = 1;
+  string email = 2;
+}
+
+message AddParticipantResponse {
 }
