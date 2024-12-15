@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"time"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
@@ -62,6 +63,11 @@ func convertEventsToGRPC(events []*models.Event) []*event.Event {
 }
 
 func (s *EventService) CreateEvent(ctx context.Context, req *event.CreateEventRequest) (*event.CreateEventResponse, error) {
+	if _, err := time.Parse(models.TimeLayout, req.GetEvent().GetTime()); err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to create event", zap.String("err", models.ErrWrongTimeFormat.Error()))
+		return nil, status.Errorf(codes.InvalidArgument, models.ErrWrongTimeFormat.Error())
+	}
+
 	resp, err := s.service.CreateEvent(ctx, &models.Event{
 		CreatorID:   req.GetEvent().GetCreatorId(),
 		Title:       req.GetEvent().GetTitle(),
@@ -217,6 +223,11 @@ func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUser
 }
 
 func (s *EventService) UpdateEvent(ctx context.Context, req *event.UpdateEventRequest) (*event.UpdateEventResponse, error) {
+	if _, err := time.Parse(models.TimeLayout, req.GetEvent().GetTime()); err != nil {
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to create event", zap.String("err", models.ErrWrongTimeFormat.Error()))
+		return nil, status.Errorf(codes.InvalidArgument, models.ErrWrongTimeFormat.Error())
+	}
+
 	err := s.service.UpdateEvent(ctx, &models.Event{
 		EventID:     req.GetEvent().GetEventId(),
 		CreatorID:   req.GetEvent().GetCreatorId(),
