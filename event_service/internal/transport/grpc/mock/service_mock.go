@@ -2,7 +2,7 @@
 // Source: eventservice.go
 
 // Package mock_grpc is a generated GoMock package.
-package mock_grpc
+package mock
 
 import (
 	context "context"
