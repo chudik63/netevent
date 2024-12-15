@@ -421,11 +421,15 @@ func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64) ([
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db).
 		Query()
-	defer rows.Close()
 
 	if err != nil {
 		return nil, err
 	}
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
 
 	var users []*models.Participant
 	for rows.Next() {
@@ -437,7 +441,7 @@ func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64) ([
 	}
 
 	if rows.Err() != nil {
-		return nil, err
+		return nil, rows.Err()
 	}
 
 	return users, nil
