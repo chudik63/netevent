@@ -42,16 +42,18 @@ func (s *Sender) Run(ctx context.Context) error {
 			fmt.Println("ok")
 			return nil
 
-		default:
+		case <-time.After(s.interval):
 			fmt.Println("default")
 			notifications, err := s.repo.GetNotifications(ctx)
 			if err != nil {
 				logger.Default().Errorf(ctx, "failed to get notifications: %s", err)
+				break
 			}
 
 			for _, notify := range notifications {
 				if err := s.mail.Send(notify.EventName, notify); err != nil {
 					logger.Default().Errorf(ctx, "failed to send notification: %s", err)
+					break
 				}
 
 				_, err := s.repo.DeleteNotification(ctx, notify.ID)
@@ -59,8 +61,6 @@ func (s *Sender) Run(ctx context.Context) error {
 					logger.Default().Errorf(ctx, "failed to delete notification with id = %d: %s", notify.ID, err)
 				}
 			}
-
-			time.Sleep(s.interval)
 		}
 	}
 }
