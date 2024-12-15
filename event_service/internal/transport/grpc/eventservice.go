@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"errors"
-	"strings"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
@@ -28,6 +27,7 @@ type Service interface {
 	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
 	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
 	ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error)
+	AddParticipant(ctx context.Context, participant *models.Participant) error
 }
 
 type EventService struct {
@@ -169,7 +169,7 @@ func (s *EventService) ListUsersToChat(ctx context.Context, req *event.ListUsers
 		participants = append(participants, &event.Participant{
 			UserId:    p.UserID,
 			Name:      p.Name,
-			Interests: strings.Join(p.Interests, ", "),
+			Interests: p.Interests,
 		})
 	}
 
@@ -250,4 +250,20 @@ func (s *EventService) SetChatStatus(ctx context.Context, req *event.SetChatStat
 	}
 
 	return &event.SetChatStatusResponse{}, status.New(codes.OK, "Success").Err()
+}
+
+func (s *EventService) AddParticipant(ctx context.Context, req *event.AddParticipantRequest) (*event.AddParticipantResponse, error) {
+	err := s.service.AddParticipant(ctx, &models.Participant{
+		UserID:    req.GetUser().GetUserId(),
+		Name:      req.GetUser().GetName(),
+		Email:     req.GetEmail(),
+		Interests: req.GetUser().GetInterests(),
+	})
+
+	if err != nil {
+		s.logger.Error(ctx, "failed to add participant", zap.String("err", err.Error()))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &event.AddParticipantResponse{}, status.New(codes.OK, "Success").Err()
 }

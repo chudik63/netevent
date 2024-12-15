@@ -23,7 +23,9 @@ type Repository interface {
 	SetChatStatus(ctx context.Context, userID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
 	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
+	InsertParticipant(ctx context.Context, participant *models.Participant) error
 	ReadParticipant(ctx context.Context, userID int64) (*models.Participant, error)
+	UpdateParticipant(ctx context.Context, participant *models.Participant) error
 }
 
 type EventService struct {
@@ -161,4 +163,16 @@ func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) 
 	}
 
 	return s.repository.ListEventsByInterests(ctx, userID)
+}
+
+func (s *EventService) AddParticipant(ctx context.Context, participant *models.Participant) error {
+	_, err := s.repository.ReadParticipant(ctx, participant.UserID)
+	if errors.Is(err, models.ErrWrongUserId) {
+		_ = s.repository.InsertParticipant(ctx, participant)
+		return nil
+	}
+
+	err = s.repository.UpdateParticipant(ctx, participant)
+
+	return err
 }
