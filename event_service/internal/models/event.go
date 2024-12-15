@@ -1,5 +1,9 @@
 package models
 
+import "time"
+
+const TimeLayout = time.DateTime
+
 type Event struct {
 	EventID      int64
 	CreatorID    int64

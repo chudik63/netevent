@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-//go:generate mockgen -source=service.go -destination=mocks/service_mock.go
+//go:generate mockgen -source=eventservice.go -destination=mocks/service_mock.go
 
 type Service interface {
 	CreateEvent(ctx context.Context, event *models.Event) (int64, error)
