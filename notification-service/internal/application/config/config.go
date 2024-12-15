@@ -37,7 +37,7 @@ type Kafka struct {
 }
 
 type Sender struct {
-	MinuteInterval int `env:"SENDER_MINUTE_INTERVAL"  env-default:"60"`
+	SecondInterval int `env:"SENDER_SECOND_INTERVAL"  env-default:"3600"`
 }
 
 func New() (*Config, error) {

@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
@@ -26,26 +27,32 @@ func NewSender(cfg config.Sender, repo NotificationRepository, mail Mail) *Sende
 	return &Sender{
 		repo:     repo,
 		mail:     mail,
-		interval: time.Minute * time.Duration(cfg.MinuteInterval),
+		interval: time.Second * time.Duration(cfg.SecondInterval),
 		done:     make(chan struct{}),
 		stopped:  make(chan struct{}),
 	}
 }
 
 func (s *Sender) Run(ctx context.Context) error {
+	defer close(s.stopped)
+
 	for {
 		select {
 		case <-s.done:
+			fmt.Println("ok")
 			return nil
 
 		default:
+			fmt.Println("default")
 			notifications, err := s.repo.GetNotifications(ctx)
 			if err != nil {
 				logger.Default().Errorf(ctx, "failed to get notifications: %s", err)
 			}
 
 			for _, notify := range notifications {
-				s.mail.Send(notify.EventName, notify)
+				if err := s.mail.Send(notify.EventName, notify); err != nil {
+					logger.Default().Errorf(ctx, "failed to send notification: %s", err)
+				}
 
 				_, err := s.repo.DeleteNotification(ctx, notify.ID)
 				if err != nil {
