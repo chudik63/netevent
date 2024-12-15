@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/cache"
@@ -12,6 +13,8 @@ import (
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 )
+
+//go:generate mockgen -source=event.go -destination=mock/mock.go
 
 type Repository interface {
 	CreateEvent(ctx context.Context, event *models.Event) (int64, error)
@@ -28,17 +31,26 @@ type Repository interface {
 	UpdateParticipant(ctx context.Context, participant *models.Participant) error
 }
 
-type EventService struct {
-	repository  Repository
-	redisClient *redis.Client
-	producer    *kafka.Producer
+type Cache interface {
+	Get(ctx context.Context, key string) *redis.StringCmd
+	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
 }
 
-func New(repo Repository, redis *redis.Client, producer *kafka.Producer) *EventService {
+type Producer interface {
+	Produce(ctx context.Context, message kafka.Message, topic string)
+}
+
+type EventService struct {
+	repository Repository
+	cache      Cache
+	producer   Producer
+}
+
+func New(repo Repository, cache Cache, producer Producer) *EventService {
 	return &EventService{
-		repository:  repo,
-		redisClient: redis,
-		producer:    producer,
+		repository: repo,
+		cache:      cache,
+		producer:   producer,
 	}
 }
 
@@ -88,6 +100,9 @@ func (s *EventService) RegisterUser(ctx context.Context, userID int64, eventID i
 	}
 
 	participant, err := s.repository.ReadParticipant(ctx, userID)
+	if err != nil {
+		return err
+	}
 
 	s.producer.Produce(
 		ctx,
@@ -126,7 +141,7 @@ func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*m
 
 	cacheKey := "readyToChat:" + strconv.FormatInt(eventID, 10)
 
-	cachedData, err := s.redisClient.Get(ctx, cacheKey).Result()
+	cachedData, err := s.cache.Get(ctx, cacheKey).Result()
 	if err == nil && cachedData != "" {
 		var participants []*models.Participant
 		if err := json.Unmarshal([]byte(cachedData), &participants); err == nil {
@@ -141,7 +156,7 @@ func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*m
 
 	data, err := json.Marshal(participants)
 	if err == nil {
-		s.redisClient.Set(ctx, cacheKey, data, cache.Durability)
+		s.cache.Set(ctx, cacheKey, data, cache.Durability)
 	}
 
 	return participants, nil
