@@ -263,6 +263,51 @@ func (r *EventRepository) RegisterUser(ctx context.Context, userID int64, eventI
 	return err
 }
 
+func (r *EventRepository) InsertParticipant(ctx context.Context, participant *models.Participant) (int64, error) {
+	var id int64
+
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	err = sq.Insert("public.participant").
+		Columns("user_id", "name", "email").
+		Values(participant.UserID, participant.Name, participant.Email).
+		Suffix("RETURNING id").
+		PlaceholderFormat(sq.Dollar).
+		RunWith(tx).
+		QueryRow().
+		Scan(&id)
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+
+	if len(participant.Interests) > 0 {
+		insert := sq.Insert("public.interests").
+			Columns("participant_id", "interest").
+			PlaceholderFormat(sq.Dollar).
+			RunWith(tx)
+
+		for _, interest := range participant.Interests {
+			insert = insert.Values(id, interest)
+		}
+
+		_, err = insert.Exec()
+		if err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
 func (r *EventRepository) ReadParticipant(ctx context.Context, userID int64) (*models.Participant, error) {
 	var user models.Participant
 	var interests pq.StringArray
@@ -292,6 +337,69 @@ func (r *EventRepository) ReadParticipant(ctx context.Context, userID int64) (*m
 	user.Interests = []string(interests)
 
 	return &user, nil
+}
+
+func (r *EventRepository) UpdateParticipant(ctx context.Context, participant *models.Participant) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	res, err := sq.Update("public.participants").
+		Set("name", participant.Name).
+		Set("email", participant.Email).
+		Where(sq.Eq{"id": participant.UserID}).
+		PlaceholderFormat(sq.Dollar).
+		RunWith(tx).
+		Exec()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if rowsAffected == 0 {
+		tx.Rollback()
+		return models.ErrWrongUserId
+	}
+
+	_, err = sq.Delete("public.interests").
+		Where(sq.Eq{"participant_id": participant.UserID}).
+		PlaceholderFormat(sq.Dollar).
+		RunWith(tx).
+		Exec()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if len(participant.Interests) > 0 {
+		insert := sq.Insert("public.interests").
+			Columns("participant_id", "interest").
+			PlaceholderFormat(sq.Dollar).
+			RunWith(tx)
+
+		for _, interest := range participant.Interests {
+			insert = insert.Values(participant.UserID, interest)
+		}
+
+		_, err = insert.Exec()
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *EventRepository) SetChatStatus(ctx context.Context, userID int64, eventID int64, isReady bool) error {
