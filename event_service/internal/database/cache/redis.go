@@ -16,8 +16,12 @@ type RedisConfig struct {
 	Port string `env:"REDIS_PORT" env-default:"6379"`
 }
 
-func New(cfg RedisConfig) *redis.Client {
-	return redis.NewClient(&redis.Options{
+type Cache struct {
+	*redis.Client
+}
+
+func New(cfg RedisConfig) Cache {
+	return Cache{redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%s", cfg.Host, cfg.Port),
-	})
+	})}
 }
