@@ -34,6 +34,17 @@ func New(w io.Writer, lvl slog.Level, serviceName string) Logger {
 	}
 }
 
+var defaultLogger = &logger{
+	logger: slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})),
+	serviceName: "default",
+}
+
+func Default() Logger {
+	return defaultLogger
+}
+
 func (l *logger) Infof(ctx context.Context, msg string, args ...any) {
 	attrs := make([]any, 0)
 	attrs = append(attrs, slog.String("serviceName", l.serviceName))

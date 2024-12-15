@@ -11,6 +11,7 @@ import (
 type Notification struct {
 	ID         int64
 	UserName   string
+	UserEmail  string
 	EventName  string
 	EventPlace string
 	EventTime  time.Time

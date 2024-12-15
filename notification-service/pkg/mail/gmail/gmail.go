@@ -6,17 +6,11 @@ import (
 	"html/template"
 	"net/smtp"
 
+	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/domain"
 )
 
 const templatePath = "./templates/mail.html"
-
-type GmailConfig struct {
-	GmailHost     string `env:"GMAIL_HOST"`
-	GmailPort     int    `env:"GMAIL_PORT" env-default:"587"`
-	GmailUsername string `env:"GMAIL_USERNAME"`
-	GmailPassword string `env:"GMAIL_PASSWORD"`
-}
 
 type Gmail struct {
 	mailTemplate *template.Template
@@ -25,16 +19,16 @@ type Gmail struct {
 	from         string
 }
 
-func New(cfg GmailConfig) *Gmail {
+func New(cfg config.Mail) *Gmail {
 	return &Gmail{
 		mailTemplate: template.Must(template.ParseFiles(templatePath)),
-		auth:         smtp.PlainAuth("", cfg.GmailUsername, cfg.GmailPassword, cfg.GmailHost),
-		address:      fmt.Sprintf("%s:%d", cfg.GmailHost, cfg.GmailPort),
-		from:         cfg.GmailUsername,
+		auth:         smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host),
+		address:      fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+		from:         cfg.Username,
 	}
 }
 
-func (g *Gmail) Send(subject string, msg domain.Notification, to string) error {
+func (g *Gmail) Send(subject string, msg domain.Notification) error {
 	var body bytes.Buffer
 
 	if err := g.mailTemplate.Execute(&body, msg); err != nil {
@@ -46,7 +40,7 @@ func (g *Gmail) Send(subject string, msg domain.Notification, to string) error {
 		headers + "\n\n" +
 		body.String()
 
-	if err := smtp.SendMail(g.address, g.auth, g.from, []string{to}, []byte(mail)); err != nil {
+	if err := smtp.SendMail(g.address, g.auth, g.from, []string{msg.UserEmail}, []byte(mail)); err != nil {
 		return fmt.Errorf("failed to send mail: %w", err)
 	}
 

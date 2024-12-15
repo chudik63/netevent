@@ -11,13 +11,14 @@ import (
 )
 
 const addNotification = `-- name: AddNotification :one
-INSERT INTO notifications(user_name, event_name, event_place, event_time)
-VALUES ($1, $2, $3, $4)
-RETURNING id, user_name, event_name, event_place, event_time
+INSERT INTO notifications(user_name, user_email, event_name, event_place, event_time)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, user_name, user_email, event_name, event_place, event_time
 `
 
 type AddNotificationParams struct {
 	UserName   string
+	UserEmail  string
 	EventName  string
 	EventPlace string
 	EventTime  time.Time
@@ -26,6 +27,7 @@ type AddNotificationParams struct {
 func (q *Queries) AddNotification(ctx context.Context, arg AddNotificationParams) (Notification, error) {
 	row := q.db.QueryRowContext(ctx, addNotification,
 		arg.UserName,
+		arg.UserEmail,
 		arg.EventName,
 		arg.EventPlace,
 		arg.EventTime,
@@ -34,6 +36,7 @@ func (q *Queries) AddNotification(ctx context.Context, arg AddNotificationParams
 	err := row.Scan(
 		&i.ID,
 		&i.UserName,
+		&i.UserEmail,
 		&i.EventName,
 		&i.EventPlace,
 		&i.EventTime,
@@ -44,7 +47,7 @@ func (q *Queries) AddNotification(ctx context.Context, arg AddNotificationParams
 const deleteNotification = `-- name: DeleteNotification :one
 DELETE FROM notifications
 WHERE id = $1
-RETURNING id, user_name, event_name, event_place, event_time
+RETURNING id, user_name, user_email, event_name, event_place, event_time
 `
 
 func (q *Queries) DeleteNotification(ctx context.Context, id int64) (Notification, error) {
@@ -53,6 +56,7 @@ func (q *Queries) DeleteNotification(ctx context.Context, id int64) (Notificatio
 	err := row.Scan(
 		&i.ID,
 		&i.UserName,
+		&i.UserEmail,
 		&i.EventName,
 		&i.EventPlace,
 		&i.EventTime,
@@ -62,7 +66,7 @@ func (q *Queries) DeleteNotification(ctx context.Context, id int64) (Notificatio
 
 const getNotifications = `-- name: GetNotifications :many
 SELECT 
-	id, user_name, event_name, event_place, event_time
+	id, user_name, user_email, event_name, event_place, event_time
 FROM notifications
 WHERE AGE(NOW(), event_time) <= INTERVAL '1 day'
 `
@@ -79,6 +83,7 @@ func (q *Queries) GetNotifications(ctx context.Context) ([]Notification, error) 
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserName,
+			&i.UserEmail,
 			&i.EventName,
 			&i.EventPlace,
 			&i.EventTime,
