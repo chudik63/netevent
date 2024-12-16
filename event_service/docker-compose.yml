@@ -71,6 +71,7 @@ services:
     depends_on:
       zookeeper:
         condition: service_healthy
+    restart: always
     env_file:
       - .env
     ports:
@@ -94,6 +95,7 @@ services:
     depends_on:
       zookeeper:
         condition: service_healthy
+    restart: always
     env_file:
       - .env
     ports:
@@ -117,6 +119,7 @@ services:
     depends_on:
       zookeeper:
         condition: service_healthy
+    restart: always
     env_file:
       - .env
     ports:
