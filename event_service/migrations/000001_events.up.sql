@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS public.topics
     CONSTRAINT fk_event FOREIGN KEY (event_id) REFERENCES public.events(id)
 );
 
-CREATE TABLE IF NOT EXISTS public.participants
+CREATE TABLE IF NOT EXISTS public.users
 (
     user_id INT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -26,17 +26,17 @@ CREATE TABLE IF NOT EXISTS public.participants
 CREATE TABLE IF NOT EXISTS public.registrations
 (
     event_id INT,
-    participant_id INT,
+    user_id INT,
     ready_to_chat BOOL,
-    PRIMARY KEY (event_id, participant_id),
+    PRIMARY KEY (event_id, user_id),
     CONSTRAINT fk_event FOREIGN KEY (event_id) REFERENCES public.events(id),
-    CONSTRAINT fk_participant FOREIGN KEY (participant_id) REFERENCES public.participants(user_id)
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(user_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.interests
 (
     id serial PRIMARY KEY,
-    participant_id INT NOT NULL,
+    user_id INT NOT NULL,
     interest TEXT,
-    CONSTRAINT fk_participant FOREIGN KEY (participant_id) REFERENCES public.participants(user_id)
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(user_id)
 );
