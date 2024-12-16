@@ -10,8 +10,8 @@ import (
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/config"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/cache"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/postgres"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/kafka"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/producer"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/service"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/transport/grpc"
@@ -40,7 +40,7 @@ func main() {
 	db := postgres.New(ctx, cfg.Config)
 	redis := cache.New(cfg.RedisConfig)
 
-	producer, err := kafka.NewProducer(ctx, cfg.KafkaHost+":"+cfg.KafkaPort)
+	producer, err := producer.New(ctx, []string{cfg.Kafka1Host + ":" + cfg.Kafka1Port, cfg.Kafka2Host + ":" + cfg.Kafka2Port, cfg.Kafka3Host + ":" + cfg.Kafka3Port})
 	if err != nil {
 		mainLogger.Fatal(ctx, "failed to create broker", zap.String("err", err.Error()))
 	}
