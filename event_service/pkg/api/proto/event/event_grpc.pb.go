@@ -29,7 +29,7 @@ const (
 	EventService_RegisterUser_FullMethodName          = "/event.EventService/RegisterUser"
 	EventService_SetChatStatus_FullMethodName         = "/event.EventService/SetChatStatus"
 	EventService_ListUsersToChat_FullMethodName       = "/event.EventService/ListUsersToChat"
-	EventService_ListEventsByUser_FullMethodName      = "/event.EventService/ListEventsByUser"
+	EventService_ListRegistratedEvents_FullMethodName = "/event.EventService/ListRegistratedEvents"
 	EventService_AddParticipant_FullMethodName        = "/event.EventService/AddParticipant"
 )
 
@@ -47,7 +47,7 @@ type EventServiceClient interface {
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
 	SetChatStatus(ctx context.Context, in *SetChatStatusRequest, opts ...grpc.CallOption) (*SetChatStatusResponse, error)
 	ListUsersToChat(ctx context.Context, in *ListUsersToChatRequest, opts ...grpc.CallOption) (*ListUsersToChatResponse, error)
-	ListEventsByUser(ctx context.Context, in *ListEventsByUserRequest, opts ...grpc.CallOption) (*ListEventsByUserResponse, error)
+	ListRegistratedEvents(ctx context.Context, in *ListRegistratedEventsRequest, opts ...grpc.CallOption) (*ListRegistratedEventsResponse, error)
 	AddParticipant(ctx context.Context, in *AddParticipantRequest, opts ...grpc.CallOption) (*AddParticipantResponse, error)
 }
 
@@ -159,10 +159,10 @@ func (c *eventServiceClient) ListUsersToChat(ctx context.Context, in *ListUsersT
 	return out, nil
 }
 
-func (c *eventServiceClient) ListEventsByUser(ctx context.Context, in *ListEventsByUserRequest, opts ...grpc.CallOption) (*ListEventsByUserResponse, error) {
+func (c *eventServiceClient) ListRegistratedEvents(ctx context.Context, in *ListRegistratedEventsRequest, opts ...grpc.CallOption) (*ListRegistratedEventsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListEventsByUserResponse)
-	err := c.cc.Invoke(ctx, EventService_ListEventsByUser_FullMethodName, in, out, cOpts...)
+	out := new(ListRegistratedEventsResponse)
+	err := c.cc.Invoke(ctx, EventService_ListRegistratedEvents_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +193,7 @@ type EventServiceServer interface {
 	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error)
 	SetChatStatus(context.Context, *SetChatStatusRequest) (*SetChatStatusResponse, error)
 	ListUsersToChat(context.Context, *ListUsersToChatRequest) (*ListUsersToChatResponse, error)
-	ListEventsByUser(context.Context, *ListEventsByUserRequest) (*ListEventsByUserResponse, error)
+	ListRegistratedEvents(context.Context, *ListRegistratedEventsRequest) (*ListRegistratedEventsResponse, error)
 	AddParticipant(context.Context, *AddParticipantRequest) (*AddParticipantResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
@@ -235,8 +235,8 @@ func (UnimplementedEventServiceServer) SetChatStatus(context.Context, *SetChatSt
 func (UnimplementedEventServiceServer) ListUsersToChat(context.Context, *ListUsersToChatRequest) (*ListUsersToChatResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUsersToChat not implemented")
 }
-func (UnimplementedEventServiceServer) ListEventsByUser(context.Context, *ListEventsByUserRequest) (*ListEventsByUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListEventsByUser not implemented")
+func (UnimplementedEventServiceServer) ListRegistratedEvents(context.Context, *ListRegistratedEventsRequest) (*ListRegistratedEventsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListRegistratedEvents not implemented")
 }
 func (UnimplementedEventServiceServer) AddParticipant(context.Context, *AddParticipantRequest) (*AddParticipantResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddParticipant not implemented")
@@ -442,20 +442,20 @@ func _EventService_ListUsersToChat_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _EventService_ListEventsByUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListEventsByUserRequest)
+func _EventService_ListRegistratedEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRegistratedEventsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EventServiceServer).ListEventsByUser(ctx, in)
+		return srv.(EventServiceServer).ListRegistratedEvents(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: EventService_ListEventsByUser_FullMethodName,
+		FullMethod: EventService_ListRegistratedEvents_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventServiceServer).ListEventsByUser(ctx, req.(*ListEventsByUserRequest))
+		return srv.(EventServiceServer).ListRegistratedEvents(ctx, req.(*ListRegistratedEventsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -526,8 +526,8 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _EventService_ListUsersToChat_Handler,
 		},
 		{
-			MethodName: "ListEventsByUser",
-			Handler:    _EventService_ListEventsByUser_Handler,
+			MethodName: "ListRegistratedEvents",
+			Handler:    _EventService_ListRegistratedEvents_Handler,
 		},
 		{
 			MethodName: "AddParticipant",
