@@ -145,24 +145,9 @@ func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64, userI
 		return nil, err
 	}
 
-	cacheKey := "readyToChat:" + strconv.FormatInt(eventID, 10)
-
-	cachedData, err := s.cache.Get(ctx, cacheKey).Result()
-	if err == nil && cachedData != "" {
-		var participants []*models.Participant
-		if err := json.Unmarshal([]byte(cachedData), &participants); err == nil {
-			return participants, nil
-		}
-	}
-
 	participants, err := s.repository.ListUsersToChat(ctx, eventID, userID)
 	if err != nil {
 		return nil, err
-	}
-
-	data, err := json.Marshal(participants)
-	if err == nil {
-		s.cache.Set(ctx, cacheKey, data, cache.Durability)
 	}
 
 	return participants, nil
@@ -183,7 +168,27 @@ func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) 
 		return nil, err
 	}
 
-	return s.repository.ListEventsByInterests(ctx, userID)
+	cacheKey := "eventsByInterests:" + strconv.FormatInt(userID, 10)
+
+	cachedData, err := s.cache.Get(ctx, cacheKey).Result()
+	if err == nil && cachedData != "" {
+		var events []*models.Event
+		if err := json.Unmarshal([]byte(cachedData), &events); err == nil {
+			return events, nil
+		}
+	}
+
+	events, err := s.repository.ListEventsByInterests(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := json.Marshal(events)
+	if err == nil {
+		s.cache.Set(ctx, cacheKey, data, cache.Durability)
+	}
+
+	return events, nil
 }
 
 func (s *EventService) AddParticipant(ctx context.Context, participant *models.Participant) error {
