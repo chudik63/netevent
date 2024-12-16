@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	Durability = 20 * time.Minute
+	Durability = 2 * time.Minute
 )
 
 type RedisConfig struct {
