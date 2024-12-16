@@ -3,6 +3,7 @@
 
 // Package mock_service is a generated GoMock package.
 package mock
+
 import (
 	context "context"
 	reflect "reflect"
@@ -10,8 +11,8 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	redis "github.com/redis/go-redis/v9"
-	producer "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/producer"
 	models "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
+	producer "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/producer"
 	repository "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 )
 
@@ -53,6 +54,34 @@ func (mr *MockRepositoryMockRecorder) CreateEvent(ctx, event interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateEvent", reflect.TypeOf((*MockRepository)(nil).CreateEvent), ctx, event)
 }
 
+// CreateParticipant mocks base method.
+func (m *MockRepository) CreateParticipant(ctx context.Context, participant *models.Participant) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateParticipant", ctx, participant)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateParticipant indicates an expected call of CreateParticipant.
+func (mr *MockRepositoryMockRecorder) CreateParticipant(ctx, participant interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateParticipant", reflect.TypeOf((*MockRepository)(nil).CreateParticipant), ctx, participant)
+}
+
+// CreateRegistration mocks base method.
+func (m *MockRepository) CreateRegistration(ctx context.Context, userID, eventID int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRegistration", ctx, userID, eventID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateRegistration indicates an expected call of CreateRegistration.
+func (mr *MockRepositoryMockRecorder) CreateRegistration(ctx, userID, eventID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRegistration", reflect.TypeOf((*MockRepository)(nil).CreateRegistration), ctx, userID, eventID)
+}
+
 // DeleteEvent mocks base method.
 func (m *MockRepository) DeleteEvent(ctx context.Context, eventID int64) error {
 	m.ctrl.T.Helper()
@@ -65,20 +94,6 @@ func (m *MockRepository) DeleteEvent(ctx context.Context, eventID int64) error {
 func (mr *MockRepositoryMockRecorder) DeleteEvent(ctx, eventID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteEvent", reflect.TypeOf((*MockRepository)(nil).DeleteEvent), ctx, eventID)
-}
-
-// InsertParticipant mocks base method.
-func (m *MockRepository) InsertParticipant(ctx context.Context, participant *models.Participant) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InsertParticipant", ctx, participant)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// InsertParticipant indicates an expected call of InsertParticipant.
-func (mr *MockRepositoryMockRecorder) InsertParticipant(ctx, participant interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertParticipant", reflect.TypeOf((*MockRepository)(nil).InsertParticipant), ctx, participant)
 }
 
 // ListEvents mocks base method.
@@ -109,6 +124,21 @@ func (m *MockRepository) ListEventsByInterests(ctx context.Context, userID int64
 func (mr *MockRepositoryMockRecorder) ListEventsByInterests(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEventsByInterests", reflect.TypeOf((*MockRepository)(nil).ListEventsByInterests), ctx, userID)
+}
+
+// ListRegistratedEvents mocks base method.
+func (m *MockRepository) ListRegistratedEvents(ctx context.Context, userID int64) ([]*models.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListRegistratedEvents", ctx, userID)
+	ret0, _ := ret[0].([]*models.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListRegistratedEvents indicates an expected call of ListRegistratedEvents.
+func (mr *MockRepositoryMockRecorder) ListRegistratedEvents(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRegistratedEvents", reflect.TypeOf((*MockRepository)(nil).ListRegistratedEvents), ctx, userID)
 }
 
 // ListUsersToChat mocks base method.
@@ -154,20 +184,6 @@ func (m *MockRepository) ReadParticipant(ctx context.Context, userID int64) (*mo
 func (mr *MockRepositoryMockRecorder) ReadParticipant(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadParticipant", reflect.TypeOf((*MockRepository)(nil).ReadParticipant), ctx, userID)
-}
-
-// RegisterUser mocks base method.
-func (m *MockRepository) RegisterUser(ctx context.Context, userID, eventID int64) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RegisterUser", ctx, userID, eventID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RegisterUser indicates an expected call of RegisterUser.
-func (mr *MockRepositoryMockRecorder) RegisterUser(ctx, userID, eventID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterUser", reflect.TypeOf((*MockRepository)(nil).RegisterUser), ctx, userID, eventID)
 }
 
 // SetChatStatus mocks base method.

@@ -528,7 +528,7 @@ func TestListEvents(t *testing.T) {
 	}
 }
 
-func TestRegisterUser(t *testing.T) {
+func TestCreateRegistration(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("Failed to create sqlmock: %v", err)
@@ -574,7 +574,7 @@ func TestRegisterUser(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			testCase.mockBehavior(testCase.userID, testCase.eventID)
 
-			err := r.RegisterUser(context.Background(), testCase.userID, testCase.eventID)
+			err := r.CreateRegistration(context.Background(), testCase.userID, testCase.eventID)
 
 			if testCase.expectedErr != nil {
 				assert.Error(t, err)
@@ -590,7 +590,7 @@ func TestRegisterUser(t *testing.T) {
 	}
 }
 
-func TestInsertParticipant(t *testing.T) {
+func TestCreateParticipant(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("Failed to create sqlmock: %v", err)
@@ -700,7 +700,7 @@ func TestInsertParticipant(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			testCase.mockBehavior(testCase.participant)
 
-			err := r.InsertParticipant(context.Background(), testCase.participant)
+			err := r.CreateParticipant(context.Background(), testCase.participant)
 
 			if testCase.expectedError != nil {
 				assert.Error(t, err)

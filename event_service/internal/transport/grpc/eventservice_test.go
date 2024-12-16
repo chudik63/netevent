@@ -426,7 +426,7 @@ func TestRegisterUser(t *testing.T) {
 				EventId:   1,
 			},
 			mockBehavior: func(s *mock.MockService, userID, eventID int64) {
-				s.EXPECT().RegisterUser(gomock.Any(), userID, eventID).Return(nil)
+				s.EXPECT().CreateRegistration(gomock.Any(), userID, eventID).Return(nil)
 			},
 			expectedStatusCode: codes.OK,
 			expectedResponse:   &event.RegisterUserResponse{},
@@ -439,7 +439,7 @@ func TestRegisterUser(t *testing.T) {
 				EventId:   99,
 			},
 			mockBehavior: func(s *mock.MockService, userID, eventID int64) {
-				s.EXPECT().RegisterUser(gomock.Any(), userID, eventID).Return(models.ErrWrongEventId)
+				s.EXPECT().CreateRegistration(gomock.Any(), userID, eventID).Return(models.ErrWrongEventId)
 			},
 			expectedStatusCode: codes.NotFound,
 			expectedResponse:   nil,
@@ -452,7 +452,7 @@ func TestRegisterUser(t *testing.T) {
 				EventId:   1,
 			},
 			mockBehavior: func(s *mock.MockService, userID, eventID int64) {
-				s.EXPECT().RegisterUser(gomock.Any(), userID, eventID).Return(models.ErrWrongUserId)
+				s.EXPECT().CreateRegistration(gomock.Any(), userID, eventID).Return(models.ErrWrongUserId)
 			},
 			expectedStatusCode: codes.NotFound,
 			expectedResponse:   nil,
@@ -465,7 +465,7 @@ func TestRegisterUser(t *testing.T) {
 				EventId:   1,
 			},
 			mockBehavior: func(s *mock.MockService, userID, eventID int64) {
-				s.EXPECT().RegisterUser(gomock.Any(), userID, eventID).Return(errors.New("internal error"))
+				s.EXPECT().CreateRegistration(gomock.Any(), userID, eventID).Return(errors.New("internal error"))
 			},
 			expectedStatusCode: codes.Internal,
 			expectedResponse:   nil,
@@ -653,50 +653,50 @@ func TestListEventsByInterests(t *testing.T) {
 	}
 }
 
-func TestListEventsByUser(t *testing.T) {
+func TestListRegistratedEvents(t *testing.T) {
 	type mockBehavior func(s *mock.MockService, userID int64)
 
 	testTable := []struct {
 		name               string
-		inputRequest       *event.ListEventsByUserRequest
+		inputRequest       *event.ListRegistratedEventsRequest
 		mockBehavior       mockBehavior
 		expectedStatusCode codes.Code
-		expectedResponse   *event.ListEventsByUserResponse
+		expectedResponse   *event.ListRegistratedEventsResponse
 	}{
 		{
 			name: "OK test",
-			inputRequest: &event.ListEventsByUserRequest{
+			inputRequest: &event.ListRegistratedEventsRequest{
 				RequestId: "1",
 				UserId:    1,
 			},
 			mockBehavior: func(s *mock.MockService, userID int64) {
-				s.EXPECT().ListEventsByUser(gomock.Any(), userID).Return([]*models.Event{{EventID: 1}}, nil)
+				s.EXPECT().ListRegistratedEvents(gomock.Any(), userID).Return([]*models.Event{{EventID: 1}}, nil)
 			},
 			expectedStatusCode: codes.OK,
-			expectedResponse: &event.ListEventsByUserResponse{
+			expectedResponse: &event.ListRegistratedEventsResponse{
 				Events: []*event.Event{{EventId: 1}},
 			},
 		},
 		{
 			name: "Not Found test",
-			inputRequest: &event.ListEventsByUserRequest{
+			inputRequest: &event.ListRegistratedEventsRequest{
 				RequestId: "2",
 				UserId:    99,
 			},
 			mockBehavior: func(s *mock.MockService, userID int64) {
-				s.EXPECT().ListEventsByUser(gomock.Any(), userID).Return(nil, models.ErrWrongUserId)
+				s.EXPECT().ListRegistratedEvents(gomock.Any(), userID).Return(nil, models.ErrWrongUserId)
 			},
 			expectedStatusCode: codes.NotFound,
 			expectedResponse:   nil,
 		},
 		{
 			name: "Internal Error test",
-			inputRequest: &event.ListEventsByUserRequest{
+			inputRequest: &event.ListRegistratedEventsRequest{
 				RequestId: "3",
 				UserId:    1,
 			},
 			mockBehavior: func(s *mock.MockService, userID int64) {
-				s.EXPECT().ListEventsByUser(gomock.Any(), userID).Return(nil, errors.New("internal error"))
+				s.EXPECT().ListRegistratedEvents(gomock.Any(), userID).Return(nil, errors.New("internal error"))
 			},
 			expectedStatusCode: codes.Internal,
 			expectedResponse:   nil,
@@ -716,7 +716,7 @@ func TestListEventsByUser(t *testing.T) {
 
 			eventService := NewEventService(ctx, service)
 
-			resp, err := eventService.ListEventsByUser(ctx, testCase.inputRequest)
+			resp, err := eventService.ListRegistratedEvents(ctx, testCase.inputRequest)
 
 			assert.Equal(t, testCase.expectedResponse, resp)
 			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))

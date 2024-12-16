@@ -216,13 +216,13 @@ func (r *EventRepository) ListEvents(ctx context.Context, equations Creds) ([]*m
 	query := sq.Select("e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE(array_agg(t.topic), '{}') AS topics").
 		From("public.events e").
 		LeftJoin("public.topics t ON e.id = t.event_id").
-		GroupBy("e.id").
+		GroupBy("e.id, e.creator_id, e.title, e.description, e.time, e.place").
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db)
 
 	for key, value := range equations {
-		if key == "user_id" {
-			query = query.LeftJoin("public.registrations r ON e.id = r.event_id")
+		if key != "id" && key != "creator_id" && key != "title" && key != "description" && key != "time" && key != "place" {
+			return nil, models.ErrWrongArgument
 		}
 		query = query.Where(sq.Eq{key: value})
 	}
@@ -255,7 +255,7 @@ func (r *EventRepository) ListEvents(ctx context.Context, equations Creds) ([]*m
 	return events, nil
 }
 
-func (r *EventRepository) RegisterUser(ctx context.Context, userID int64, eventID int64) error {
+func (r *EventRepository) CreateRegistration(ctx context.Context, userID int64, eventID int64) error {
 	_, err := sq.Insert("public.registrations").
 		Columns("event_id", "user_id").
 		Values(eventID, userID).
@@ -263,10 +263,59 @@ func (r *EventRepository) RegisterUser(ctx context.Context, userID int64, eventI
 		RunWith(r.db).
 		Exec()
 
-	return err
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+
+			return models.ErrAlreadyRegistered
+		}
+
+		return err
+	}
+
+	return nil
 }
 
-func (r *EventRepository) InsertParticipant(ctx context.Context, participant *models.Participant) error {
+func (r *EventRepository) ListRegistratedEvents(ctx context.Context, userID int64) ([]*models.Event, error) {
+	rows, err := sq.Select("e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE(array_agg(t.topic), '{}') AS topics").
+		From("public.registrations r").
+		Join("public.events e ON r.event_id = e.id").
+		LeftJoin("public.topics t ON e.id = t.event_id").
+		Where(sq.Eq{"r.user_id": userID}).
+		GroupBy("e.id, e.creator_id, e.title, e.description, e.time, e.place").
+		PlaceholderFormat(sq.Dollar).
+		RunWith(r.db).
+		Query()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+
+	var events []*models.Event
+	for rows.Next() {
+		var event models.Event
+		var topics pq.StringArray
+
+		if err := rows.Scan(&event.EventID, &event.CreatorID, &event.Title, &event.Description, &event.Time, &event.Place, &topics); err != nil {
+			return nil, err
+		}
+
+		event.Topics = []string(topics)
+
+		events = append(events, &event)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return events, nil
+}
+
+func (r *EventRepository) CreateParticipant(ctx context.Context, participant *models.Participant) error {
 	var id int64
 
 	tx, err := r.db.BeginTx(ctx, nil)
@@ -417,10 +466,12 @@ func (r *EventRepository) SetChatStatus(ctx context.Context, userID int64, event
 }
 
 func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
-	rows, err := sq.Select("public.users.user_id, public.users.name").
-		From("public.registrations").
-		LeftJoin("public.users ON public.registrations.user_id = public.users.user_id").
+	rows, err := sq.Select("r.user_id, u.name, COALESCE(array_agg(i.interest), '{}')").
+		From("public.registrations r").
+		LeftJoin("public.users u ON r.user_id = u.user_id").
+		LeftJoin("public.interests i ON r.user_id = i.user_id").
 		Where(sq.Eq{"public.registrations.event_id": strconv.FormatInt(eventID, 10), "public.registrations.ready_to_chat": true}).
+		GroupBy("r.user_id, u.name").
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db).
 		Query()
@@ -437,7 +488,7 @@ func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64) ([
 	var users []*models.Participant
 	for rows.Next() {
 		var user models.Participant
-		if err := rows.Scan(&user.UserID, &user.Name); err != nil {
+		if err := rows.Scan(&user.UserID, &user.Name, pq.Array(&user.Interests)); err != nil {
 			return nil, err
 		}
 		users = append(users, &user)
@@ -481,7 +532,11 @@ func (r *EventRepository) ListEventsByInterests(ctx context.Context, userID int6
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
 
 	for rows.Next() {
 		var event models.Event

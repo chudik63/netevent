@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-//go:generate mockgen -source=eventservice.go -destination=mocks/service_mock.go
+//go:generate mockgen -source=eventservice.go -destination=mock/service_mock.go
 
 type Service interface {
 	CreateEvent(ctx context.Context, event *models.Event) (int64, error)
@@ -23,11 +23,11 @@ type Service interface {
 	DeleteEvent(ctx context.Context, eventID int64) error
 	ListEvents(ctx context.Context) ([]*models.Event, error)
 	ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error)
-	RegisterUser(ctx context.Context, userID int64, eventID int64) error
+	CreateRegistration(ctx context.Context, userID int64, eventID int64) error
 	SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
 	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
-	ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error)
+	ListRegistratedEvents(ctx context.Context, userID int64) ([]*models.Event, error)
 	AddParticipant(ctx context.Context, participant *models.Participant) error
 }
 
@@ -143,8 +143,8 @@ func (s *EventService) ListEventsByInterests(ctx context.Context, req *event.Lis
 	}, status.New(codes.OK, "Success").Err()
 }
 
-func (s *EventService) ListEventsByUser(ctx context.Context, req *event.ListEventsByUserRequest) (*event.ListEventsByUserResponse, error) {
-	resp, err := s.service.ListEventsByUser(ctx, req.GetUserId())
+func (s *EventService) ListRegistratedEvents(ctx context.Context, req *event.ListRegistratedEventsRequest) (*event.ListRegistratedEventsResponse, error) {
+	resp, err := s.service.ListRegistratedEvents(ctx, req.GetUserId())
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list events", zap.String("err", err.Error()))
@@ -154,7 +154,7 @@ func (s *EventService) ListEventsByUser(ctx context.Context, req *event.ListEven
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &event.ListEventsByUserResponse{
+	return &event.ListRegistratedEventsResponse{
 		Events: convertEventsToGRPC(resp),
 	}, status.New(codes.OK, "Success").Err()
 }
@@ -209,13 +209,19 @@ func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventReques
 }
 
 func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUserRequest) (*event.RegisterUserResponse, error) {
-	err := s.service.RegisterUser(ctx, req.GetUserId(), req.GetEventId())
+	err := s.service.CreateRegistration(ctx, req.GetUserId(), req.GetEventId())
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to register user", zap.String("err", err.Error()))
+
+		if errors.Is(err, models.ErrAlreadyRegistered) {
+			return nil, status.Errorf(codes.AlreadyExists, err.Error())
+		}
+
 		if errors.Is(err, models.ErrWrongEventId) || errors.Is(err, models.ErrWrongUserId) {
 			return nil, status.Errorf(codes.NotFound, err.Error())
 		}
+
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -254,9 +260,11 @@ func (s *EventService) SetChatStatus(ctx context.Context, req *event.SetChatStat
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to set chat status", zap.String("err", err.Error()))
-		if errors.Is(err, models.ErrWrongEventId) || errors.Is(err, models.ErrWrongUserId) {
+
+		if errors.Is(err, models.ErrWrongEventId) || errors.Is(err, models.ErrWrongUserId) || errors.Is(err, models.ErrRegistrationNotFound) {
 			return nil, status.Errorf(codes.NotFound, err.Error())
 		}
+
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 

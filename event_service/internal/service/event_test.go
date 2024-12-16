@@ -14,7 +14,7 @@ import (
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/service/mock"
 )
 
-func TestRegisterUser(t *testing.T) {
+func TestCreateRegistration(t *testing.T) {
 	testTable := []struct {
 		name                string
 		inputUserID         int64
@@ -34,7 +34,7 @@ func TestRegisterUser(t *testing.T) {
 			mockRepositorySetup: func(s *mock.MockRepository, userID int64, eventID int64) {
 				s.EXPECT().ReadParticipant(gomock.Any(), userID).Return(&models.Participant{}, nil).Times(2)
 				s.EXPECT().ReadEvent(gomock.Any(), eventID).Return(&models.Event{}, nil).Times(2)
-				s.EXPECT().RegisterUser(gomock.Any(), userID, eventID).Return(nil).Times(1)
+				s.EXPECT().CreateRegistration(gomock.Any(), userID, eventID).Return(nil).Times(1)
 			},
 			mockProducerSetup: func(s *mock.MockProducer, message producer.Message, topic string) {
 				s.EXPECT().Produce(gomock.Any(), message, topic).Times(1)
@@ -77,7 +77,7 @@ func TestRegisterUser(t *testing.T) {
 			mockRepositorySetup: func(s *mock.MockRepository, userID int64, eventID int64) {
 				s.EXPECT().ReadParticipant(gomock.Any(), userID).Return(&models.Participant{}, nil).Times(1)
 				s.EXPECT().ReadEvent(gomock.Any(), eventID).Return(&models.Event{}, nil).Times(1)
-				s.EXPECT().RegisterUser(gomock.Any(), userID, eventID).Return(errors.New("internal error")).Times(1)
+				s.EXPECT().CreateRegistration(gomock.Any(), userID, eventID).Return(errors.New("internal error")).Times(1)
 			},
 			mockProducerSetup: func(s *mock.MockProducer, message producer.Message, topic string) {
 			},
@@ -99,7 +99,7 @@ func TestRegisterUser(t *testing.T) {
 
 			service := New(repository, cache, producer)
 
-			err := service.RegisterUser(context.Background(), testCase.inputUserID, testCase.inputEventID)
+			err := service.CreateRegistration(context.Background(), testCase.inputUserID, testCase.inputEventID)
 
 			assert.Equal(t, testCase.expected, err)
 		})
@@ -300,7 +300,7 @@ func TestListEventsByUser(t *testing.T) {
 
 			service := New(repository, nil, nil)
 
-			result, err := service.ListEventsByUser(context.Background(), testCase.inputUserID)
+			result, err := service.ListRegistratedEvents(context.Background(), testCase.inputUserID)
 
 			assert.Equal(t, testCase.expectedErr, err)
 			assert.Equal(t, testCase.expected, result)

@@ -22,11 +22,12 @@ type Repository interface {
 	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, eventID int64) error
 	ListEvents(ctx context.Context, equations repository.Creds) ([]*models.Event, error)
-	RegisterUser(ctx context.Context, userID int64, eventID int64) error
+	CreateRegistration(ctx context.Context, userID int64, eventID int64) error
+	ListRegistratedEvents(ctx context.Context, userID int64) ([]*models.Event, error)
 	SetChatStatus(ctx context.Context, userID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
 	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
-	InsertParticipant(ctx context.Context, participant *models.Participant) error
+	CreateParticipant(ctx context.Context, participant *models.Participant) error
 	ReadParticipant(ctx context.Context, userID int64) (*models.Participant, error)
 	UpdateParticipant(ctx context.Context, participant *models.Participant) error
 }
@@ -78,18 +79,18 @@ func (s *EventService) ListEventsByCreator(ctx context.Context, creatorID int64)
 	return s.repository.ListEvents(ctx, repository.Creds{"creator_id": creatorID})
 }
 
-func (s *EventService) RegisterUser(ctx context.Context, userID int64, eventID int64) error {
+func (s *EventService) CreateRegistration(ctx context.Context, userID int64, eventID int64) error {
 	_, err := s.repository.ReadParticipant(ctx, userID)
-	if errors.Is(err, models.ErrWrongUserId) {
+	if err != nil {
 		return err
 	}
 
 	_, err = s.repository.ReadEvent(ctx, eventID)
-	if errors.Is(err, models.ErrWrongEventId) {
+	if err != nil {
 		return err
 	}
 
-	err = s.repository.RegisterUser(ctx, userID, eventID)
+	err = s.repository.CreateRegistration(ctx, userID, eventID)
 	if err != nil {
 		return err
 	}
@@ -121,21 +122,26 @@ func (s *EventService) RegisterUser(ctx context.Context, userID int64, eventID i
 
 func (s *EventService) SetChatStatus(ctx context.Context, userID int64, eventID int64, isReady bool) error {
 	_, err := s.repository.ReadParticipant(ctx, userID)
-	if errors.Is(err, models.ErrWrongUserId) {
+	if err != nil {
 		return err
 	}
 
 	_, err = s.repository.ReadEvent(ctx, eventID)
-	if errors.Is(err, models.ErrWrongEventId) {
+	if err != nil {
 		return err
 	}
 
-	return s.repository.SetChatStatus(ctx, userID, eventID, isReady)
+	err = s.repository.CreateRegistration(ctx, userID, eventID)
+	if errors.Is(err, models.ErrAlreadyRegistered) {
+		return s.repository.SetChatStatus(ctx, userID, eventID, isReady)
+	}
+
+	return models.ErrRegistrationNotFound
 }
 
 func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
 	_, err := s.repository.ReadEvent(ctx, eventID)
-	if errors.Is(err, models.ErrWrongEventId) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -162,13 +168,13 @@ func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*m
 	return participants, nil
 }
 
-func (s *EventService) ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error) {
+func (s *EventService) ListRegistratedEvents(ctx context.Context, userID int64) ([]*models.Event, error) {
 	_, err := s.repository.ReadParticipant(ctx, userID)
 	if errors.Is(err, models.ErrWrongUserId) {
 		return nil, err
 	}
 
-	return s.repository.ListEvents(ctx, repository.Creds{"user_id": userID})
+	return s.repository.ListRegistratedEvents(ctx, userID)
 }
 
 func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {
@@ -183,7 +189,7 @@ func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) 
 func (s *EventService) AddParticipant(ctx context.Context, participant *models.Participant) error {
 	_, err := s.repository.ReadParticipant(ctx, participant.UserID)
 	if errors.Is(err, models.ErrWrongUserId) {
-		return s.repository.InsertParticipant(ctx, participant)
+		return s.repository.CreateParticipant(ctx, participant)
 	}
 
 	err = s.repository.UpdateParticipant(ctx, participant)

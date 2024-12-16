@@ -64,6 +64,20 @@ func (mr *MockServiceMockRecorder) CreateEvent(ctx, event interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateEvent", reflect.TypeOf((*MockService)(nil).CreateEvent), ctx, event)
 }
 
+// CreateRegistration mocks base method.
+func (m *MockService) CreateRegistration(ctx context.Context, userID, eventID int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRegistration", ctx, userID, eventID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateRegistration indicates an expected call of CreateRegistration.
+func (mr *MockServiceMockRecorder) CreateRegistration(ctx, userID, eventID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRegistration", reflect.TypeOf((*MockService)(nil).CreateRegistration), ctx, userID, eventID)
+}
+
 // DeleteEvent mocks base method.
 func (m *MockService) DeleteEvent(ctx context.Context, eventID int64) error {
 	m.ctrl.T.Helper()
@@ -123,19 +137,19 @@ func (mr *MockServiceMockRecorder) ListEventsByInterests(ctx, userID interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEventsByInterests", reflect.TypeOf((*MockService)(nil).ListEventsByInterests), ctx, userID)
 }
 
-// ListEventsByUser mocks base method.
-func (m *MockService) ListEventsByUser(ctx context.Context, userID int64) ([]*models.Event, error) {
+// ListRegistratedEvents mocks base method.
+func (m *MockService) ListRegistratedEvents(ctx context.Context, userID int64) ([]*models.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListEventsByUser", ctx, userID)
+	ret := m.ctrl.Call(m, "ListRegistratedEvents", ctx, userID)
 	ret0, _ := ret[0].([]*models.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListEventsByUser indicates an expected call of ListEventsByUser.
-func (mr *MockServiceMockRecorder) ListEventsByUser(ctx, userID interface{}) *gomock.Call {
+// ListRegistratedEvents indicates an expected call of ListRegistratedEvents.
+func (mr *MockServiceMockRecorder) ListRegistratedEvents(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEventsByUser", reflect.TypeOf((*MockService)(nil).ListEventsByUser), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRegistratedEvents", reflect.TypeOf((*MockService)(nil).ListRegistratedEvents), ctx, userID)
 }
 
 // ListUsersToChat mocks base method.
@@ -166,20 +180,6 @@ func (m *MockService) ReadEvent(ctx context.Context, eventID int64) (*models.Eve
 func (mr *MockServiceMockRecorder) ReadEvent(ctx, eventID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadEvent", reflect.TypeOf((*MockService)(nil).ReadEvent), ctx, eventID)
-}
-
-// RegisterUser mocks base method.
-func (m *MockService) RegisterUser(ctx context.Context, userID, eventID int64) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RegisterUser", ctx, userID, eventID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RegisterUser indicates an expected call of RegisterUser.
-func (mr *MockServiceMockRecorder) RegisterUser(ctx, userID, eventID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterUser", reflect.TypeOf((*MockService)(nil).RegisterUser), ctx, userID, eventID)
 }
 
 // SetChatStatus mocks base method.
