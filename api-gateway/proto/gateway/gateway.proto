@@ -1,0 +1,253 @@
+syntax = "proto3";
+
+package gateway;
+
+import "google/api/annotations.proto";
+
+service Gateway {
+    rpc SignUp (SignUpRequest) returns (SignUpResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/sign-in"
+            body: "*"
+        };
+    }
+    
+    rpc SignIn (SignInRequest) returns (SignInResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/sign-in"
+            body: "*"
+        };
+    }
+
+    rpc SignOut (SignOutRequest) returns (SignOutResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/sign-out"
+            body: "*"
+        };
+    }
+
+    rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/event"
+            body: "*"
+        };
+    }
+
+    rpc ReadEvent(ReadEventRequest) returns (ReadEventResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/event/{event_id}"
+            body: "*"
+        };
+    }
+
+    rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse) {
+        option (google.api.http) = {
+            put: "/api/v1/event/{event_id}"
+            body: "*"
+        };
+    }
+
+    rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse) {
+        option (google.api.http) = {
+            delete: "/api/v1/event/{event_id}"
+            body: "*"
+        };
+    }
+
+    rpc ListEvents(ListEventsRequest) returns (ListEventsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/event"
+            body: "*"
+        };
+    }
+
+    rpc ListEventsByCreator(ListEventsByCreatorRequest) returns (ListEventsByCreatorResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/event/creator/{creator_id}"
+            body: "*"
+        };
+    }
+
+    rpc ListEventsByInterests(ListEventsByInterestsRequest) returns (ListEventsByInterestsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/event/interests/{user_id}"
+            body: "*"
+        };
+    }
+
+    rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/event/register"
+            body: "*"
+        };
+    }
+
+    rpc SetChatStatus(SetChatStatusRequest) returns (SetChatStatusResponse) {
+        option (google.api.http) = {
+            put: "/api/v1/event/chat"
+            body: "*"
+        };
+    }
+
+    rpc ListUsersToChat(ListUsersToChatRequest) returns (ListUsersToChatResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/event/chat/{event_id}/{user_id}"
+            body: "*"
+        };
+    }
+
+    rpc ListRegistratedEvents(ListRegistratedEventsRequest) returns (ListRegistratedEventsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/event/registrated/{user_id}"
+            body: "*"
+        };
+    }
+}
+
+message Event {
+    int64 event_id = 1;
+    int64 creator_id = 2;
+    string title = 3;
+    string description = 4;
+    string time = 5;
+    string place = 6;
+    repeated string interests = 7;
+}
+
+message Participant {
+    int64 user_id = 1;
+    string name = 2;
+    repeated string interests = 3;
+    }
+
+message CreateEventRequest {
+    string request_id = 1; 
+    Event event = 2;
+}
+
+message CreateEventResponse {
+    int64 event_id = 1;
+}
+
+message ReadEventRequest {
+    string request_id = 1; 
+    int64 event_id = 2;
+}
+
+message ReadEventResponse {
+    Event event = 2;
+}
+
+message UpdateEventRequest {
+    string request_id = 1; 
+    Event event = 2;
+}
+
+message UpdateEventResponse {
+}
+
+message DeleteEventRequest {
+    string request_id = 1; 
+    int64 event_id = 2;
+}
+
+message DeleteEventResponse {
+}
+
+message ListEventsRequest {
+    string request_id = 1; 
+}
+
+message ListEventsResponse {
+    repeated Event events = 1;
+}
+
+message ListEventsByCreatorRequest {
+    string request_id = 1; 
+    int64 creator_id = 2;
+}
+
+message ListEventsByCreatorResponse {
+    repeated Event events = 1;
+}
+
+message ListEventsByInterestsRequest {
+    string request_id = 1; 
+    int64 user_id = 2;
+}
+
+message ListEventsByInterestsResponse {
+    repeated Event events = 2;
+}
+
+message RegisterUserRequest {
+    string request_id = 1; 
+    int64 user_id = 2;
+    int64 event_id = 3;
+}
+
+message RegisterUserResponse {
+}
+
+message SetChatStatusRequest {
+    string request_id = 1; 
+    int64 participant_id = 2;
+    int64 event_id = 3;
+    bool is_ready = 4;
+}
+
+message SetChatStatusResponse {
+}
+
+message ListUsersToChatRequest {
+    string request_id = 1; 
+    int64 event_id = 2;
+    int64 user_id = 3;
+}
+
+message ListUsersToChatResponse {
+    repeated Participant participants = 1;
+}
+
+message ListRegistratedEventsRequest {
+    string request_id = 1; 
+    int64 user_id = 2;
+}
+
+message ListRegistratedEventsResponse {
+    repeated Event events = 1;
+}
+
+message AddParticipantRequest {
+    Participant user = 1;
+    string email = 2;
+}
+  
+
+message SignUpRequest {
+    string name = 2;
+    string email = 3;
+    string password = 4;
+    repeated string interests = 5;
+}
+
+message SignUpResponse {
+}
+
+message SignInRequest {
+    string name = 1;
+    string password = 2;
+}
+
+message SignInResponse {
+    string access_token = 1;
+    int64 access_token_ttl = 2;
+    string refresh_token = 3;
+    int64 refresh_token_ttl = 4;
+}
+
+message SignOutRequest {
+}
+
+message SignOutResponse {
+}
