@@ -221,6 +221,9 @@ func (r *EventRepository) ListEvents(ctx context.Context, equations Creds) ([]*m
 		RunWith(r.db)
 
 	for key, value := range equations {
+		if key == "user_id" {
+			query = query.LeftJoin("public.registrations r ON e.id = r.event_id")
+		}
 		query = query.Where(sq.Eq{key: value})
 	}
 
@@ -254,7 +257,7 @@ func (r *EventRepository) ListEvents(ctx context.Context, equations Creds) ([]*m
 
 func (r *EventRepository) RegisterUser(ctx context.Context, userID int64, eventID int64) error {
 	_, err := sq.Insert("public.registrations").
-		Columns("event_id", "participant_id").
+		Columns("event_id", "user_id").
 		Values(eventID, userID).
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db).
@@ -271,10 +274,10 @@ func (r *EventRepository) InsertParticipant(ctx context.Context, participant *mo
 		return err
 	}
 
-	err = sq.Insert("public.participant").
+	err = sq.Insert("public.users").
 		Columns("user_id", "name", "email").
 		Values(participant.UserID, participant.Name, participant.Email).
-		Suffix("RETURNING id").
+		Suffix("RETURNING user_id").
 		PlaceholderFormat(sq.Dollar).
 		RunWith(tx).
 		QueryRow().
@@ -286,7 +289,7 @@ func (r *EventRepository) InsertParticipant(ctx context.Context, participant *mo
 
 	if len(participant.Interests) > 0 {
 		insert := sq.Insert("public.interests").
-			Columns("participant_id", "interest").
+			Columns("user_id", "interest").
 			PlaceholderFormat(sq.Dollar).
 			RunWith(tx)
 
@@ -318,8 +321,8 @@ func (r *EventRepository) ReadParticipant(ctx context.Context, userID int64) (*m
 		"p.email",
 		"COALESCE(array_agg(i.interest), '{}') AS interests",
 	).
-		From("public.participants p").
-		LeftJoin("public.interests i ON p.user_id = i.participant_id").
+		From("public.users p").
+		LeftJoin("public.interests i ON p.user_id = i.user_id").
 		Where(sq.Eq{"p.user_id": strconv.FormatInt(userID, 10)}).
 		GroupBy("p.user_id, p.name, p.email").
 		PlaceholderFormat(sq.Dollar).
@@ -345,10 +348,10 @@ func (r *EventRepository) UpdateParticipant(ctx context.Context, participant *mo
 		return err
 	}
 
-	res, err := sq.Update("public.participants").
+	res, err := sq.Update("public.users").
 		Set("name", participant.Name).
 		Set("email", participant.Email).
-		Where(sq.Eq{"id": participant.UserID}).
+		Where(sq.Eq{"user_id": participant.UserID}).
 		PlaceholderFormat(sq.Dollar).
 		RunWith(tx).
 		Exec()
@@ -369,7 +372,7 @@ func (r *EventRepository) UpdateParticipant(ctx context.Context, participant *mo
 	}
 
 	_, err = sq.Delete("public.interests").
-		Where(sq.Eq{"participant_id": participant.UserID}).
+		Where(sq.Eq{"user_id": participant.UserID}).
 		PlaceholderFormat(sq.Dollar).
 		RunWith(tx).
 		Exec()
@@ -380,7 +383,7 @@ func (r *EventRepository) UpdateParticipant(ctx context.Context, participant *mo
 
 	if len(participant.Interests) > 0 {
 		insert := sq.Insert("public.interests").
-			Columns("participant_id", "interest").
+			Columns("user_id", "interest").
 			PlaceholderFormat(sq.Dollar).
 			RunWith(tx)
 
@@ -405,7 +408,7 @@ func (r *EventRepository) UpdateParticipant(ctx context.Context, participant *mo
 func (r *EventRepository) SetChatStatus(ctx context.Context, userID int64, eventID int64, isReady bool) error {
 	_, err := sq.Update("public.registrations").
 		Set("ready_to_chat", isReady).
-		Where(sq.Eq{"event_id": strconv.FormatInt(eventID, 10), "participant_id": strconv.FormatInt(userID, 10)}).
+		Where(sq.Eq{"event_id": strconv.FormatInt(eventID, 10), "user_id": strconv.FormatInt(userID, 10)}).
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db).
 		Exec()
@@ -414,10 +417,10 @@ func (r *EventRepository) SetChatStatus(ctx context.Context, userID int64, event
 }
 
 func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
-	rows, err := sq.Select("public.participants.user_id, public.participants.name").
+	rows, err := sq.Select("public.users.user_id, public.users.name").
 		From("public.registrations").
-		LeftJoin("public.participants ON public.registrations.participant_id = public.participants.id").
-		Where(sq.Eq{"public.registrations.event_id": strconv.FormatInt(eventID, 10), "public.registrations.ready_to_chat": "true"}).
+		LeftJoin("public.users ON public.registrations.user_id = public.users.user_id").
+		Where(sq.Eq{"public.registrations.event_id": strconv.FormatInt(eventID, 10), "public.registrations.ready_to_chat": true}).
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db).
 		Query()
@@ -449,10 +452,10 @@ func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64) ([
 
 func (r *EventRepository) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {
 	var interests []string
-	err := sq.Select("i.interest").
+	err := sq.Select("COALESCE(array_agg(i.interest), '{}')").
 		From("public.interests i").
-		Join("public.participants p ON p.user_id = i.participant_id").
-		Where(sq.Eq{"i.participant_id": userID}).
+		Join("public.users p ON p.user_id = i.user_id").
+		Where(sq.Eq{"i.user_id": userID}).
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db).
 		QueryRow().
@@ -467,6 +470,7 @@ func (r *EventRepository) ListEventsByInterests(ctx context.Context, userID int6
 		From("public.events e").
 		LeftJoin("public.topics t ON e.id = t.event_id").
 		PlaceholderFormat(sq.Dollar).
+		GroupBy("e.id, e.creator_id, e.title, e.description, e.time, e.place").
 		RunWith(r.db)
 
 	for _, interest := range interests {

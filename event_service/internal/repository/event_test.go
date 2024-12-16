@@ -617,9 +617,9 @@ func TestInsertParticipant(t *testing.T) {
 			},
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
-				mock.ExpectQuery("INSERT INTO public.participant").
+				mock.ExpectQuery("INSERT INTO public.participants").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
-					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+					WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow(1))
 
 				mock.ExpectExec("INSERT INTO public.interests").
 					WithArgs(1, "coding", 1, "gaming").
@@ -640,7 +640,7 @@ func TestInsertParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectQuery("INSERT INTO public.participant").
+				mock.ExpectQuery("INSERT INTO public.participants").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
 					WillReturnError(errors.New("insert participant error"))
 
@@ -659,9 +659,9 @@ func TestInsertParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectQuery("INSERT INTO public.participant").
+				mock.ExpectQuery("INSERT INTO public.participants").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
-					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+					WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow(1))
 
 				mock.ExpectExec("INSERT INTO public.interests").
 					WithArgs(1, "coding", 1, "gaming").
@@ -682,9 +682,9 @@ func TestInsertParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectQuery("INSERT INTO public.participant").
+				mock.ExpectQuery("INSERT INTO public.participants").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
-					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+					WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow(1))
 
 				mock.ExpectExec("INSERT INTO public.interests").
 					WithArgs(1, "coding", 1, "gaming").
