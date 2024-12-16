@@ -142,18 +142,18 @@ func (mr *MockRepositoryMockRecorder) ListRegistratedEvents(ctx, userID interfac
 }
 
 // ListUsersToChat mocks base method.
-func (m *MockRepository) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
+func (m *MockRepository) ListUsersToChat(ctx context.Context, eventID, userID int64) ([]*models.Participant, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListUsersToChat", ctx, eventID)
+	ret := m.ctrl.Call(m, "ListUsersToChat", ctx, eventID, userID)
 	ret0, _ := ret[0].([]*models.Participant)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListUsersToChat indicates an expected call of ListUsersToChat.
-func (mr *MockRepositoryMockRecorder) ListUsersToChat(ctx, eventID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) ListUsersToChat(ctx, eventID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUsersToChat", reflect.TypeOf((*MockRepository)(nil).ListUsersToChat), ctx, eventID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUsersToChat", reflect.TypeOf((*MockRepository)(nil).ListUsersToChat), ctx, eventID, userID)
 }
 
 // ReadEvent mocks base method.

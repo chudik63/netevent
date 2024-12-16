@@ -465,12 +465,13 @@ func (r *EventRepository) SetChatStatus(ctx context.Context, userID int64, event
 	return err
 }
 
-func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
+func (r *EventRepository) ListUsersToChat(ctx context.Context, eventID int64, userID int64) ([]*models.Participant, error) {
 	rows, err := sq.Select("r.user_id, u.name, COALESCE(array_agg(i.interest), '{}')").
 		From("public.registrations r").
 		LeftJoin("public.users u ON r.user_id = u.user_id").
 		LeftJoin("public.interests i ON r.user_id = i.user_id").
-		Where(sq.Eq{"public.registrations.event_id": strconv.FormatInt(eventID, 10), "public.registrations.ready_to_chat": true}).
+		Where(sq.Eq{"r.event_id": strconv.FormatInt(eventID, 10), "r.ready_to_chat": true}).
+		Where("u.user_id != ?", userID).
 		GroupBy("r.user_id, u.name").
 		PlaceholderFormat(sq.Dollar).
 		RunWith(r.db).

@@ -25,7 +25,7 @@ type Repository interface {
 	CreateRegistration(ctx context.Context, userID int64, eventID int64) error
 	ListRegistratedEvents(ctx context.Context, userID int64) ([]*models.Event, error)
 	SetChatStatus(ctx context.Context, userID int64, eventID int64, isReady bool) error
-	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
+	ListUsersToChat(ctx context.Context, eventID int64, userID int64) ([]*models.Participant, error)
 	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
 	CreateParticipant(ctx context.Context, participant *models.Participant) error
 	ReadParticipant(ctx context.Context, userID int64) (*models.Participant, error)
@@ -139,7 +139,7 @@ func (s *EventService) SetChatStatus(ctx context.Context, userID int64, eventID 
 	return models.ErrRegistrationNotFound
 }
 
-func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error) {
+func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64, userID int64) ([]*models.Participant, error) {
 	_, err := s.repository.ReadEvent(ctx, eventID)
 	if err != nil {
 		return nil, err
@@ -155,7 +155,7 @@ func (s *EventService) ListUsersToChat(ctx context.Context, eventID int64) ([]*m
 		}
 	}
 
-	participants, err := s.repository.ListUsersToChat(ctx, eventID)
+	participants, err := s.repository.ListUsersToChat(ctx, eventID, userID)
 	if err != nil {
 		return nil, err
 	}

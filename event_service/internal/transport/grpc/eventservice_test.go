@@ -725,7 +725,7 @@ func TestListRegistratedEvents(t *testing.T) {
 }
 
 func TestListUsersToChat(t *testing.T) {
-	type mockBehavior func(s *mock.MockService, eventID int64)
+	type mockBehavior func(s *mock.MockService, eventID int64, userID int64)
 
 	testTable := []struct {
 		name               string
@@ -740,8 +740,8 @@ func TestListUsersToChat(t *testing.T) {
 				RequestId: "1",
 				EventId:   1,
 			},
-			mockBehavior: func(s *mock.MockService, eventID int64) {
-				s.EXPECT().ListUsersToChat(gomock.Any(), eventID).Return([]*models.Participant{{UserID: 1, Name: "User1"}}, nil)
+			mockBehavior: func(s *mock.MockService, eventID int64, userID int64) {
+				s.EXPECT().ListUsersToChat(gomock.Any(), eventID, userID).Return([]*models.Participant{{UserID: 1, Name: "User1"}}, nil)
 			},
 			expectedStatusCode: codes.OK,
 			expectedResponse: &event.ListUsersToChatResponse{
@@ -756,8 +756,8 @@ func TestListUsersToChat(t *testing.T) {
 				RequestId: "2",
 				EventId:   99,
 			},
-			mockBehavior: func(s *mock.MockService, eventID int64) {
-				s.EXPECT().ListUsersToChat(gomock.Any(), eventID).Return(nil, models.ErrWrongEventId)
+			mockBehavior: func(s *mock.MockService, eventID int64, userID int64) {
+				s.EXPECT().ListUsersToChat(gomock.Any(), eventID, userID).Return(nil, models.ErrWrongEventId)
 			},
 			expectedStatusCode: codes.NotFound,
 			expectedResponse:   nil,
@@ -768,8 +768,8 @@ func TestListUsersToChat(t *testing.T) {
 				RequestId: "3",
 				EventId:   1,
 			},
-			mockBehavior: func(s *mock.MockService, eventID int64) {
-				s.EXPECT().ListUsersToChat(gomock.Any(), eventID).Return(nil, errors.New("internal error"))
+			mockBehavior: func(s *mock.MockService, eventID int64, userID int64) {
+				s.EXPECT().ListUsersToChat(gomock.Any(), eventID, userID).Return(nil, errors.New("internal error"))
 			},
 			expectedStatusCode: codes.Internal,
 			expectedResponse:   nil,
@@ -785,7 +785,7 @@ func TestListUsersToChat(t *testing.T) {
 			ctx := context.WithValue(context.Background(), logger.LoggerKey, log)
 
 			service := mock.NewMockService(c)
-			testCase.mockBehavior(service, testCase.inputRequest.GetEventId())
+			testCase.mockBehavior(service, testCase.inputRequest.GetEventId(), testCase.inputRequest.GetUserId())
 
 			eventService := NewEventService(ctx, service)
 

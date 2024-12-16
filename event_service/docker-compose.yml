@@ -1,6 +1,8 @@
 services:
   events:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       postgres:
         condition: service_healthy
@@ -31,7 +33,7 @@ services:
     networks:
       - eventservice
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -46,12 +48,18 @@ services:
       - redis_data:/data
     networks:
       - eventservice
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     
   zookeeper:
     image: confluentinc/cp-zookeeper:7.7.1
     hostname: zookeeper
     ports:
       - "2181:2181"
+    restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -60,17 +68,11 @@ services:
       ZOOKEEPER_SYNC_LIMIT: 2
     networks:
       - eventservice
-    healthcheck:
-      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-  
+
   kafka1:
-    image: confluentinc/cp-server:7.7.1
+    image: confluentinc/cp-kafka:latest
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper
     restart: always
     env_file:
       - .env
@@ -85,16 +87,15 @@ services:
     networks:
       - eventservice
     healthcheck:
-      test: ["CMD-SHELL", "echo > /dev/tcp/localhost/${KAFKA1_PORT}"]
+      test: nc -vz localhost 9091
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 10s
+      retries: 3
   
   kafka2:
-    image: confluentinc/cp-server:7.7.1
+    image: confluentinc/cp-kafka:latest
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper
     restart: always
     env_file:
       - .env
@@ -109,16 +110,15 @@ services:
     networks:
       - eventservice
     healthcheck:
-      test: ["CMD-SHELL", "echo > /dev/tcp/localhost/${KAFKA2_PORT}"]
+      test: nc -vz localhost 9092
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 10s
+      retries: 3
   
   kafka3:
-    image: confluentinc/cp-server:7.7.1
+    image: confluentinc/cp-kafka:latest
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper
     restart: always
     env_file:
       - .env
@@ -133,10 +133,10 @@ services:
     networks:
       - eventservice
     healthcheck:
-      test: ["CMD-SHELL", "echo > /dev/tcp/localhost/${KAFKA3_PORT}"]
+      test: nc -vz localhost 9093
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 10s
+      retries: 3
 
 volumes:
   postgres_data:

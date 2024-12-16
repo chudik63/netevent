@@ -1056,6 +1056,7 @@ func TestListUsersToChat(t *testing.T) {
 	testTable := []struct {
 		name          string
 		eventID       int64
+		userID        int64
 		mockBehavior  mockBehavior
 		expectedUsers []*models.Participant
 		expectedError error
@@ -1106,7 +1107,7 @@ func TestListUsersToChat(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			testCase.mockBehavior(testCase.eventID)
 
-			users, err := r.ListUsersToChat(context.Background(), testCase.eventID)
+			users, err := r.ListUsersToChat(context.Background(), testCase.eventID, testCase.userID)
 
 			if testCase.expectedError != nil {
 				assert.Error(t, err)

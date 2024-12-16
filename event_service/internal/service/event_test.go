@@ -186,7 +186,8 @@ func TestListUsersToChat(t *testing.T) {
 	testTable := []struct {
 		name                string
 		inputEventID        int64
-		mockRepositorySetup func(s *mock.MockRepository, eventID int64)
+		inputUserID         int64
+		mockRepositorySetup func(s *mock.MockRepository, eventID int64, userID int64)
 		mockCacheSetup      func(s *mock.MockCache, cacheKey string, shouldCache bool)
 		expected            []*models.Participant
 		expectedErr         error
@@ -194,9 +195,9 @@ func TestListUsersToChat(t *testing.T) {
 		{
 			name:         "no error test",
 			inputEventID: 1,
-			mockRepositorySetup: func(s *mock.MockRepository, eventID int64) {
+			mockRepositorySetup: func(s *mock.MockRepository, eventID int64, userID int64) {
 				s.EXPECT().ReadEvent(gomock.Any(), eventID).Return(&models.Event{}, nil).Times(1)
-				s.EXPECT().ListUsersToChat(gomock.Any(), eventID).Return([]*models.Participant{{UserID: 1}}, nil).Times(1)
+				s.EXPECT().ListUsersToChat(gomock.Any(), eventID, userID).Return([]*models.Participant{{UserID: 1}}, nil).Times(1)
 			},
 			mockCacheSetup: func(s *mock.MockCache, cacheKey string, shouldCache bool) {
 			},
@@ -206,7 +207,7 @@ func TestListUsersToChat(t *testing.T) {
 		{
 			name:         "wrong event id test",
 			inputEventID: 99,
-			mockRepositorySetup: func(s *mock.MockRepository, eventID int64) {
+			mockRepositorySetup: func(s *mock.MockRepository, eventID int64, userID int64) {
 				s.EXPECT().ReadEvent(gomock.Any(), eventID).Return(nil, models.ErrWrongEventId).Times(1)
 			},
 			mockCacheSetup: func(s *mock.MockCache, cacheKey string, shouldCache bool) {},
@@ -216,9 +217,9 @@ func TestListUsersToChat(t *testing.T) {
 		{
 			name:         "cache hit test",
 			inputEventID: 1,
-			mockRepositorySetup: func(s *mock.MockRepository, eventID int64) {
+			mockRepositorySetup: func(s *mock.MockRepository, eventID int64, userID int64) {
 				s.EXPECT().ReadEvent(gomock.Any(), eventID).Return(&models.Event{}, nil).Times(1)
-				s.EXPECT().ListUsersToChat(gomock.Any(), eventID).Return([]*models.Participant{}, nil).Times(0)
+				s.EXPECT().ListUsersToChat(gomock.Any(), eventID, userID).Return([]*models.Participant{}, nil).Times(0)
 			},
 			mockCacheSetup: func(s *mock.MockCache, cacheKey string, shouldCache bool) {
 				s.EXPECT().Get(gomock.Any(), cacheKey).Return("[]", nil).Times(1)
@@ -237,12 +238,12 @@ func TestListUsersToChat(t *testing.T) {
 			cache := mock.NewMockCache(c)
 
 			cacheKey := "readyToChat:" + strconv.FormatInt(testCase.inputEventID, 10)
-			testCase.mockRepositorySetup(repository, testCase.inputEventID)
+			testCase.mockRepositorySetup(repository, testCase.inputEventID, testCase.inputUserID)
 			testCase.mockCacheSetup(cache, cacheKey, true)
 
 			service := New(repository, cache, nil)
 
-			result, err := service.ListUsersToChat(context.Background(), testCase.inputEventID)
+			result, err := service.ListUsersToChat(context.Background(), testCase.inputEventID, testCase.inputUserID)
 
 			assert.Equal(t, testCase.expectedErr, err)
 			assert.Equal(t, testCase.expected, result)

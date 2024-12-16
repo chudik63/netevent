@@ -25,7 +25,7 @@ type Service interface {
 	ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error)
 	CreateRegistration(ctx context.Context, userID int64, eventID int64) error
 	SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error
-	ListUsersToChat(ctx context.Context, eventID int64) ([]*models.Participant, error)
+	ListUsersToChat(ctx context.Context, eventID int64, userID int64) ([]*models.Participant, error)
 	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
 	ListRegistratedEvents(ctx context.Context, userID int64) ([]*models.Event, error)
 	AddParticipant(ctx context.Context, participant *models.Participant) error
@@ -160,7 +160,7 @@ func (s *EventService) ListRegistratedEvents(ctx context.Context, req *event.Lis
 }
 
 func (s *EventService) ListUsersToChat(ctx context.Context, req *event.ListUsersToChatRequest) (*event.ListUsersToChatResponse, error) {
-	resp, err := s.service.ListUsersToChat(ctx, req.GetEventId())
+	resp, err := s.service.ListUsersToChat(ctx, req.GetEventId(), req.GetUserId())
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to list users to chat", zap.String("err", err.Error()))
