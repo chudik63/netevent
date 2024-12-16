@@ -10,7 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	redis "github.com/redis/go-redis/v9"
-	kafka "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/kafka"
+	producer "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/producer"
 	models "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
 	repository "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 )
@@ -287,7 +287,7 @@ func (m *MockProducer) EXPECT() *MockProducerMockRecorder {
 }
 
 // Produce mocks base method.
-func (m *MockProducer) Produce(ctx context.Context, message kafka.Message, topic string) {
+func (m *MockProducer) Produce(ctx context.Context, message producer.Message, topic string) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Produce", ctx, message, topic)
 }

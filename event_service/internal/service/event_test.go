@@ -8,8 +8,8 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/kafka"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/producer"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/service/mock"
 )
@@ -19,24 +19,24 @@ func TestRegisterUser(t *testing.T) {
 		name                string
 		inputUserID         int64
 		inputEventID        int64
-		kafkaMessage        kafka.Message
+		kafkaMessage        producer.Message
 		kafkaTopic          string
 		mockRepositorySetup func(s *mock.MockRepository, userID int64, eventID int64)
-		mockProducerSetup   func(s *mock.MockProducer, message kafka.Message, topic string)
+		mockProducerSetup   func(s *mock.MockProducer, message producer.Message, topic string)
 		expected            error
 	}{
 		{
 			name:         "no error test",
 			inputUserID:  1,
 			inputEventID: 1,
-			kafkaMessage: kafka.Message{},
-			kafkaTopic:   kafka.RegistrationTopic,
+			kafkaMessage: producer.Message{},
+			kafkaTopic:   "registration",
 			mockRepositorySetup: func(s *mock.MockRepository, userID int64, eventID int64) {
 				s.EXPECT().ReadParticipant(gomock.Any(), userID).Return(&models.Participant{}, nil).Times(2)
 				s.EXPECT().ReadEvent(gomock.Any(), eventID).Return(&models.Event{}, nil).Times(2)
 				s.EXPECT().RegisterUser(gomock.Any(), userID, eventID).Return(nil).Times(1)
 			},
-			mockProducerSetup: func(s *mock.MockProducer, message kafka.Message, topic string) {
+			mockProducerSetup: func(s *mock.MockProducer, message producer.Message, topic string) {
 				s.EXPECT().Produce(gomock.Any(), message, topic).Times(1)
 			},
 			expected: nil,
@@ -45,13 +45,13 @@ func TestRegisterUser(t *testing.T) {
 			name:         "wrong event id test",
 			inputUserID:  1,
 			inputEventID: 99,
-			kafkaMessage: kafka.Message{},
-			kafkaTopic:   kafka.RegistrationTopic,
+			kafkaMessage: producer.Message{},
+			kafkaTopic:   "registration",
 			mockRepositorySetup: func(s *mock.MockRepository, userID int64, eventID int64) {
 				s.EXPECT().ReadParticipant(gomock.Any(), userID).Return(&models.Participant{}, nil).Times(1)
 				s.EXPECT().ReadEvent(gomock.Any(), eventID).Return(&models.Event{}, models.ErrWrongEventId).Times(1)
 			},
-			mockProducerSetup: func(s *mock.MockProducer, message kafka.Message, topic string) {
+			mockProducerSetup: func(s *mock.MockProducer, message producer.Message, topic string) {
 			},
 			expected: models.ErrWrongEventId,
 		},
@@ -59,12 +59,12 @@ func TestRegisterUser(t *testing.T) {
 			name:         "wrong user id test",
 			inputUserID:  99,
 			inputEventID: 1,
-			kafkaMessage: kafka.Message{},
-			kafkaTopic:   kafka.RegistrationTopic,
+			kafkaMessage: producer.Message{},
+			kafkaTopic:   "registration",
 			mockRepositorySetup: func(s *mock.MockRepository, userID int64, eventID int64) {
 				s.EXPECT().ReadParticipant(gomock.Any(), userID).Return(&models.Participant{}, models.ErrWrongUserId).Times(1)
 			},
-			mockProducerSetup: func(s *mock.MockProducer, message kafka.Message, topic string) {
+			mockProducerSetup: func(s *mock.MockProducer, message producer.Message, topic string) {
 			},
 			expected: models.ErrWrongUserId,
 		},
@@ -72,14 +72,14 @@ func TestRegisterUser(t *testing.T) {
 			name:         "internal error test",
 			inputUserID:  1,
 			inputEventID: 1,
-			kafkaMessage: kafka.Message{},
-			kafkaTopic:   kafka.RegistrationTopic,
+			kafkaMessage: producer.Message{},
+			kafkaTopic:   "registration",
 			mockRepositorySetup: func(s *mock.MockRepository, userID int64, eventID int64) {
 				s.EXPECT().ReadParticipant(gomock.Any(), userID).Return(&models.Participant{}, nil).Times(1)
 				s.EXPECT().ReadEvent(gomock.Any(), eventID).Return(&models.Event{}, nil).Times(1)
 				s.EXPECT().RegisterUser(gomock.Any(), userID, eventID).Return(errors.New("internal error")).Times(1)
 			},
-			mockProducerSetup: func(s *mock.MockProducer, message kafka.Message, topic string) {
+			mockProducerSetup: func(s *mock.MockProducer, message producer.Message, topic string) {
 			},
 			expected: errors.New("internal error"),
 		},

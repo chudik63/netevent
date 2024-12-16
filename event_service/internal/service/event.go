@@ -9,8 +9,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/cache"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/kafka"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/producer"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 )
 
@@ -37,7 +37,7 @@ type Cache interface {
 }
 
 type Producer interface {
-	Produce(ctx context.Context, message kafka.Message, topic string)
+	Produce(ctx context.Context, message producer.Message, topic string)
 }
 
 type EventService struct {
@@ -106,14 +106,14 @@ func (s *EventService) RegisterUser(ctx context.Context, userID int64, eventID i
 
 	s.producer.Produce(
 		ctx,
-		kafka.Message{
+		producer.Message{
 			UserEmail:  participant.Email,
 			UserName:   participant.Name,
 			EventName:  event.Title,
 			EventTime:  event.Time,
 			EventPlace: event.Place,
 		},
-		kafka.RegistrationTopic,
+		producer.RegistrationTopic,
 	)
 
 	return nil
@@ -183,8 +183,7 @@ func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) 
 func (s *EventService) AddParticipant(ctx context.Context, participant *models.Participant) error {
 	_, err := s.repository.ReadParticipant(ctx, participant.UserID)
 	if errors.Is(err, models.ErrWrongUserId) {
-		_ = s.repository.InsertParticipant(ctx, participant)
-		return nil
+		return s.repository.InsertParticipant(ctx, participant)
 	}
 
 	err = s.repository.UpdateParticipant(ctx, participant)
