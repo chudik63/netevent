@@ -3,15 +3,21 @@ package grpc
 import (
 	"context"
 
+	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/client"
 	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/pkg/api/gateway"
 )
 
 type GatewayServer struct {
 	gateway.UnimplementedGatewayServer
+	authClient  *client.AuthClient
+	eventClient *client.EventClient
 }
 
-func NewGatewayServer() *GatewayServer {
-	return &GatewayServer{}
+func NewGatewayServer(authClient *client.AuthClient, eventClient *client.EventClient) *GatewayServer {
+	return &GatewayServer{
+		authClient:  authClient,
+		eventClient: eventClient,
+	}
 }
 
 func (s *GatewayServer) CreateEvent(ctx context.Context, req *gateway.CreateEventRequest) (*gateway.CreateEventResponse, error) {

@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	client "gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/client"
 	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/config"
 	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/transport/grpc"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
@@ -28,6 +29,9 @@ func main() {
 	if err != nil {
 		mainLogger.Fatal(ctx, "failed to create config", zap.String("err", err.Error()))
 	}
+
+	authClient := client.NewAuthClient(ctx, cfg)
+	eventClient := client.NewEventClient(ctx, cfg)
 
 	grpcserver, err := grpc.New(ctx, cfg.GRPCServerPort, cfg.RestServerPort)
 	if err != nil {

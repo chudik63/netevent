@@ -6,11 +6,13 @@ import (
 	"net"
 	"net/http"
 
+	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/client"
 	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/pkg/api/gateway"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -22,7 +24,7 @@ type Server struct {
 	listener   net.Listener
 }
 
-func New(ctx context.Context, port, restPort string) (*Server, error) {
+func New(ctx context.Context, port, restPort string, authClient *client.AuthClient, eventClient *client.EventClient) (*Server, error) {
 	logs := logger.GetLoggerFromCtx(ctx)
 
 	lis, err := net.Listen("tcp", ":"+port)
@@ -32,10 +34,15 @@ func New(ctx context.Context, port, restPort string) (*Server, error) {
 
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
-	gateway.RegisterGatewayServer(grpcServer, NewGatewayServer())
+	gateway.RegisterGatewayServer(grpcServer, NewGatewayServer(authClient, eventClient))
+
+	conn, err := grpc.NewClient("0.0.0.0:"+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		logs.Fatal(ctx, "failed to set connection to grpc server", zap.String("err", err.Error()))
+	}
 
 	mux := runtime.NewServeMux()
-	gateway.RegisterGatewayHandlerServer(context.Background(), mux, NewGatewayServer())
+	gateway.RegisterGatewayHandler(context.Background(), mux, conn)
 	restSrv := &http.Server{
 		Addr:    ":" + restPort,
 		Handler: mux,
