@@ -185,7 +185,7 @@ message RegisterUserResponse {
 
 message SetChatStatusRequest {
     string request_id = 1; 
-    int64 participant_id = 2;
+    int64 user_id = 2;
     int64 event_id = 3;
     bool is_ready = 4;
 }
@@ -212,20 +212,17 @@ message ListRegistratedEventsResponse {
     repeated Event events = 1;
 }
 
-message AddParticipantRequest {
-    Participant user = 1;
-    string email = 2;
-}
-  
-
 message SignUpRequest {
+    int64 id = 1;
     string name = 2;
     string email = 3;
     string password = 4;
-    repeated string interests = 5;
+    string role = 5;
+    repeated string interests = 6; 
 }
 
 message SignUpResponse {
+    string message = 1;
 }
 
 message SignInRequest {
