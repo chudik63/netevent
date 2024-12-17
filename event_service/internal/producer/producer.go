@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
 	"go.uber.org/zap"
 )
 

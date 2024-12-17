@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/config"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"

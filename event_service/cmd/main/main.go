@@ -10,11 +10,11 @@ import (
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/config"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/cache"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/postgres"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/producer"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/service"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/transport/grpc"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/migrator"
 
 	"go.uber.org/zap"
