@@ -98,39 +98,108 @@ func (s *GatewayServer) SignOut(ctx context.Context, req *gateway.SignOutRequest
 }
 
 func (s *GatewayServer) CreateEvent(ctx context.Context, req *gateway.CreateEventRequest) (*gateway.CreateEventResponse, error) {
-	// role creator
+	resp, err := s.eventClient.CreateEvent(ctx, &event.CreateEventRequest{
+		RequestId: req.GetRequestId(),
+		Event: &event.Event{
+			EventId:     req.GetEvent().GetEventId(),
+			CreatorId:   req.GetEvent().GetCreatorId(),
+			Title:       req.GetEvent().GetTitle(),
+			Description: req.GetEvent().GetDescription(),
+			Time:        req.GetEvent().GetTime(),
+			Place:       req.GetEvent().GetPlace(),
+			Interests:   req.GetEvent().GetInterests(),
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	return &gateway.CreateEventResponse{
+		EventId: resp.GetEventId(),
+	}, err
 }
 
 func (s *GatewayServer) ReadEvent(ctx context.Context, req *gateway.ReadEventRequest) (*gateway.ReadEventResponse, error) {
-	// role creator
+	resp, err := s.eventClient.ReadEvent(ctx, &event.ReadEventRequest{
+		RequestId: req.GetRequestId(),
+		EventId:   req.GetEventId(),
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	return &gateway.ReadEventResponse{
+		Event: &gateway.Event{
+			EventId:     resp.GetEvent().GetEventId(),
+			CreatorId:   resp.GetEvent().GetCreatorId(),
+			Title:       resp.GetEvent().GetTitle(),
+			Description: resp.GetEvent().GetDescription(),
+			Time:        resp.GetEvent().GetTime(),
+			Place:       resp.GetEvent().GetPlace(),
+			Interests:   resp.GetEvent().GetInterests(),
+		},
+	}, err
 }
 
 func (s *GatewayServer) UpdateEvent(ctx context.Context, req *gateway.UpdateEventRequest) (*gateway.UpdateEventResponse, error) {
-	// role creator
+	_, err := s.eventClient.UpdateEvent(ctx, &event.UpdateEventRequest{
+		RequestId: req.GetRequestId(),
+		Event: &event.Event{
+			EventId:     req.GetEvent().GetEventId(),
+			CreatorId:   req.GetEvent().GetCreatorId(),
+			Title:       req.GetEvent().GetTitle(),
+			Description: req.GetEvent().GetDescription(),
+			Time:        req.GetEvent().GetTime(),
+			Place:       req.GetEvent().GetPlace(),
+			Interests:   req.GetEvent().GetInterests(),
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	return &gateway.UpdateEventResponse{}, err
 }
 
 func (s *GatewayServer) DeleteEvent(ctx context.Context, req *gateway.DeleteEventRequest) (*gateway.DeleteEventResponse, error) {
-	// role creator
+	_, err := s.eventClient.DeleteEvent(ctx, &event.DeleteEventRequest{
+		RequestId: req.GetRequestId(),
+		EventId:   req.GetEventId(),
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	return &gateway.DeleteEventResponse{}, err
 }
 
 func (s *GatewayServer) ListEvents(ctx context.Context, req *gateway.ListEventsRequest) (*gateway.ListEventsResponse, error) {
-	// role creator
+	resp, err := s.eventClient.ListEvents(ctx, &event.ListEventsRequest{
+		RequestId: req.GetRequestId(),
+	})
 
-	return nil, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return &gateway.ListEventsResponse{
+		Events: convertEvents(resp.GetEvents()),
+	}, err
 }
 
 func (s *GatewayServer) ListEventsByCreator(ctx context.Context, req *gateway.ListEventsByCreatorRequest) (*gateway.ListEventsByCreatorResponse, error) {
-	// role creator
+	resp, err := s.eventClient.ListEventsByCreator(ctx, &event.ListEventsByCreatorRequest{
+		RequestId: req.GetRequestId(),
+		CreatorId: req.GetCreatorId(),
+	})
 
-	return nil, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return &gateway.ListEventsByCreatorResponse{
+		Events: convertEvents(resp.GetEvents()),
+	}, err
 }
 
 func (s *GatewayServer) ListEventsByInterests(ctx context.Context, req *gateway.ListEventsByInterestsRequest) (*gateway.ListEventsByInterestsResponse, error) {
