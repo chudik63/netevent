@@ -37,23 +37,25 @@ func (s *Parser) Cleanup(_ sarama.ConsumerGroupSession) error {
 }
 
 func (s *Parser) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	ctx := context.Background()
+	ctx := sess.Context()
 
 	for msg := range claim.Messages() {
-		sess.MarkMessage(msg, "")
-
 		var notification domain.Notification
 
 		if err := json.Unmarshal(msg.Value, &notification); err != nil {
-			logger.Default().Errorf(ctx, "failed to unmarshal message %q: %s", msg.Value, err)
+			logger.GetLoggerFromCtx(ctx).Errorf(ctx, "failed to unmarshal message %q: %s", msg.Value, err)
+			sess.MarkMessage(msg, "")
 			continue
 		}
 
 		_, err := s.repo.AddNotification(ctx, notification)
 		if err != nil {
-			logger.Default().Errorf(ctx, "failed add notification: %s", err)
+			logger.GetLoggerFromCtx(ctx).Errorf(ctx, "failed add notification: %s", err)
 			continue
 		}
+
+		sess.MarkMessage(msg, "")
+		logger.GetLoggerFromCtx(ctx).Infof(ctx, "add notification to %q", notification.UserEmail)
 	}
 
 	return nil

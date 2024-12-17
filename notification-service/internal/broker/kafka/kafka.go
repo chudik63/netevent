@@ -38,7 +38,7 @@ func (k *Kafka) Run(ctx context.Context) error {
 	// Track errors
 	go func() {
 		for err := range k.group.Errors() {
-			logger.Default().Errorf(ctx, "kafka group error: %s", err)
+			logger.GetLoggerFromCtx(ctx).Errorf(ctx, "kafka group error: %s", err)
 		}
 	}()
 

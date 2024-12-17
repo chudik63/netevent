@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,7 +18,8 @@ import (
 const stopTimeout = 3 * time.Second
 
 func main() {
-	ctx := context.Background()
+	lg := logger.New(os.Stdout, slog.LevelInfo, "notification-service")
+	ctx := logger.CtxWithLogger(context.Background(), lg)
 
 	os.Exit(mainWithExitCode(ctx))
 }
@@ -27,18 +29,18 @@ func mainWithExitCode(ctx context.Context) (exitCode int) {
 
 	cfg, err := config.New()
 	if err != nil {
-		logger.Default().Errorf(ctx, "failed to get config: %s", err)
+		logger.GetLoggerFromCtx(ctx).Errorf(ctx, "failed to get config: %s", err)
 		return 1
 	}
 
 	if err := app.Initialize(ctx, cfg); err != nil {
-		logger.Default().Errorf(ctx, "failed to initialize app: %s", err)
+		logger.GetLoggerFromCtx(ctx).Errorf(ctx, "failed to initialize app: %s", err)
 		return 1
 	}
 
 	go func() {
 		if err := app.Run(ctx); err != nil {
-			logger.Default().Errorf(ctx, "failed to run app: %s", err)
+			logger.GetLoggerFromCtx(ctx).Errorf(ctx, "failed to run app: %s", err)
 			os.Exit(2)
 		}
 	}()
@@ -50,10 +52,10 @@ func mainWithExitCode(ctx context.Context) (exitCode int) {
 	ctx, cancel := context.WithTimeout(ctx, stopTimeout)
 	defer cancel()
 
-	logger.Default().Infof(ctx, "Graceful shutdown...")
+	logger.GetLoggerFromCtx(ctx).Infof(ctx, "Graceful shutdown...")
 
 	if err := app.Stop(ctx); err != nil {
-		logger.Default().Infof(ctx, "Telegram application shutdown error: %s", err)
+		logger.GetLoggerFromCtx(ctx).Infof(ctx, "Telegram application shutdown error: %s", err)
 		return 3
 	}
 

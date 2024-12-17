@@ -43,19 +43,21 @@ func (s *Sender) Run(ctx context.Context) error {
 		case <-time.After(s.interval):
 			notifications, err := s.repo.GetNearestNotifications(ctx)
 			if err != nil {
-				logger.Default().Errorf(ctx, "failed to get notifications: %s", err)
+				logger.GetLoggerFromCtx(ctx).Errorf(ctx, "failed to get notifications: %s", err)
 				break
 			}
 
 			for _, notify := range notifications {
 				if err := s.mail.Send(notify.EventName, notify); err != nil {
-					logger.Default().Errorf(ctx, "failed to send notification: %s", err)
+					logger.GetLoggerFromCtx(ctx).Errorf(ctx, "failed to send notification: %s", err)
 					break
 				}
 
+				logger.GetLoggerFromCtx(ctx).Infof(ctx, "send notification to %q", notify.UserEmail)
+
 				_, err := s.repo.DeleteNotification(ctx, notify.ID)
 				if err != nil {
-					logger.Default().Errorf(ctx, "failed to delete notification with id = %d: %s", notify.ID, err)
+					logger.GetLoggerFromCtx(ctx).Errorf(ctx, "failed to delete notification with id = %d: %s", notify.ID, err)
 				}
 			}
 		}
