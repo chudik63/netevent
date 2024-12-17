@@ -67,7 +67,7 @@ func New(serviceName string) (Logger, error) {
 	}
 
 	config := zap.Config{
-		Level:            zap.NewAtomicLevelAt(zap.FatalLevel),
+		Level:            zap.NewAtomicLevelAt(zap.InfoLevel),
 		Development:      true,
 		Encoding:         "console",
 		EncoderConfig:    encoderConfig,
