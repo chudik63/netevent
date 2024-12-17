@@ -10,8 +10,8 @@ import (
 
 var (
 	secretKey   = []byte("secret key")
-	Small       = 10
-	Long        = 20
+	Small       = 100
+	Long        = 400
 	ExpTime     = time.Duration(Small) * time.Second
 	LongExpTime = time.Duration(Long) * time.Second
 	jwtMethod   = jwt.SigningMethodHS256
@@ -44,8 +44,12 @@ func GetTocken(name string, expTime time.Duration) (string, error) {
 
 func ValidTocken(token string) (bool, error) {
 	valid, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
 		return secretKey, nil
 	})
+
 	switch {
 	case valid.Valid:
 		return true, nil

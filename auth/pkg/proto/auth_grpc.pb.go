@@ -22,7 +22,6 @@ const (
 	AuthService_Register_FullMethodName     = "/protobf.AuthService/Register"
 	AuthService_Authenticate_FullMethodName = "/protobf.AuthService/Authenticate"
 	AuthService_Authorise_FullMethodName    = "/protobf.AuthService/Authorise"
-	AuthService_GetInterests_FullMethodName = "/protobf.AuthService/GetInterests"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -32,7 +31,6 @@ type AuthServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Authenticate(ctx context.Context, in *AuthenticateRequest, opts ...grpc.CallOption) (*AuthenticateResponse, error)
 	Authorise(ctx context.Context, in *AuthoriseRequest, opts ...grpc.CallOption) (*AuthoriseResponse, error)
-	GetInterests(ctx context.Context, in *GetInterestsRequest, opts ...grpc.CallOption) (*GetInterestsResponse, error)
 }
 
 type authServiceClient struct {
@@ -73,16 +71,6 @@ func (c *authServiceClient) Authorise(ctx context.Context, in *AuthoriseRequest,
 	return out, nil
 }
 
-func (c *authServiceClient) GetInterests(ctx context.Context, in *GetInterestsRequest, opts ...grpc.CallOption) (*GetInterestsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetInterestsResponse)
-	err := c.cc.Invoke(ctx, AuthService_GetInterests_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -90,7 +78,6 @@ type AuthServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Authenticate(context.Context, *AuthenticateRequest) (*AuthenticateResponse, error)
 	Authorise(context.Context, *AuthoriseRequest) (*AuthoriseResponse, error)
-	GetInterests(context.Context, *GetInterestsRequest) (*GetInterestsResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -109,9 +96,6 @@ func (UnimplementedAuthServiceServer) Authenticate(context.Context, *Authenticat
 }
 func (UnimplementedAuthServiceServer) Authorise(context.Context, *AuthoriseRequest) (*AuthoriseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorise not implemented")
-}
-func (UnimplementedAuthServiceServer) GetInterests(context.Context, *GetInterestsRequest) (*GetInterestsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetInterests not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -188,24 +172,6 @@ func _AuthService_Authorise_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_GetInterests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetInterestsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).GetInterests(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AuthService_GetInterests_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).GetInterests(ctx, req.(*GetInterestsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -224,10 +190,6 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Authorise",
 			Handler:    _AuthService_Authorise_Handler,
-		},
-		{
-			MethodName: "GetInterests",
-			Handler:    _AuthService_GetInterests_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -7,7 +7,7 @@ service AuthService {
   rpc Register(RegisterRequest) returns (RegisterResponse);
   rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
   rpc Authorise(AuthoriseRequest) returns (AuthoriseResponse);  
-  rpc GetInterests(GetInterestsRequest) returns (GetInterestsResponse);  
+  // rpc GetInterests(GetInterestsRequest) returns (GetInterestsResponse);  
 }
 
 message User {
@@ -15,7 +15,8 @@ message User {
   string name = 2;
   string email = 3;
   string password = 4; // Should be hashed before storing
-  repeated string interests = 5; 
+  string role = 5;
+  repeated string interests = 6; 
 }
 
 message Token {
@@ -48,18 +49,17 @@ message AuthenticateResponse {
 // ValidateToken
 message AuthoriseRequest {
   string token = 1;
-  string url = 2;         //????если нужна проверка url он должен проверяться в гейтвее а не в сервисе авторизации
 }
 
 message AuthoriseResponse {
-  int64 user_id = 1;
+  string role = 1;
   string message = 2; // "OK" or error message
 }
 
-message GetInterestsRequest {
-  int64 user_id = 1;
-}
+// message GetInterestsRequest {
+//   int64 user_id = 1;
+// }
 
-message GetInterestsResponse {
-  repeated string interests = 1;
-}
+// message GetInterestsResponse {
+//   repeated string interests = 1;
+// }

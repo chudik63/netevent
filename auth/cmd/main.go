@@ -42,18 +42,4 @@ func main() {
 		srv.Stop(ctx)
 	}()
 
-	// type Hello struct {
-	// 	UserId     int64  `db:"id"`
-	// 	SecondName string `db:"name"`
-	// 	PasswdHash string `db:"password"`
-	// 	Email      string `db:"email"`
-	// 	Role       int    `db:"role"`
-	// 	Interest   string `db:"interest"`
-	// }
-	// var hey Hello
-	// err = db.Db.Get(&hey, "SELECT \"id\" FROM tuser;")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Println(hey)
 }
