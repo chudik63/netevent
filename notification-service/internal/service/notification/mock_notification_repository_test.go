@@ -70,12 +70,12 @@ func (_m *MockNotificationRepository) DeleteNotification(ctx context.Context, id
 	return r0, r1
 }
 
-// GetNotifications provides a mock function with given fields: ctx
-func (_m *MockNotificationRepository) GetNotifications(ctx context.Context) ([]domain.Notification, error) {
+// GetNearestNotifications provides a mock function with given fields: ctx
+func (_m *MockNotificationRepository) GetNearestNotifications(ctx context.Context) ([]domain.Notification, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetNotifications")
+		panic("no return value specified for GetNearestNotifications")
 	}
 
 	var r0 []domain.Notification

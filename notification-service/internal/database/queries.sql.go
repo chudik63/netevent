@@ -64,15 +64,51 @@ func (q *Queries) DeleteNotification(ctx context.Context, id int64) (Notificatio
 	return i, err
 }
 
-const getNotifications = `-- name: GetNotifications :many
+const getAllNotifications = `-- name: GetAllNotifications :many
+SELECT 
+	id, user_name, user_email, event_name, event_place, event_time
+FROM notifications
+`
+
+func (q *Queries) GetAllNotifications(ctx context.Context) ([]Notification, error) {
+	rows, err := q.db.QueryContext(ctx, getAllNotifications)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Notification
+	for rows.Next() {
+		var i Notification
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserName,
+			&i.UserEmail,
+			&i.EventName,
+			&i.EventPlace,
+			&i.EventTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getNearestNotifications = `-- name: GetNearestNotifications :many
 SELECT 
 	id, user_name, user_email, event_name, event_place, event_time
 FROM notifications
 WHERE AGE(NOW(), event_time) <= INTERVAL '1 day'
 `
 
-func (q *Queries) GetNotifications(ctx context.Context) ([]Notification, error) {
-	rows, err := q.db.QueryContext(ctx, getNotifications)
+func (q *Queries) GetNearestNotifications(ctx context.Context) ([]Notification, error) {
+	rows, err := q.db.QueryContext(ctx, getNearestNotifications)
 	if err != nil {
 		return nil, err
 	}

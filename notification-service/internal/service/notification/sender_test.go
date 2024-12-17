@@ -2,7 +2,6 @@ package notification_test
 
 import (
 	context "context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -15,7 +14,7 @@ import (
 
 func TestRun(t *testing.T) {
 	mockRepo := NewMockNotificationRepository(t)
-	mockRepo.On("GetNotifications", mock.Anything).Return([]domain.Notification{
+	mockRepo.On("GetNearestNotifications", mock.Anything).Return([]domain.Notification{
 		{
 			ID:         1,
 			UserName:   "name",
@@ -65,9 +64,8 @@ func TestRun(t *testing.T) {
 	}()
 
 	// waiting for work
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(1800 * time.Millisecond)
 
-	fmt.Println("stopping")
 	err := sender.Stop(ctx)
 	assert.NoError(t, err)
 

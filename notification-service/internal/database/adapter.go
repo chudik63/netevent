@@ -38,8 +38,22 @@ func NewAdapter(ctx context.Context, cfg config.SQL) (*DBAdapter, error) {
 	}, nil
 }
 
-func (db *DBAdapter) GetNotifications(ctx context.Context) ([]domain.Notification, error) {
-	res, err := db.queries.GetNotifications(ctx)
+func (db *DBAdapter) GetAllNotifications(ctx context.Context) ([]domain.Notification, error) {
+	res, err := db.queries.GetAllNotifications(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get notifications: %w", err)
+	}
+
+	notifies := make([]domain.Notification, 0, len(res))
+	for _, v := range res {
+		notifies = append(notifies, dbNotificationToGlobal(v))
+	}
+
+	return notifies, nil
+}
+
+func (db *DBAdapter) GetNearestNotifications(ctx context.Context) ([]domain.Notification, error) {
+	res, err := db.queries.GetNearestNotifications(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get notifications: %w", err)
 	}

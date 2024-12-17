@@ -11,7 +11,7 @@ import (
 
 //go:generate mockery --name NotificationRepository  --structname MockNotificationRepository --filename mock_notification_repository_test.go --outpkg notification_test --output .
 type NotificationRepository interface {
-	GetNotifications(ctx context.Context) ([]domain.Notification, error)
+	GetNearestNotifications(ctx context.Context) ([]domain.Notification, error)
 	AddNotification(ctx context.Context, notify domain.Notification) (domain.Notification, error)
 	DeleteNotification(ctx context.Context, id int64) (domain.Notification, error)
 }
@@ -54,7 +54,6 @@ func (s *Parser) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 			logger.Default().Errorf(ctx, "failed add notification: %s", err)
 			continue
 		}
-
 	}
 
 	return nil

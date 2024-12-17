@@ -2,7 +2,6 @@ package notification
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
@@ -39,12 +38,10 @@ func (s *Sender) Run(ctx context.Context) error {
 	for {
 		select {
 		case <-s.done:
-			fmt.Println("ok")
 			return nil
 
 		case <-time.After(s.interval):
-			fmt.Println("default")
-			notifications, err := s.repo.GetNotifications(ctx)
+			notifications, err := s.repo.GetNearestNotifications(ctx)
 			if err != nil {
 				logger.Default().Errorf(ctx, "failed to get notifications: %s", err)
 				break
