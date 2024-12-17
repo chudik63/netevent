@@ -15,14 +15,8 @@ type Config struct {
 	MigrationsPath string `env:"MIGRATIONS_PATH"`
 	GRPCServerPort string `env:"GRPC_SERVER_PORT"`
 
-	Kafka1Host string `env:"KAFKA1_HOST"`
-	Kafka1Port string `env:"KAFKA1_PORT"`
-
-	Kafka2Host string `env:"KAFKA2_HOST"`
-	Kafka2Port string `env:"KAFKA2_PORT"`
-
-	Kafka3Host string `env:"KAFKA3_HOST"`
-	Kafka3Port string `env:"KAFKA3_PORT"`
+	KafkaHost string `env:"KAFKA_HOST"`
+	KafkaPort string `env:"KAFKA_PORT"`
 }
 
 func New() (*Config, error) {

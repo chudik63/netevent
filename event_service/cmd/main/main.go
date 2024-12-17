@@ -40,7 +40,7 @@ func main() {
 	db := postgres.New(ctx, cfg.Config)
 	redis := cache.New(cfg.RedisConfig)
 
-	producer, err := producer.New(ctx, []string{cfg.Kafka1Host + ":" + cfg.Kafka1Port, cfg.Kafka2Host + ":" + cfg.Kafka2Port, cfg.Kafka3Host + ":" + cfg.Kafka3Port})
+	producer, err := producer.New(ctx, []string{cfg.KafkaHost + ":" + cfg.KafkaPort})
 	if err != nil {
 		mainLogger.Fatal(ctx, "failed to create broker", zap.String("err", err.Error()))
 	}

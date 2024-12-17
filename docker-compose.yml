@@ -6,11 +6,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      kafka1:
-        condition: service_healthy
-      kafka2:
-        condition: service_healthy
-      kafka3:
+      kafka:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -53,90 +49,41 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    
+
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.7.1
-    hostname: zookeeper
+    image: wurstmeister/zookeeper:latest
     ports:
       - "2181:2181"
-    restart: always
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-      ZOOKEEPER_SERVER_ID: 1
-      ZOOKEEPER_INIT_LIMIT: 5
-      ZOOKEEPER_SYNC_LIMIT: 2
-    networks:
-      - eventservice
-
-  kafka1:
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
-    restart: always
-    env_file:
-      - .env
-    ports:
-      - "9091:9091"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA1_HOST}:${KAFKA1_PORT},PLAINTEXT_HOST://localhost:9091
-      KAFKA_CREATE_TOPICS: "registration:1:1"
     networks:
       - eventservice
     healthcheck:
-      test: nc -vz localhost 9091
+      test: ["CMD-SHELL", "echo ruok | nc -w 5 localhost 2181 | grep imok"]
       interval: 10s
-      timeout: 10s
-      retries: 3
-  
-  kafka2:
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
-    restart: always
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: wurstmeister/kafka:latest
     env_file:
       - .env
     ports:
       - "9092:9092"
     environment:
-      KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA2_HOST}:${KAFKA2_PORT},PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CREATE_TOPICS: "registration:1:1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - eventservice
     healthcheck:
-      test: nc -vz localhost 9092
-      interval: 10s
+      test: kafka-topics.sh --list --bootstrap-server localhost:9092 || exit 1
+      interval: 5s
       timeout: 10s
-      retries: 3
-  
-  kafka3:
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
-    restart: always
-    env_file:
-      - .env
-    ports:
-      - "9093:9093"
-    environment:
-      KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA3_HOST}:${KAFKA3_PORT},PLAINTEXT_HOST://localhost:9093
-      KAFKA_CREATE_TOPICS: "registration:1:1"
-    networks:
-      - eventservice
-    healthcheck:
-      test: nc -vz localhost 9093
-      interval: 10s
-      timeout: 10s
-      retries: 3
+      retries: 5
 
 volumes:
   postgres_data:
