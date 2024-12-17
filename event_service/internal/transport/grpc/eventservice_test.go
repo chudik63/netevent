@@ -7,10 +7,10 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/logger"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/transport/grpc/mock"
 	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/api/proto/event"
+	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

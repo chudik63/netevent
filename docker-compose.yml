@@ -1,7 +1,7 @@
 services:
   events:
     build:
-      context: .
+      context: ./event_service
       dockerfile: Dockerfile
     depends_on:
       postgres:
