@@ -22,10 +22,10 @@ type Server struct {
 	listener   net.Listener
 }
 
-func New(ctx context.Context, port, restPort int) (*Server, error) {
+func New(ctx context.Context, port, restPort string) (*Server, error) {
 	logs := logger.GetLoggerFromCtx(ctx)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		logs.Fatal(ctx, "failed to listen", zap.String("err", err.Error()))
 	}
@@ -37,7 +37,7 @@ func New(ctx context.Context, port, restPort int) (*Server, error) {
 	mux := runtime.NewServeMux()
 	gateway.RegisterGatewayHandlerServer(context.Background(), mux, NewGatewayServer())
 	restSrv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", restPort),
+		Addr:    ":" + restPort,
 		Handler: mux,
 	}
 	return &Server{grpcServer, restSrv, lis}, nil

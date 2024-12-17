@@ -3,8 +3,14 @@ package config
 import "github.com/ilyakaznacheev/cleanenv"
 
 type Config struct {
-	GRPCServerPort int `env:"GRPC_SERVER_PORT" env-default:"5400"`
-	RestServerPort int `env:"REST_SERVER_PORT" env-default:"8000"`
+	GRPCServerPort string `env:"GRPC_SERVER_PORT"`
+	RestServerPort string `env:"REST_SERVER_PORT"`
+
+	AuthServiceHost string `env:"AUTH_SERVICE_HOST"`
+	AuthServicePort string `env:"AUTH_SERVICER_PORT"`
+
+	EventServiceHost string `env:"EVENT_SERVICE_HOST"`
+	EventServicePort string `env:"EVENT_SERVICE_PORT"`
 }
 
 func New() (*Config, error) {
