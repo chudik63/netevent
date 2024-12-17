@@ -25,6 +25,15 @@ func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 			return handler(ctx, req)
 		}
 
+		creatorRoutes := map[string]bool{
+			"/gateway.GatewayService/CreateEvent":         true,
+			"/gateway.GatewayService/ReadEvent":           true,
+			"/gateway.GatewayService/UpdateEvent":         true,
+			"/gateway.GatewayService/DeleteEvent":         true,
+			"/gateway.GatewayService/ListEvents":          true,
+			"/gateway.GatewayService/ListEventsByCreator": true,
+		}
+
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			return nil, errors.New("missing metadata in request")
@@ -43,7 +52,11 @@ func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 					return resp.GetMessage(), err
 				}
 
-				ctx = metadata.AppendToOutgoingContext(ctx, "role", resp.GetRole())
+				role := resp.GetRole()
+
+				if creatorRoutes[info.FullMethod] && role != "creator" {
+					return nil, errors.New("permission denied")
+				}
 			}
 		}
 
