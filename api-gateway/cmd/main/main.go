@@ -51,5 +51,9 @@ func main() {
 	if err := grpcserver.Stop(ctx); err != nil {
 		mainLogger.Info(ctx, "failed to stop server", zap.String("err", err.Error()))
 	}
+
+	authClient.Stop()
+	eventClient.Stop()
+
 	mainLogger.Info(ctx, "server stopped")
 }
