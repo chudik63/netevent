@@ -32,7 +32,9 @@ func New(ctx context.Context, port, restPort string, authClient *client.AuthClie
 		logs.Fatal(ctx, "failed to listen", zap.String("err", err.Error()))
 	}
 
-	grpcServer := grpc.NewServer()
+	interceptor := NewAuthInterceptor(authClient)
+
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(interceptor.Unary()))
 	reflection.Register(grpcServer)
 	gateway.RegisterGatewayServer(grpcServer, NewGatewayServer(authClient, eventClient))
 
