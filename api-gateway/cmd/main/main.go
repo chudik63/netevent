@@ -33,7 +33,7 @@ func main() {
 	authClient := client.NewAuthClient(ctx, cfg)
 	eventClient := client.NewEventClient(ctx, cfg)
 
-	grpcserver, err := grpc.New(ctx, cfg.GRPCServerPort, cfg.RestServerPort)
+	grpcserver, err := grpc.New(ctx, cfg.GRPCServerPort, cfg.RestServerPort, authClient, eventClient)
 	if err != nil {
 		log.Fatalf("Error creating grpc server: %v", err)
 	}
