@@ -5,7 +5,7 @@ stages:
   - test
 
 variables:
-  NOTIFICATIONDIR: notification-server
+  NOTIFICATIONDIR: notification-service
 
 build-job:
   stage: build
