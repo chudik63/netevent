@@ -9,6 +9,7 @@ import (
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/broker/kafka"
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/database"
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/service/notification"
+	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/pkg/logger"
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/pkg/mail/gmail"
 	"golang.org/x/sync/errgroup"
 )
@@ -35,9 +36,7 @@ func (a *Application) Initialize(ctx context.Context, cfg *config.Config) error 
 
 	a.closers = append(a.closers, db.Close)
 
-	parser := notification.NewParser(db)
-
-	kfk, err := kafka.New(cfg.Kafka, parser)
+	kfk, err := kafka.New(cfg.Kafka, db)
 	if err != nil {
 		return fmt.Errorf("kafka.New(): %w", err)
 	}
@@ -51,6 +50,8 @@ func (a *Application) Initialize(ctx context.Context, cfg *config.Config) error 
 }
 
 func (a *Application) Run(ctx context.Context) error {
+	logger.GetLoggerFromCtx(ctx).Infof(ctx, "starting application")
+
 	eg := errgroup.Group{}
 
 	eg.Go(func() error {

@@ -9,6 +9,13 @@ import (
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/pkg/logger"
 )
 
+//go:generate mockery --name NotificationRepository  --structname MockNotificationRepository --filename mock_notification_repository_test.go --outpkg notification_test --output .
+type NotificationRepository interface {
+	GetNearestNotifications(ctx context.Context) ([]domain.Notification, error)
+	AddNotification(ctx context.Context, notify domain.Notification) (domain.Notification, error)
+	DeleteNotification(ctx context.Context, id int64) (domain.Notification, error)
+}
+
 //go:generate mockery --name Mail --structname MockMail --filename mock_mail_test.go --outpkg notification_test --output .
 type Mail interface {
 	Send(subject string, msg domain.Notification) error

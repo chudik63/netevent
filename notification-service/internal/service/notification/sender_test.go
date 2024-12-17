@@ -2,14 +2,17 @@ package notification_test
 
 import (
 	context "context"
+	"log/slog"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
-	domain "gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/domain"
+	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/domain"
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/service/notification"
+	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/pkg/logger"
 )
 
 func TestRun(t *testing.T) {
@@ -56,7 +59,8 @@ func TestRun(t *testing.T) {
 	cfg := config.Sender{SecondInterval: 1}
 
 	sender := notification.NewSender(cfg, mockRepo, mockMail)
-	ctx := context.Background()
+	lg := logger.New(os.Stdout, slog.LevelInfo, "test-notification-service")
+	ctx := logger.CtxWithLogger(context.Background(), lg)
 
 	go func() {
 		err := sender.Run(ctx)

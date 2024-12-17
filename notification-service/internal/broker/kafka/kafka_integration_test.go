@@ -1,9 +1,13 @@
+//go:build integration
+// +build integration
+
 package kafka_test
 
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"log/slog"
+	"os"
 	"testing"
 	"time"
 
@@ -17,11 +21,12 @@ import (
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/broker/kafka"
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/database"
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/domain"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/service/notification"
+	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/pkg/logger"
 )
 
 func TestKafka(t *testing.T) {
-	ctx := context.Background()
+	lg := logger.New(os.Stdout, slog.LevelInfo, "test-notification-service")
+	ctx := logger.CtxWithLogger(context.Background(), lg)
 	cfg := config.Config{}
 
 	err := cleanenv.ReadConfig("../../../test/.env", &cfg)
@@ -45,9 +50,7 @@ func TestKafka(t *testing.T) {
 		}
 	}()
 
-	parser := notification.NewParser(db)
-
-	kfk, err := kafka.New(cfg.Kafka, parser)
+	kfk, err := kafka.New(cfg.Kafka, db)
 	require.NoError(t, err, "failed to create kafka")
 
 	go func() {
@@ -63,13 +66,8 @@ func TestKafka(t *testing.T) {
 	producerConfig := sarama.NewConfig()
 	producerConfig.Producer.Return.Successes = true
 
-	producer, err := sarama.NewSyncProducer([]string{fmt.Sprintf("%s:%d", cfg.Kafka.Host, cfg.Kafka.Port)}, producerConfig)
+	producer, err := sarama.NewSyncProducer([]string{"localhost:9091", "localhost:9092", "localhost:9093"}, producerConfig)
 	require.NoError(t, err, "failed to create kafka producer")
-
-	defer func() {
-		err := producer.Close()
-		assert.NoError(t, err, "failed to close kafka producer")
-	}()
 
 	notifications := []domain.Notification{
 		{
@@ -108,14 +106,17 @@ func TestKafka(t *testing.T) {
 		require.NoError(t, err, "failed to send message")
 	}
 
-	testMessage := "invalid massage"
+	invalidMessage := "invalid massage"
 	msg := &sarama.ProducerMessage{
 		Topic: cfg.Kafka.Topic,
-		Value: sarama.StringEncoder(testMessage),
+		Value: sarama.StringEncoder(invalidMessage),
 	}
 
 	_, _, err = producer.SendMessage(msg)
 	require.NoError(t, err, "failed to send message")
+
+	err = producer.Close()
+	assert.NoError(t, err, "failed to close kafka producer")
 
 	// waiting for work
 	time.Sleep(5 * time.Second)

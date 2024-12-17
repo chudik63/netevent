@@ -30,10 +30,11 @@ type Mail struct {
 }
 
 type Kafka struct {
-	Host  string `env:"KAFKA_HOST"  env-default:"localhost"`
-	Port  int    `env:"KAFKA_PORT"  env-default:"9092"`
-	Group string `env:"KAFKA_GROUP" env-default:"mail-group"`
-	Topic string `env:"KAFKA_TOPIC" env-default:"mail"`
+	Host      string `env:"KAFKA_HOST"  env-default:"localhost"`
+	Port      int    `env:"KAFKA_PORT"  env-default:"9092"`
+	Group     string `env:"KAFKA_GROUP" env-default:"mail-group"`
+	Topic     string `env:"KAFKA_TOPIC" env-default:"mail"`
+	Partition int32  `env:"KAFKA_PARTITION" env-default:"0"`
 }
 
 type Sender struct {
