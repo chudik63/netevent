@@ -1,0 +1,20 @@
+image: golang:alpine
+
+stages:
+  - build
+  - test
+
+variables:
+  EVENTDIR: event_service
+
+build-job:
+  stage: build
+  script:
+    - cd $EVENTDIR
+    - go build -o bin/event cmd/main
+
+test-job:
+  stage: test
+  script:
+    - cd $EVENTDIR
+    - go test ./...
