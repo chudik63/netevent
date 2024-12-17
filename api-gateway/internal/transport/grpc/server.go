@@ -71,6 +71,7 @@ func (s *Server) Start(ctx context.Context) error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
+
 	s.grpcServer.GracefulStop()
 	return s.restServer.Shutdown(ctx)
 }
