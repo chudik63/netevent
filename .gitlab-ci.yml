@@ -1,0 +1,20 @@
+image: golang:alpine
+
+stages:
+  - build
+  - test
+
+variables:
+  NOTIFICATIONDIR: notification-service
+
+build-job:
+  stage: build
+  script:
+    - cd $NOTIFICATIONDIR
+    - go build -o bin/main cmd/notification/main.go
+
+test-job:
+  stage: test
+  script:
+    - cd $NOTIFICATIONDIR
+    - go test ./...
