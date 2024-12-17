@@ -1,13 +1,15 @@
 syntax = "proto3";
 
-package gateway;
-
 import "google/api/annotations.proto";
+
+option go_package = "pkg/api/gateway";
+
+package gateway;
 
 service Gateway {
     rpc SignUp (SignUpRequest) returns (SignUpResponse) {
         option (google.api.http) = {
-            post: "/api/v1/sign-in"
+            post: "/api/v1/sign-up"
             body: "*"
         };
     }
@@ -22,7 +24,6 @@ service Gateway {
     rpc SignOut (SignOutRequest) returns (SignOutResponse) {
         option (google.api.http) = {
             get: "/api/v1/sign-out"
-            body: "*"
         };
     }
 
@@ -36,42 +37,37 @@ service Gateway {
     rpc ReadEvent(ReadEventRequest) returns (ReadEventResponse) {
         option (google.api.http) = {
             get: "/api/v1/event/{event_id}"
-            body: "*"
         };
     }
 
     rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse) {
         option (google.api.http) = {
-            put: "/api/v1/event/{event_id}"
-            body: "*"
+            put: "/api/v1/event/{event.event_id}"
+            body: "event"
         };
     }
 
     rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse) {
         option (google.api.http) = {
             delete: "/api/v1/event/{event_id}"
-            body: "*"
         };
     }
 
     rpc ListEvents(ListEventsRequest) returns (ListEventsResponse) {
         option (google.api.http) = {
             get: "/api/v1/event"
-            body: "*"
         };
     }
 
     rpc ListEventsByCreator(ListEventsByCreatorRequest) returns (ListEventsByCreatorResponse) {
         option (google.api.http) = {
             get: "/api/v1/event/creator/{creator_id}"
-            body: "*"
         };
     }
 
     rpc ListEventsByInterests(ListEventsByInterestsRequest) returns (ListEventsByInterestsResponse) {
         option (google.api.http) = {
             get: "/api/v1/event/interests/{user_id}"
-            body: "*"
         };
     }
 
@@ -92,14 +88,12 @@ service Gateway {
     rpc ListUsersToChat(ListUsersToChatRequest) returns (ListUsersToChatResponse) {
         option (google.api.http) = {
             get: "/api/v1/event/chat/{event_id}/{user_id}"
-            body: "*"
         };
     }
 
     rpc ListRegistratedEvents(ListRegistratedEventsRequest) returns (ListRegistratedEventsResponse) {
         option (google.api.http) = {
             get: "/api/v1/event/registrated/{user_id}"
-            body: "*"
         };
     }
 }
@@ -118,7 +112,7 @@ message Participant {
     int64 user_id = 1;
     string name = 2;
     repeated string interests = 3;
-    }
+}
 
 message CreateEventRequest {
     string request_id = 1; 
@@ -135,7 +129,7 @@ message ReadEventRequest {
 }
 
 message ReadEventResponse {
-    Event event = 2;
+    Event event = 1;
 }
 
 message UpdateEventRequest {
