@@ -3,7 +3,7 @@ services:
   auth:
     build: ./auth
     container_name: auth_app
-    # restart: always
+    restart: always
     ports:
       - ${PORT_AUTH}:6000
     depends_on:
@@ -28,17 +28,25 @@ services:
     container_name: postgresdb
     restart: always
     ports:
-      - "${PORT_POSTGRES}:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - ./data/postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB:${POSTGRES_DATABASE}
-      - POSTGRES_USER:${POSTGRES_USER}
-      - POSTGRES_PASSWORD:${POSTGRES_PASWD}
-  nginx:
-    image: nginx
-    container_name: nginx_balanser
-    volumes:
-      - ./conf/:/etc/nginx/templates
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASWD}
+  adminer:
+    image: adminer
+    restart: always
     ports:
-      - 8080:80
+      - 8000:8080
+  # pgadmin4:
+  #   image: elestio/pgadmin
+  #   restart: always
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: root
+  #   ports:
+  #       - 9000:80
+  #   volumes:
+  #     - ./servers.json:/pgadmin4/servers.json
