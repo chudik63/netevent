@@ -10,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var path = "../../.env"
+var path = ".env"
 
 type Config struct {
 	UserName string `env:"POSTGRES_USERNAME" env-default:"postgres"`
@@ -40,6 +40,7 @@ func New() (*DB, error) {
 	}
 	fmt.Println(cfg)
 
+	//cfg.Port = "5432"
 	dataSorceName := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
 		cfg.UserName, cfg.Password, cfg.DBname, cfg.Host, cfg.Port)
 	fmt.Println(dataSorceName)

@@ -36,7 +36,7 @@ func main() {
 
 	//создаётся один раз
 	//важно что б ай ди шли по порядку иначе в бд ошибки будут
-	//NewUser(conn)
+	NewUser(conn)
 	Authenticate(conn)
 	Authorise(conn)
 
@@ -50,8 +50,8 @@ func NewUser(conn *grpc.ClientConn) {
 
 	res, err := c.Register(ctx, &pb.RegisterRequest{
 		User: &pb.User{
-			Id:        int64(2),
-			Name:      "Anton04",
+			Id:        int64(3),
+			Name:      "Anton03",
 			Email:     "Nekt@gmail.ru",
 			Password:  "adf123",
 			Role:      "admin",

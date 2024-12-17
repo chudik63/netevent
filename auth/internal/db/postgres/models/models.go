@@ -15,3 +15,10 @@ type Token struct {
 	RefreshTkn string `json: "refreshtkn" db: "refreshtkn"`
 	RefreshTtl int64  `json: "refreshttl" db: "refreshttl"`
 }
+
+type Participant struct {
+	UserId    int64
+	Name      string
+	Interests []string
+	Email     string
+}

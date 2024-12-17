@@ -28,7 +28,17 @@ func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regist
 	}
 	err := a.repo.NewUser(mod)
 	if err != nil {
-		return nil, err
+		return &pb.RegisterResponse{Message: "err in db: " + err.Error()}, err
+	}
+
+	err = sendToEvent(&models.Participant{
+		UserId:    us.Id,
+		Name:      us.Name,
+		Interests: us.Interests,
+		Email:     us.Email,
+	})
+	if err != nil {
+		return &pb.RegisterResponse{Message: "err to send event service: " + err.Error()}, err
 	}
 	return &pb.RegisterResponse{Message: "OK"}, nil
 }

@@ -4,25 +4,14 @@ services:
     build: ./auth
     container_name: auth_app
     restart: always
-    ports:
-      - ${PORT_AUTH}:6000
     depends_on:
-      - redis
       - postgres
     env_file:
       - .env
-  redis:
-    image: redis:latest
-    container_name: redisdb
-    restart: always
     ports:
-      - ${PORT_REDIS}:6379
-    volumes:
-      - ./data/redis_data:/data
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_USER=${REDIS_USER}
-      - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD}
+      - ${PORT_AUTH}:${PORT_AUTH}
+    networks:
+      - authservice
   postgres:
     image: postgres
     container_name: postgresdb
@@ -35,11 +24,18 @@ services:
       - POSTGRES_DB=${POSTGRES_DATABASE}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASWD}
+    networks:
+      - authservice
   adminer:
     image: adminer
     restart: always
     ports:
       - 8000:8080
+    networks:
+      - authservice
+
+networks:
+  authservice:
   # pgadmin4:
   #   image: elestio/pgadmin
   #   restart: always
