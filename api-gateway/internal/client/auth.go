@@ -1,4 +1,4 @@
-package authservice
+package client
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type AuthClient struct {
 	conn *grpc.ClientConn
 }
 
-func NewClient(ctx context.Context, cfg config.Config) *AuthClient {
+func NewAuthClient(ctx context.Context, cfg *config.Config) *AuthClient {
 	logs := logger.GetLoggerFromCtx(ctx)
 
 	conn, err := grpc.NewClient(cfg.AuthServiceHost+":"+cfg.AuthServicePort, grpc.WithTransportCredentials(insecure.NewCredentials()))

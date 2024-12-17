@@ -1,4 +1,4 @@
-package eventservice
+package client
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type EventClient struct {
 	conn *grpc.ClientConn
 }
 
-func NewClient(ctx context.Context, cfg config.Config) *EventClient {
+func NewEventClient(ctx context.Context, cfg *config.Config) *EventClient {
 	logs := logger.GetLoggerFromCtx(ctx)
 
 	conn, err := grpc.NewClient(cfg.EventServiceHost+":"+cfg.EventServicePort, grpc.WithTransportCredentials(insecure.NewCredentials()))
