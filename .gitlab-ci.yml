@@ -22,7 +22,7 @@ test:
     - ls -la
   artifacts:
     paths:
-      - events_coverage.out
+      - $EVENTDIR/events_coverage.out
     expire_in: 1 hour
 
 check_coverage:
