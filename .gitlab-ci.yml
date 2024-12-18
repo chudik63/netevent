@@ -7,21 +7,29 @@ stages:
 
 variables:
   EVENTDIR: event_service
+  NOTIFICATIONDIR: notification-service
 
 build:
   stage: build
   script:
     - cd $EVENTDIR
     - go build -o bin/event cmd/main/main.go
+    - cd ..
+    - cd $NOTIFICATIONDIR
+    - go build -o bin/notification cmd/notification/main.go
 
 test:
   stage: test
   script:
     - cd $EVENTDIR
     - go test ./... -coverprofile=events_coverage.out
+    - cd ..
+    - cd $NOTIFICATIONDIR
+    - go test ./... -coverprofile=notification_coverage.out
   artifacts:
     paths:
       - $EVENTDIR/events_coverage.out
+      - $NOTIFICATIONDIR/notification_coverage.out
     expire_in: 1 hour
 
 check_coverage:
@@ -32,8 +40,18 @@ check_coverage:
       COVERAGE=$(go tool cover -func=events_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
       echo "Coverage: $COVERAGE%"
       if [ "$COVERAGE" -lt 30 ]; then
-        echo "Coverage is below 30%, failing the pipeline"
+        echo "Coverage in events service is below 30%, failing the pipeline"
+        exit 1
+      fi
+    - cd ..
+    - cd $NOTIFICATIONDIR
+    - |
+      COVERAGE=$(go tool cover -func=notification_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      echo "Coverage: $COVERAGE%"
+      if [ "$COVERAGE" -lt 30 ]; then
+        echo "Coverage in notification service is below 30%, failing the pipeline"
         exit 1
       fi
   dependencies:
     - test
+    
