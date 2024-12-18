@@ -1,0 +1,76 @@
+image: golang:alpine
+
+stages:
+  - build_events
+  - build_notification
+  - test_events
+  - test_notification
+  - check_coverage_events
+  - check_coverage_notification
+
+variables:
+  EVENTDIR: event_service
+  NOTIFICATIONDIR: notification-service
+
+build_events:
+  stage: build_events
+  script:
+    - cd $EVENTDIR
+    - go build -o bin/event cmd/main/main.go
+
+build_notification:
+  stage: build_notification
+  script:
+    - cd $NOTIFICATIONDIR
+    - go build -o bin/notification cmd/notification/main.go
+
+test_events:
+  stage: test_events
+  script:
+    - cd $EVENTDIR
+    - go test ./... -coverprofile=events_coverage.out
+  artifacts:
+    paths:
+      - $EVENTDIR/events_coverage.out
+    expire_in: 1 hour
+
+test_notification:
+  stage: test_notification
+  script:
+    - cd $NOTIFICATIONDIR/internal/service
+    - go test ./... -coverprofile=notification_coverage.out
+  artifacts:
+    paths:
+      - $NOTIFICATIONDIR/internal/service/notification_coverage.out
+    expire_in: 1 hour
+
+check_coverage_events:
+  stage: check_coverage_events
+  script:
+    - cd $EVENTDIR
+    - |
+      COVERAGE=$(go tool cover -func=events_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      echo "Coverage: $COVERAGE%"
+      RES=$(echo "$COVERAGE < 30" | bc)
+      if [ "$RES" -eq 1 ]; then
+        echo "Coverage is below 30%, failing the pipeline"
+        exit 1
+      fi
+  dependencies:
+    - test_events
+
+check_coverage_notification:
+  stage: check_coverage_notification
+  script:
+    - cd $NOTIFICATIONDIR/internal/service
+    - |
+      COVERAGE=$(go tool cover -func=notification_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      echo "Coverage: $COVERAGE%"
+      RES=$(echo "$COVERAGE < 30" | bc)
+      if [ "$RES" -eq 1 ]; then
+        echo "Coverage is below 30%, failing the pipeline"
+        exit 1
+      fi
+  dependencies:
+    - test_notification
+    
