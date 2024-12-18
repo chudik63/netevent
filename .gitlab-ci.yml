@@ -1,6 +1,7 @@
 image: golang:alpine
 
 stages:
+  - build_auth
   - build_events
   - build_notification
   - test_events
@@ -11,6 +12,13 @@ stages:
 variables:
   EVENTDIR: event_service
   NOTIFICATIONDIR: notification-service
+  AUTHDIR: auth
+
+build_auth:
+  stage: build_auth
+  script:
+    - cd $AUTHDIR
+    - go build -o bin/auth cmd/main.go
 
 build_events:
   stage: build_events
