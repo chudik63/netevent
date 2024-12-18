@@ -28,7 +28,7 @@ services:
       context: ./event_service
       dockerfile: Dockerfile
     depends_on:
-      postgres:
+      events_postgres:
         condition: service_healthy
       kafka:
         condition: service_healthy
@@ -45,7 +45,7 @@ services:
   events_postgres:
     image: postgres:latest
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - events_postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
     ports:
@@ -57,6 +57,54 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  
+  notification-postgres:
+    image: postgres:latest
+    container_name: notification_postgres_container
+    volumes:
+      - notification_postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5430:5430
+    networks:
+      - app
+    env_file: ".env"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    env_file: ".env"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      zookeeper:
+        condition: service_healthy
+      notification-migrate:
+        condition: service_completed_successfully
+    networks:
+      - netevent
+
+  notification-migrate:
+    image: migrate/migrate
+    depends_on:
+      notification-postgres:
+        condition: service_healthy
+    networks:
+      - netevent
+    volumes:
+      - ./notification-service/internal/database/migrations/:/database/migrations
+    command:
+      [
+        "-path",
+        "/database/migrations/",
+        "-database",
+        "${NOTIFICATION_DB_URL}",
+        "up",
+      ]
 
   redis:
     image: redis:latest
@@ -110,8 +158,9 @@ services:
       retries: 5
 
 volumes:
-  postgres_data:
+  events_postgres_data:
   redis_data:
+  notification_postgres_data:
 
 networks:
   netevent:
