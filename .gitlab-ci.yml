@@ -6,15 +6,22 @@ stages:
 
 variables:
   EVENTDIR: event_service
+  NOTIFICATIONDIR: notification-service
 
 build-job:
   stage: build
   script:
     - cd $EVENTDIR
     - go build -o bin/event cmd/main/main.go
+    - cd ..
+    - cd $NOTIFICATIONDIR
+    - go build -o bin/notification cmd/notification/main.go
 
 test-job:
   stage: test
   script:
     - cd $EVENTDIR
+    - go test ./...
+    - cd ..
+    - cd $NOTIFICATIONDIR
     - go test ./...
