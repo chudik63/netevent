@@ -3,12 +3,13 @@ image: golang:alpine
 stages:
   - build
   - test
+  - check_coverage
 
 variables:
   EVENTDIR: event_service
   NOTIFICATIONDIR: notification-service
 
-build-job:
+build:
   stage: build
   script:
     - cd $EVENTDIR
@@ -17,11 +18,40 @@ build-job:
     - cd $NOTIFICATIONDIR
     - go build -o bin/notification cmd/notification/main.go
 
-test-job:
+test:
   stage: test
   script:
     - cd $EVENTDIR
-    - go test ./...
+    - go test ./... -coverprofile=events_coverage.out
     - cd ..
     - cd $NOTIFICATIONDIR
-    - go test ./...
+    - go test ./... -coverprofile=notification_coverage.out
+  artifacts:
+    paths:
+      - $EVENTDIR/events_coverage.out
+      - $NOTIFICATIONDIR/notification_coverage.out
+    expire_in: 1 hour
+
+check_coverage:
+  stage: check_coverage
+  script:
+    - cd $EVENTDIR 
+    - |
+      COVERAGE=$(go tool cover -func=events_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      echo "Coverage: $COVERAGE%"
+      if [ "$COVERAGE" -lt 30 ]; then
+        echo "Coverage in events service is below 30%, failing the pipeline"
+        exit 1
+      fi
+    - cd ..
+    - cd $NOTIFICATIONDIR
+    - |
+      COVERAGE=$(go tool cover -func=notification_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      echo "Coverage: $COVERAGE%"
+      if [ "$COVERAGE" -lt 30 ]; then
+        echo "Coverage in notification service is below 30%, failing the pipeline"
+        exit 1
+      fi
+  dependencies:
+    - test
+    
