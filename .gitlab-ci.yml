@@ -11,7 +11,7 @@ build-job:
   stage: build
   script:
     - cd $EVENTDIR
-    - go build -o bin/event cmd/main
+    - go build -o bin/event cmd/main/main.go
 
 test-job:
   stage: test
