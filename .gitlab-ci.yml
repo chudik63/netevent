@@ -35,4 +35,4 @@ check_coverage:
         exit 1
       fi
   dependencies:
-    - test-job
+    - test
