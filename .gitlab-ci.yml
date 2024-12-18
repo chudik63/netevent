@@ -4,8 +4,10 @@ stages:
   - build_auth
   - build_events
   - build_notification
+  - test_auth
   - test_events
   - test_notification
+  - check_coverage_auth
   - check_coverage_events
   - check_coverage_notification
 
@@ -32,6 +34,16 @@ build_notification:
     - cd $NOTIFICATIONDIR
     - go build -o bin/notification cmd/notification/main.go
 
+test_auth:
+  stage: test_auth
+  script:
+    - cd $AUTHDIR/internal/token
+    - go test ./... -coverprofile=auth_coverage.out
+  artifacts:
+    paths:
+      - $AUTHDIR/internal/token/auth_coverage.out
+    expire_in: 1 hour
+
 test_events:
   stage: test_events
   script:
@@ -51,6 +63,21 @@ test_notification:
     paths:
       - $NOTIFICATIONDIR/internal/service/notification_coverage.out
     expire_in: 1 hour
+
+check_coverage_auth:
+  stage: check_coverage_auth
+  script:
+    - cd $AUTHDIR/internal/token
+    - |
+      COVERAGE=$(go tool cover -func=auth_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      echo "Coverage: $COVERAGE%"
+      RES=$(echo "$COVERAGE < 30" | bc)
+      if [ "$RES" -eq 1 ]; then
+        echo "Coverage is below 30%, failing the pipeline"
+        exit 1
+      fi
+  dependencies:
+    - test_auth
 
 check_coverage_events:
   stage: check_coverage_events
