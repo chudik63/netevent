@@ -1,18 +1,18 @@
 image: golang:alpine
 
 stages:
-# - build
+  - build
   - test
   - check_coverage
 
 variables:
   EVENTDIR: event_service
 
-# build:
-#   stage: build
-#   script:
-#     - cd $EVENTDIR
-#     - go build -o bin/event cmd/main/main.go
+build:
+  stage: build
+  script:
+    - cd $EVENTDIR
+    - go build -o bin/event cmd/main/main.go
 
 test:
   stage: test
