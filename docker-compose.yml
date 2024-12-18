@@ -22,6 +22,42 @@ services:
       - "${GRPC_SERVER_PORT}:${GRPC_SERVER_PORT}"
     networks:
       - netevent
+  
+  auth:
+    build: ./auth
+    container_name: auth_app
+    restart: always
+    depends_on:
+      - auth_postgres
+    env_file:
+      - .env
+    ports:
+      - ${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}
+    networks:
+      - netevent
+
+  auth_postgres:
+    image: postgres
+    container_name: postgresdb
+    restart: always
+    ports:
+      - "${AUTH_POSTGRES_PORT}:5432"
+    volumes:
+      - ./data/postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${AUTH_POSTGRES_DATABASE}
+      - POSTGRES_USER=${AUTH_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${AUTH_POSTGRES_PASWD}
+    networks:
+      - netevent
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8000:8080
+    networks:
+      - netevent
 
   events:
     build:
