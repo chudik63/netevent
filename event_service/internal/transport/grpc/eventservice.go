@@ -230,7 +230,7 @@ func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUser
 
 func (s *EventService) UpdateEvent(ctx context.Context, req *event.UpdateEventRequest) (*event.UpdateEventResponse, error) {
 	if _, err := time.Parse(models.TimeLayout, req.GetEvent().GetTime()); err != nil {
-		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to create event", zap.String("err", models.ErrWrongTimeFormat.Error()))
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, req.GetRequestId()), "failed to update event", zap.String("err", models.ErrWrongTimeFormat.Error()))
 		return nil, status.Errorf(codes.InvalidArgument, models.ErrWrongTimeFormat.Error())
 	}
 

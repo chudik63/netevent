@@ -240,7 +240,7 @@ func TestUpdateEvent(t *testing.T) {
 					CreatorId:   1,
 					Title:       "Updated Event",
 					Description: "Updated Description",
-					Time:        "2024-12-25T10:00:00Z",
+					Time:        "2024-01-01 10:00:00",
 					Place:       "Updated Place",
 					Interests:   []string{"updated_interest1", "updated_interest2"},
 				},
@@ -265,6 +265,8 @@ func TestUpdateEvent(t *testing.T) {
 					Interests:   []string{"updated_interest1", "updated_interest2"},
 				},
 			},
+			mockBehavior: func(s *mock.MockService, event *models.Event) {
+			},
 			expectedStatusCode: codes.InvalidArgument,
 			expectedResponse:   nil,
 		},
@@ -273,11 +275,11 @@ func TestUpdateEvent(t *testing.T) {
 			inputUpdateRequest: &event.UpdateEventRequest{
 				RequestId: "4",
 				Event: &event.Event{
-					EventId:     99, // Non-existing event ID
+					EventId:     99,
 					CreatorId:   1,
 					Title:       "Updated Event",
 					Description: "Updated Description",
-					Time:        "2024-12-25T10:00:00Z",
+					Time:        "2024-01-01 10:00:00",
 					Place:       "Updated Place",
 					Interests:   []string{"updated_interest1", "updated_interest2"},
 				},
@@ -297,7 +299,7 @@ func TestUpdateEvent(t *testing.T) {
 					CreatorId:   1,
 					Title:       "Updated Event",
 					Description: "Updated Description",
-					Time:        "2024-12-25T10:00:00Z",
+					Time:        "2024-01-01 10:00:00",
 					Place:       "Updated Place",
 					Interests:   []string{"updated_interest1", "updated_interest2"},
 				},

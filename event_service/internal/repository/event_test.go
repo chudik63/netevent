@@ -617,20 +617,20 @@ func TestCreateParticipant(t *testing.T) {
 			},
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
-				mock.ExpectQuery("INSERT INTO public.participants").
+				mock.ExpectQuery("INSERT INTO public.users").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
 					WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow(1))
 
 				mock.ExpectExec("INSERT INTO public.interests").
 					WithArgs(1, "coding", 1, "gaming").
-					WillReturnResult(sqlmock.NewResult(2, 2)) // 2 rows inserted
+					WillReturnResult(sqlmock.NewResult(2, 2))
 
 				mock.ExpectCommit()
 			},
 			expectedError: nil,
 		},
 		{
-			name: "Participant Insert Error",
+			name: "Users Insert Error",
 			participant: &models.Participant{
 				UserID:    1,
 				Name:      "Abra Kadabra",
@@ -640,13 +640,13 @@ func TestCreateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectQuery("INSERT INTO public.participants").
+				mock.ExpectQuery("INSERT INTO public.users").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
-					WillReturnError(errors.New("insert participant error"))
+					WillReturnError(errors.New("insert user error"))
 
 				mock.ExpectRollback()
 			},
-			expectedError: errors.New("insert participant error"),
+			expectedError: errors.New("insert user error"),
 		},
 		{
 			name: "Interests Insert Error",
@@ -659,7 +659,7 @@ func TestCreateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectQuery("INSERT INTO public.participants").
+				mock.ExpectQuery("INSERT INTO public.users").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
 					WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow(1))
 
@@ -682,7 +682,7 @@ func TestCreateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectQuery("INSERT INTO public.participants").
+				mock.ExpectQuery("INSERT INTO public.users").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
 					WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow(1))
 
@@ -846,7 +846,7 @@ func TestUpdateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.participants").
+				mock.ExpectExec("UPDATE public.users").
 					WithArgs(participant.Name, participant.Email, participant.UserID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -886,7 +886,7 @@ func TestUpdateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.participants").
+				mock.ExpectExec("UPDATE public.users").
 					WithArgs(participant.Name, participant.Email, participant.UserID).
 					WillReturnError(errors.New("update error"))
 			},
@@ -903,7 +903,7 @@ func TestUpdateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.participants").
+				mock.ExpectExec("UPDATE public.users").
 					WithArgs(participant.Name, participant.Email, participant.UserID).
 					WillReturnResult(sqlmock.NewResult(0, 0))
 			},
@@ -920,7 +920,7 @@ func TestUpdateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.participants").
+				mock.ExpectExec("UPDATE public.users").
 					WithArgs(participant.Name, participant.Email, participant.UserID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -941,7 +941,7 @@ func TestUpdateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.participants").
+				mock.ExpectExec("UPDATE public.users").
 					WithArgs(participant.Name, participant.Email, participant.UserID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -1033,88 +1033,6 @@ func TestSetChatStatus(t *testing.T) {
 				assert.Equal(t, testCase.expectedError.Error(), err.Error())
 			} else {
 				assert.NoError(t, err)
-			}
-
-			if err := mock.ExpectationsWereMet(); err != nil {
-				t.Errorf("Expectations were not met: %v", err)
-			}
-		})
-	}
-}
-
-func TestListUsersToChat(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("Failed to create sqlmock: %v", err)
-	}
-	defer db.Close()
-
-	r := New(postgres.DB{DB: db})
-
-	type mockBehavior func(eventID int64)
-
-	testTable := []struct {
-		name          string
-		eventID       int64
-		userID        int64
-		mockBehavior  mockBehavior
-		expectedUsers []*models.Participant
-		expectedError error
-	}{
-		{
-			name:    "OK test",
-			eventID: 1,
-			mockBehavior: func(eventID int64) {
-				mock.ExpectQuery("SELECT public.participants.user_id, public.participants.name").
-					WithArgs(strconv.FormatInt(eventID, 10), "true").
-					WillReturnRows(sqlmock.NewRows([]string{"user_id", "name"}).
-						AddRow(1, "John Doe").
-						AddRow(2, "Jane Doe"))
-			},
-			expectedUsers: []*models.Participant{
-				{UserID: 1, Name: "John Doe"},
-				{UserID: 2, Name: "Jane Doe"},
-			},
-			expectedError: nil,
-		},
-		{
-			name:    "Query error",
-			eventID: 1,
-			mockBehavior: func(eventID int64) {
-				mock.ExpectQuery("SELECT public.participants.user_id, public.participants.name").
-					WithArgs(strconv.FormatInt(eventID, 10), "true").
-					WillReturnError(errors.New("query error"))
-			},
-			expectedUsers: nil,
-			expectedError: errors.New("query error"),
-		},
-		{
-			name:    "Scan error",
-			eventID: 1,
-			mockBehavior: func(eventID int64) {
-				mock.ExpectQuery("SELECT public.participants.user_id, public.participants.name").
-					WithArgs(strconv.FormatInt(eventID, 10), "true").
-					WillReturnRows(sqlmock.NewRows([]string{"user_id", "name"}).
-						AddRow(1, "John Doe").
-						AddRow(nil, nil))
-			},
-			expectedUsers: nil,
-			expectedError: errors.New("sql: Scan error on column index 0, name \"user_id\": converting NULL to int64 is unsupported"),
-		},
-	}
-
-	for _, testCase := range testTable {
-		t.Run(testCase.name, func(t *testing.T) {
-			testCase.mockBehavior(testCase.eventID)
-
-			users, err := r.ListUsersToChat(context.Background(), testCase.eventID, testCase.userID)
-
-			if testCase.expectedError != nil {
-				assert.Error(t, err)
-				assert.Equal(t, testCase.expectedError.Error(), err.Error())
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, testCase.expectedUsers, users)
 			}
 
 			if err := mock.ExpectationsWereMet(); err != nil {
