@@ -21,7 +21,7 @@ test-job:
     - go test ./... -coverprofile=events_coverage.out
   artifacts:
     paths:
-      - coverage.out
+      - events_coverage.out
     expire_in: 1 hour
 
 check_coverage:
