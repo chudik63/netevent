@@ -18,15 +18,21 @@ test-job:
   stage: test
   script:
     - cd $EVENTDIR
-    - go test ./... -coverprofile=coverage.out
+    - go test ./... -coverprofile=events_coverage.out
+  artifacts:
+    paths:
+      - coverage.out
+    expire_in: 1 hour
 
 check_coverage:
   stage: check_coverage
   script:
     - |
-      COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      COVERAGE=$(go tool cover -func=events_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
       echo "Coverage: $COVERAGE%"
       if [ "$COVERAGE" -lt 30 ]; then
         echo "Coverage is below 30%, failing the pipeline"
         exit 1
       fi
+  dependencies:
+    - test-job
