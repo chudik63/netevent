@@ -49,11 +49,11 @@ services:
     env_file:
       - .env
     ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+      - "${EVENTS_POSTGRES_PORT}:${EVENTS_POSTGRES_PORT}"
     networks:
       - netevent
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${EVENTS_POSTGRES_USER} -d ${EVENTS_POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -111,7 +111,7 @@ services:
     env_file:
       - .env
     ports:
-      - "${REDIS_PORT}:${REDIS_PORT}"
+      - "${EVENTS_REDIS_PORT}:${EVENTS_REDIS_PORT}"
     volumes:
       - redis_data:/data
     networks:
