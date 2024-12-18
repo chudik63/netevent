@@ -57,7 +57,7 @@ check_coverage_events:
         exit 1
       fi
   dependencies:
-    - test
+    - test_events
 
 check_coverage_notification:
   stage: check_coverage_notification
@@ -72,5 +72,5 @@ check_coverage_notification:
         exit 1
       fi
   dependencies:
-    - test
+    - test_notification
     
