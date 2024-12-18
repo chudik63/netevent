@@ -13,7 +13,7 @@ import (
 var path = ".env"
 
 type Config struct {
-	UserName string `env:"POSTGRES_USERNAME" env-default:"postgres"`
+	UserName string `env:"POSTGRES_USER" env-default:"postgres"`
 	Password string `env:"POSTGRES_PASWD" env-default:"12345678"`
 	Host     string `env:"POSTGRES_HOST" env-default:"localhost"`
 	Port     string `env:"POSTGRES_PORT" env-default:"5432"`
@@ -40,7 +40,7 @@ func New() (*DB, error) {
 	}
 	fmt.Println(cfg)
 
-	//cfg.Port = "5432"
+	cfg.Port = "5432"
 	dataSorceName := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
 		cfg.UserName, cfg.Password, cfg.DBname, cfg.Host, cfg.Port)
 	fmt.Println(dataSorceName)

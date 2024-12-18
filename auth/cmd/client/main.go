@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var addr = "localhost:5100"
+var addr = ":5100"
 
 func errFatal(function string, err error) {
 	if err != nil {

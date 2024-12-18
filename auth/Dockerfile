@@ -1,5 +1,5 @@
 FROM ubuntu:latest
 WORKDIR /app
 COPY cmd/main .
-COPY .env .
+COPY cmd/.env .
 CMD ["./main"]

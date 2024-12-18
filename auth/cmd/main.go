@@ -24,7 +24,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+	err = postgres.StartMigration(db.Db.DB)
+	if err != nil {
+		panic(err)
+	}
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, logger.ServiceName, mainLog)
 	srv := server.New(ctx, srvGrpcPort, db)
