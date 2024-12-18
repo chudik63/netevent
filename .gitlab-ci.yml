@@ -29,7 +29,7 @@ check_coverage:
   script:
     - cd $EVENTDIR 
     - |
-      COVERAGE=$(go tool cover -func=/events_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      COVERAGE=$(go tool cover -func=events_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
       echo "Coverage: $COVERAGE%"
       if [ "$COVERAGE" -lt 30 ]; then
         echo "Coverage is below 30%, failing the pipeline"
