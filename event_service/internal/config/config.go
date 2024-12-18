@@ -12,8 +12,8 @@ import (
 type Config struct {
 	postgres.Config
 	cache.RedisConfig
-	MigrationsPath string `env:"MIGRATIONS_PATH"`
-	GRPCServerPort string `env:"GRPC_SERVER_PORT"`
+	MigrationsPath string `env:"EVENTS_MIGRATIONS_PATH"`
+	GRPCServerPort string `env:"EVENTS_SERVICE_PORT"`
 
 	KafkaHost string `env:"KAFKA_HOST"`
 	KafkaPort string `env:"KAFKA_PORT"`

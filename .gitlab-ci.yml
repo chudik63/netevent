@@ -3,6 +3,7 @@ image: golang:alpine
 stages:
   - build
   - test
+  - check_coverage
 
 variables:
   EVENTDIR: event_service
@@ -17,4 +18,14 @@ test-job:
   stage: test
   script:
     - cd $EVENTDIR
-    - go test ./...
+    - go test ./... -coverprofile=coverage.out
+
+check_coverage:
+  stage: check_coverage
+  script:
+    - COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+    - echo "Coverage: $COVERAGE%"
+    - if [ "$COVERAGE" -lt 30 ]; then echo "Coverage is below 30%, failing the pipeline"; exit 1; fi
+  only:
+    - merge_requests
+    - master

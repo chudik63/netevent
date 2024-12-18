@@ -12,11 +12,11 @@ import (
 )
 
 type Config struct {
-	UserName string `env:"POSTGRES_USER"`
-	Password string `env:"POSTGRES_PASSWORD"`
-	Host     string `env:"POSTGRES_HOST"`
-	Port     string `env:"POSTGRES_PORT"`
-	DbName   string `env:"POSTGRES_DB"`
+	UserName string `env:"EVENTS_POSTGRES_USER"`
+	Password string `env:"EVENTS_POSTGRES_PASSWORD"`
+	Host     string `env:"EVENTS_POSTGRES_HOST"`
+	Port     string `env:"EVENTS_POSTGRES_PORT"`
+	DbName   string `env:"EVENTS_POSTGRES_DB"`
 }
 
 type DB struct {

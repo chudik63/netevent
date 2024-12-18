@@ -12,8 +12,8 @@ const (
 )
 
 type RedisConfig struct {
-	Host string `env:"REDIS_HOST" env-default:"localhost"`
-	Port string `env:"REDIS_PORT" env-default:"6379"`
+	Host string `env:"EVENTS_REDIS_HOST"`
+	Port string `env:"EVENTS_REDIS_PORT"`
 }
 
 type Cache struct {
