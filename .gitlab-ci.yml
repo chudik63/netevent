@@ -30,6 +30,3 @@ check_coverage:
         echo "Coverage is below 30%, failing the pipeline"
         exit 1
       fi
-  only:
-    - merge_requests
-    - master
