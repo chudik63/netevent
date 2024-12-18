@@ -19,7 +19,6 @@ test:
   script:
     - cd $EVENTDIR
     - go test ./... -coverprofile=events_coverage.out
-    - ls -la
   artifacts:
     paths:
       - $EVENTDIR/events_coverage.out
@@ -29,7 +28,7 @@ check_coverage:
   stage: check_coverage
   script:
     - |
-      COVERAGE=$(go tool cover -func=events_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+      COVERAGE=$(go tool cover -func=$EVENTDIR/events_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
       echo "Coverage: $COVERAGE%"
       if [ "$COVERAGE" -lt 30 ]; then
         echo "Coverage is below 30%, failing the pipeline"
