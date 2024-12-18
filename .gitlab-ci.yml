@@ -8,13 +8,13 @@ stages:
 variables:
   EVENTDIR: event_service
 
-build-job:
+build:
   stage: build
   script:
     - cd $EVENTDIR
     - go build -o bin/event cmd/main/main.go
 
-test-job:
+test:
   stage: test
   script:
     - cd $EVENTDIR
