@@ -37,11 +37,11 @@ test_events:
 test_notification:
   stage: test_notification
   script:
-    - cd $NOTIFICATIONDIR/internal
+    - cd $NOTIFICATIONDIR/internal/service
     - go test ./... -coverprofile=notification_coverage.out
   artifacts:
     paths:
-      - $NOTIFICATIONDIR/internal/notification_coverage.out
+      - $NOTIFICATIONDIR/internal/service/notification_coverage.out
     expire_in: 1 hour
 
 check_coverage_events:
@@ -62,7 +62,7 @@ check_coverage_events:
 check_coverage_notification:
   stage: check_coverage_notification
   script:
-    - cd $NOTIFICATIONDIR/internal
+    - cd $NOTIFICATIONDIR/internal/service
     - |
       COVERAGE=$(go tool cover -func=notification_coverage.out | grep total | awk '{print $3}' | sed 's/%//')
       echo "Coverage: $COVERAGE%"
