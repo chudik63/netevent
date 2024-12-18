@@ -48,6 +48,10 @@ services:
       - events_postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
+    environment:
+      - POSTGRES_PASSWORD=${EVENTS_POSTGRES_PASSWORD}
+      - POSTGRES_USER=${EVENTS_POSTGRES_USER}
+      - POSTGRES_DB=${EVENTS_POSTGRES_DB}
     ports:
       - "${EVENTS_POSTGRES_PORT}:${EVENTS_POSTGRES_PORT}"
     networks:
