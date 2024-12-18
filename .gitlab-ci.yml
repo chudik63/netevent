@@ -1,7 +1,6 @@
 image: golang:alpine
 
 stages:
-  - build
   - test
   - check_coverage
 
@@ -19,6 +18,7 @@ test:
   script:
     - cd $EVENTDIR
     - go test ./... -coverprofile=events_coverage.out
+    - ls -la
   artifacts:
     paths:
       - events_coverage.out
