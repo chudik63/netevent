@@ -23,7 +23,6 @@ func TestNewTocken(t *testing.T) {
 			t.Errorf("error %v", err)
 		}
 		time.Sleep(time.Second)
-		toc = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzQzNzI3MDksImlhdCI6MTczNDM3MjYwOSwic3ViIjoiQW50b24ifQ.6u4hmos-7dz4GWsV2UQPBgy8-H9rIr2CCrs0-_Jnw1I"
 		if res, err := ValidTocken(toc); err != nil || !res {
 			t.Errorf("error %v %v", err, res)
 		}
