@@ -36,7 +36,7 @@ func New(cfg config.Kafka, repo NotificationRepository) (*Kafka, error) {
 		return nil, fmt.Errorf("failed to create new kafka consumer: %w", err)
 	}
 
-	partitionConsumer, err := consumer.ConsumePartition(cfg.Topic, cfg.Partition, sarama.OffsetNewest)
+	partitionConsumer, err := consumer.ConsumePartition(cfg.Topic, cfg.Partition, sarama.OffsetOldest)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create kafka partition consumer: %w", err)
 	}
