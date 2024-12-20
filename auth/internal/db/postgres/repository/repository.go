@@ -71,15 +71,3 @@ func (u *UserRepository) GetRole(name string) (string, error) {
 	}
 	return role, nil
 }
-
-// func (u *UserRepository) GetInterests(id int) (string, error) {
-// 	interests := ""
-// 	err := sq.Select("interest").
-// 		From("tuser").Where(sq.Eq{"id": id}).PlaceholderFormat(sq.Dollar).
-// 		RunWith(u.db).QueryRow().Scan(&interests)
-// 	if err != nil {
-// 		return "", fmt.Errorf("err in database: %w", err)
-// 	}
-// 	fmt.Println(interests)
-// 	return interests, nil
-// }

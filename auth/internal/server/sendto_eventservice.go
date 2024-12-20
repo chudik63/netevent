@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	// pb "../../../event_service/pkg/api/proto/event"
 	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres/models"
 
 	"google.golang.org/grpc"

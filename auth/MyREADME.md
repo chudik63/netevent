@@ -22,26 +22,6 @@ tar -xvf
 ```sql
 SELECT * FROM pg_catalog.pg_tables where pg_catalog.pg_tables.schemaname='public';
 DROP TABLE IF EXISTS "tuser" CASCADE;
-CREATE TABLE IF NOT EXISTS "tuser" (
-    id INT PRIMARY KEY NOT NULL,
-    name VARCHAR(30),
-    password VARCHAR(30), 
-    email   VARCHAR(30),
-    interest TEXT,
-    accesstkn TEXT,
-    accessttl INT,
-    refreshtkn TEXT,
-    refreshttl INT
-);
-
-SELECT * FROM tuser;
-
-
-```
-
-```sql
-SELECT * FROM pg_catalog.pg_tables where pg_catalog.pg_tables.schemaname='public';
-DROP TABLE IF EXISTS "tuser" CASCADE;
 DROP TABLE IF EXISTS "tevent" CASCADE;
 DROP TABLE IF EXISTS "tparticipant";
 CREATE TABLE IF NOT EXISTS "tuser" (
@@ -56,20 +36,5 @@ CREATE TABLE IF NOT EXISTS "tuser" (
     refreshtkn TEXT,
     refreshttl INT
 );
-/*
-CREATE TABLE IF NOT EXISTS  "tevent" (
-    id INT PRIMARY KEY NOT NULL,
-    createid INT,
-    title VARCHAR(255),
-    description TEXT,
-    time TIME,
-    place VARCHAR(30)
-);
-
-CREATE TABLE IF NOT EXISTS "tparticipant" (
-    userID INT REFERENCES tuser(id) ON DELETE CASCADE,
-    eventID INT REFERENCES tevent(id) ON DELETE CASCADE
-);
-*/
 SELECT * FROM tuser;
 ```

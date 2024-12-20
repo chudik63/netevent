@@ -99,12 +99,3 @@ func (a *Auth) Authorise(ctx context.Context, in *pb.AuthoriseRequest) (*pb.Auth
 		Message: "OK",
 	}, nil
 }
-
-// func (a *Auth) GetInterests(ctx context.Context, in *pb.GetInterestsRequest) (*pb.GetInterestsResponse, error) {
-// 	interests, err := a.repo.GetInterests(int(in.GetUserId()))
-// 	if err != nil {
-// 		return &pb.GetInterestsResponse{Interests: []string{""}}, err
-// 	}
-
-// 	return &pb.GetInterestsResponse{Interests: strings.Split(interests, " ")}, nil
-// }

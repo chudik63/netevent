@@ -44,7 +44,6 @@ func main() {
 
 func NewUser(conn *grpc.ClientConn) {
 	c := pb.NewAuthServiceClient(conn)
-	// Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
@@ -94,15 +93,3 @@ func Authorise(conn *grpc.ClientConn) {
 
 	log.Printf("Authorise: %s", res.Message, res.Role)
 }
-
-// func GetInterests(conn *grpc.ClientConn) {
-// 	c := pb.NewAuthServiceClient(conn)
-// 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-// 	defer cancel()
-
-// 	res, err := c.GetInterests(ctx, &pb.GetInterestsRequest{
-// 		UserId: int64(4),
-// 	})
-// 	errFatal("GetInterests", err)
-// 	log.Printf("GetInterests: %s", res.Interests)
-// }

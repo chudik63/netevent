@@ -8,7 +8,7 @@ import (
 
 	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres"
 	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/server"
-	logger "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/loger"
+	"gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/loger"
 	"go.uber.org/zap"
 )
 
@@ -17,7 +17,7 @@ var (
 )
 
 func main() {
-	mainLog := logger.New(logger.ServiceName)
+	mainLog := loger.New(loger.ServiceName)
 	mainLog.Info("start auth service")
 
 	db, err := postgres.New()
@@ -29,7 +29,7 @@ func main() {
 		panic(err)
 	}
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, logger.ServiceName, mainLog)
+	ctx = context.WithValue(ctx, loger.ServiceName, mainLog)
 	srv := server.New(ctx, srvGrpcPort, db)
 	go func() {
 		if err := srv.Start(ctx); err != nil {
