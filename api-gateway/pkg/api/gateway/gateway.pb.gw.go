@@ -125,8 +125,6 @@ func local_request_Gateway_CreateEvent_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-var filter_Gateway_ReadEvent_0 = &utilities.DoubleArray{Encoding: map[string]int{"event_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-
 func request_Gateway_ReadEvent_0(ctx context.Context, marshaler runtime.Marshaler, client GatewayClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ReadEventRequest
@@ -140,12 +138,6 @@ func request_Gateway_ReadEvent_0(ctx context.Context, marshaler runtime.Marshale
 	protoReq.EventId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "event_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ReadEvent_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ReadEvent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -165,17 +157,9 @@ func local_request_Gateway_ReadEvent_0(ctx context.Context, marshaler runtime.Ma
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "event_id", err)
 	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ReadEvent_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 	msg, err := server.ReadEvent(ctx, &protoReq)
 	return msg, metadata, err
 }
-
-var filter_Gateway_UpdateEvent_0 = &utilities.DoubleArray{Encoding: map[string]int{"event": 0, "event_id": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
 
 func request_Gateway_UpdateEvent_0(ctx context.Context, marshaler runtime.Marshaler, client GatewayClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -193,12 +177,6 @@ func request_Gateway_UpdateEvent_0(ctx context.Context, marshaler runtime.Marsha
 	err = runtime.PopulateFieldFromPath(&protoReq, "event.event_id", val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "event.event_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_UpdateEvent_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.UpdateEvent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -221,17 +199,9 @@ func local_request_Gateway_UpdateEvent_0(ctx context.Context, marshaler runtime.
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "event.event_id", err)
 	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_UpdateEvent_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 	msg, err := server.UpdateEvent(ctx, &protoReq)
 	return msg, metadata, err
 }
-
-var filter_Gateway_DeleteEvent_0 = &utilities.DoubleArray{Encoding: map[string]int{"event_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_Gateway_DeleteEvent_0(ctx context.Context, marshaler runtime.Marshaler, client GatewayClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -246,12 +216,6 @@ func request_Gateway_DeleteEvent_0(ctx context.Context, marshaler runtime.Marsha
 	protoReq.EventId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "event_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_DeleteEvent_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.DeleteEvent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -271,29 +235,15 @@ func local_request_Gateway_DeleteEvent_0(ctx context.Context, marshaler runtime.
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "event_id", err)
 	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_DeleteEvent_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 	msg, err := server.DeleteEvent(ctx, &protoReq)
 	return msg, metadata, err
 }
-
-var filter_Gateway_ListEvents_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_Gateway_ListEvents_0(ctx context.Context, marshaler runtime.Marshaler, client GatewayClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListEventsRequest
 		metadata runtime.ServerMetadata
 	)
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ListEvents_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 	msg, err := client.ListEvents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
@@ -303,17 +253,9 @@ func local_request_Gateway_ListEvents_0(ctx context.Context, marshaler runtime.M
 		protoReq ListEventsRequest
 		metadata runtime.ServerMetadata
 	)
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ListEvents_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 	msg, err := server.ListEvents(ctx, &protoReq)
 	return msg, metadata, err
 }
-
-var filter_Gateway_ListEventsByCreator_0 = &utilities.DoubleArray{Encoding: map[string]int{"creator_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_Gateway_ListEventsByCreator_0(ctx context.Context, marshaler runtime.Marshaler, client GatewayClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -328,12 +270,6 @@ func request_Gateway_ListEventsByCreator_0(ctx context.Context, marshaler runtim
 	protoReq.CreatorId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "creator_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ListEventsByCreator_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ListEventsByCreator(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -353,17 +289,9 @@ func local_request_Gateway_ListEventsByCreator_0(ctx context.Context, marshaler 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "creator_id", err)
 	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ListEventsByCreator_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 	msg, err := server.ListEventsByCreator(ctx, &protoReq)
 	return msg, metadata, err
 }
-
-var filter_Gateway_ListEventsByInterests_0 = &utilities.DoubleArray{Encoding: map[string]int{"user_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_Gateway_ListEventsByInterests_0(ctx context.Context, marshaler runtime.Marshaler, client GatewayClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -378,12 +306,6 @@ func request_Gateway_ListEventsByInterests_0(ctx context.Context, marshaler runt
 	protoReq.UserId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ListEventsByInterests_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ListEventsByInterests(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -402,12 +324,6 @@ func local_request_Gateway_ListEventsByInterests_0(ctx context.Context, marshale
 	protoReq.UserId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ListEventsByInterests_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.ListEventsByInterests(ctx, &protoReq)
 	return msg, metadata, err
@@ -461,8 +377,6 @@ func local_request_Gateway_SetChatStatus_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-var filter_Gateway_ListUsersToChat_0 = &utilities.DoubleArray{Encoding: map[string]int{"event_id": 0, "user_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
-
 func request_Gateway_ListUsersToChat_0(ctx context.Context, marshaler runtime.Marshaler, client GatewayClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListUsersToChatRequest
@@ -484,12 +398,6 @@ func request_Gateway_ListUsersToChat_0(ctx context.Context, marshaler runtime.Ma
 	protoReq.UserId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ListUsersToChat_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ListUsersToChat(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -517,17 +425,9 @@ func local_request_Gateway_ListUsersToChat_0(ctx context.Context, marshaler runt
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
 	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ListUsersToChat_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 	msg, err := server.ListUsersToChat(ctx, &protoReq)
 	return msg, metadata, err
 }
-
-var filter_Gateway_ListRegistratedEvents_0 = &utilities.DoubleArray{Encoding: map[string]int{"user_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_Gateway_ListRegistratedEvents_0(ctx context.Context, marshaler runtime.Marshaler, client GatewayClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -542,12 +442,6 @@ func request_Gateway_ListRegistratedEvents_0(ctx context.Context, marshaler runt
 	protoReq.UserId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ListRegistratedEvents_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.ListRegistratedEvents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -566,12 +460,6 @@ func local_request_Gateway_ListRegistratedEvents_0(ctx context.Context, marshale
 	protoReq.UserId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Gateway_ListRegistratedEvents_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.ListRegistratedEvents(ctx, &protoReq)
 	return msg, metadata, err
