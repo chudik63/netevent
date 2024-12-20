@@ -99,7 +99,6 @@ func (s *GatewayServer) SignOut(ctx context.Context, req *gateway.SignOutRequest
 
 func (s *GatewayServer) CreateEvent(ctx context.Context, req *gateway.CreateEventRequest) (*gateway.CreateEventResponse, error) {
 	resp, err := s.eventClient.CreateEvent(ctx, &event.CreateEventRequest{
-		RequestId: req.GetRequestId(),
 		Event: &event.Event{
 			EventId:     req.GetEvent().GetEventId(),
 			CreatorId:   req.GetEvent().GetCreatorId(),
@@ -121,8 +120,7 @@ func (s *GatewayServer) CreateEvent(ctx context.Context, req *gateway.CreateEven
 
 func (s *GatewayServer) ReadEvent(ctx context.Context, req *gateway.ReadEventRequest) (*gateway.ReadEventResponse, error) {
 	resp, err := s.eventClient.ReadEvent(ctx, &event.ReadEventRequest{
-		RequestId: req.GetRequestId(),
-		EventId:   req.GetEventId(),
+		EventId: req.GetEventId(),
 	})
 	if err != nil {
 		return nil, err
@@ -143,7 +141,6 @@ func (s *GatewayServer) ReadEvent(ctx context.Context, req *gateway.ReadEventReq
 
 func (s *GatewayServer) UpdateEvent(ctx context.Context, req *gateway.UpdateEventRequest) (*gateway.UpdateEventResponse, error) {
 	_, err := s.eventClient.UpdateEvent(ctx, &event.UpdateEventRequest{
-		RequestId: req.GetRequestId(),
 		Event: &event.Event{
 			EventId:     req.GetEvent().GetEventId(),
 			CreatorId:   req.GetEvent().GetCreatorId(),
@@ -163,8 +160,7 @@ func (s *GatewayServer) UpdateEvent(ctx context.Context, req *gateway.UpdateEven
 
 func (s *GatewayServer) DeleteEvent(ctx context.Context, req *gateway.DeleteEventRequest) (*gateway.DeleteEventResponse, error) {
 	_, err := s.eventClient.DeleteEvent(ctx, &event.DeleteEventRequest{
-		RequestId: req.GetRequestId(),
-		EventId:   req.GetEventId(),
+		EventId: req.GetEventId(),
 	})
 	if err != nil {
 		return nil, err
@@ -174,9 +170,7 @@ func (s *GatewayServer) DeleteEvent(ctx context.Context, req *gateway.DeleteEven
 }
 
 func (s *GatewayServer) ListEvents(ctx context.Context, req *gateway.ListEventsRequest) (*gateway.ListEventsResponse, error) {
-	resp, err := s.eventClient.ListEvents(ctx, &event.ListEventsRequest{
-		RequestId: req.GetRequestId(),
-	})
+	resp, err := s.eventClient.ListEvents(ctx, &event.ListEventsRequest{})
 
 	if err != nil {
 		return nil, err
@@ -189,7 +183,6 @@ func (s *GatewayServer) ListEvents(ctx context.Context, req *gateway.ListEventsR
 
 func (s *GatewayServer) ListEventsByCreator(ctx context.Context, req *gateway.ListEventsByCreatorRequest) (*gateway.ListEventsByCreatorResponse, error) {
 	resp, err := s.eventClient.ListEventsByCreator(ctx, &event.ListEventsByCreatorRequest{
-		RequestId: req.GetRequestId(),
 		CreatorId: req.GetCreatorId(),
 	})
 
@@ -204,8 +197,7 @@ func (s *GatewayServer) ListEventsByCreator(ctx context.Context, req *gateway.Li
 
 func (s *GatewayServer) ListEventsByInterests(ctx context.Context, req *gateway.ListEventsByInterestsRequest) (*gateway.ListEventsByInterestsResponse, error) {
 	resp, err := s.eventClient.ListEventsByInterests(ctx, &event.ListEventsByInterestsRequest{
-		RequestId: req.GetRequestId(),
-		UserId:    req.GetUserId(),
+		UserId: req.GetUserId(),
 	})
 
 	if err != nil {
@@ -219,8 +211,7 @@ func (s *GatewayServer) ListEventsByInterests(ctx context.Context, req *gateway.
 
 func (s *GatewayServer) ListRegistratedEvents(ctx context.Context, req *gateway.ListRegistratedEventsRequest) (*gateway.ListRegistratedEventsResponse, error) {
 	resp, err := s.eventClient.ListRegistratedEvents(ctx, &event.ListRegistratedEventsRequest{
-		RequestId: req.GetRequestId(),
-		UserId:    req.GetUserId(),
+		UserId: req.GetUserId(),
 	})
 
 	if err != nil {
@@ -234,9 +225,8 @@ func (s *GatewayServer) ListRegistratedEvents(ctx context.Context, req *gateway.
 
 func (s *GatewayServer) ListUsersToChat(ctx context.Context, req *gateway.ListUsersToChatRequest) (*gateway.ListUsersToChatResponse, error) {
 	resp, err := s.eventClient.ListUsersToChat(ctx, &event.ListUsersToChatRequest{
-		RequestId: req.GetRequestId(),
-		UserId:    req.GetUserId(),
-		EventId:   req.GetEventId(),
+		UserId:  req.GetUserId(),
+		EventId: req.GetEventId(),
 	})
 
 	if err != nil {
@@ -250,9 +240,8 @@ func (s *GatewayServer) ListUsersToChat(ctx context.Context, req *gateway.ListUs
 
 func (s *GatewayServer) RegisterUser(ctx context.Context, req *gateway.RegisterUserRequest) (*gateway.RegisterUserResponse, error) {
 	_, err := s.eventClient.RegisterUser(ctx, &event.RegisterUserRequest{
-		RequestId: req.GetRequestId(),
-		UserId:    req.GetUserId(),
-		EventId:   req.GetEventId(),
+		UserId:  req.GetUserId(),
+		EventId: req.GetEventId(),
 	})
 
 	if err != nil {
@@ -264,7 +253,6 @@ func (s *GatewayServer) RegisterUser(ctx context.Context, req *gateway.RegisterU
 
 func (s *GatewayServer) SetChatStatus(ctx context.Context, req *gateway.SetChatStatusRequest) (*gateway.SetChatStatusResponse, error) {
 	_, err := s.eventClient.SetChatStatus(ctx, &event.SetChatStatusRequest{
-		RequestId:     req.GetRequestId(),
 		ParticipantId: req.GetUserId(),
 		EventId:       req.GetEventId(),
 		IsReady:       req.GetIsReady(),
