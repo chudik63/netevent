@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/google/uuid"
 	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/client"
 	"gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/proto"
 	"google.golang.org/grpc"
@@ -59,6 +60,18 @@ func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 				}
 			}
 		}
+
+		requestID := ""
+		if values := md["x-request-id"]; len(values) > 0 {
+			requestID = values[0]
+		} else {
+			newUUID, err := uuid.NewUUID()
+			if err == nil {
+				requestID = newUUID.String()
+			}
+		}
+
+		ctx = context.WithValue(ctx, "request_id", requestID)
 
 		return handler(ctx, req)
 	}

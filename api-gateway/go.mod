@@ -11,7 +11,10 @@ require (
 	google.golang.org/protobuf v1.35.2
 )
 
-require gitlab.crja72.ru/gospec/go9/netevent/auth v0.0.0-20241218173912-931abd2ea321 // indirect
+require (
+	github.com/google/uuid v1.6.0 // indirect
+	gitlab.crja72.ru/gospec/go9/netevent/auth v0.0.0-20241218173912-931abd2ea321 // indirect
+)
 
 require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
