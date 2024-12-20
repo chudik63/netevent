@@ -24,33 +24,32 @@ services:
     networks:
       - netevent
 
-  # auth:
-  #   build: ./auth
-  #   container_name: auth_app
-  #   restart: always
-  #   depends_on:
-  #     - auth_postgres
-  #   env_file:
-  #     - .env
-  #   ports:
-  #     - ${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}
-  #   networks:
-  #     - netevent
+  auth:
+    build: ./auth
+    container_name: auth_app
+    restart: always
+    depends_on:
+      - auth_postgres
+    env_file:
+      - .env
+    ports:
+      - ${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}
+    networks:
+      - netevent
 
-  # auth_postgres:
-  #   image: postgres
-  #   container_name: postgresdb
-  #   restart: always
-  #   ports:
-  #     - "${AUTH_POSTGRES_PORT}:5432"
-  #   volumes:
-  #     - ./data/postgres_data:/var/lib/postgresql/data
-  #   environment:
-  #     - POSTGRES_DB=${AUTH_POSTGRES_DATABASE}
-  #     - POSTGRES_USER=${AUTH_POSTGRES_USER}
-  #     - POSTGRES_PASSWORD=${AUTH_POSTGRES_PASWD}
-  #   networks:
-  #     - netevent
+  auth_postgres:
+    image: postgres
+    restart: always
+    ports:
+      - "${AUTH_POSTGRES_PORT}:5432"
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${AUTH_POSTGRES_DATABASE}
+      - POSTGRES_USER=${AUTH_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${AUTH_POSTGRES_PASWD}
+    networks:
+      - netevent
       
   events:
     build:
@@ -194,7 +193,7 @@ services:
     networks:
       - netevent
     healthcheck:
-      test: kafka-topics.sh --list --bootstrap-server localhost:9092 || exit 1
+      test: kafka-topics.sh --list --bootstrap-server localhost:9092
       interval: 5s
       timeout: 10s
       retries: 5
@@ -203,6 +202,7 @@ volumes:
   events_postgres_data:
   redis_data:
   notification_postgres_data:
+  auth_postgres_data:
 
 networks:
   netevent:
