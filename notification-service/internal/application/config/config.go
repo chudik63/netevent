@@ -18,8 +18,8 @@ type DB struct {
 }
 
 type SQL struct {
-	ConnectionString string `env:"DB_URL"    env-default:"postgres://postgres:123@localhost:5432/netevent?sslmode=disable"`
-	Driver           string `env:"DB_DRIVER" env-default:"postgres"`
+	ConnectionString string `env:"NOTIFICATION_DB_URL"    env-default:"postgres://postgres:123@localhost:5432/netevent?sslmode=disable"`
+	Driver           string `env:"NOTIFICATION_DB_DRIVER" env-default:"postgres"`
 }
 
 type Mail struct {
@@ -32,8 +32,8 @@ type Mail struct {
 type Kafka struct {
 	Host      string `env:"KAFKA_HOST"  env-default:"localhost"`
 	Port      int    `env:"KAFKA_PORT"  env-default:"9092"`
-	Group     string `env:"KAFKA_GROUP" env-default:"mail-group"`
-	Topic     string `env:"KAFKA_TOPIC" env-default:"mail"`
+	Group     string `env:"KAFKA_GROUP" env-default:"registration-group"`
+	Topic     string `env:"KAFKA_TOPIC" env-default:"registration"`
 	Partition int32  `env:"KAFKA_PARTITION" env-default:"0"`
 }
 
@@ -43,9 +43,6 @@ type Sender struct {
 
 func New() (*Config, error) {
 	cfg := Config{}
-	if err := cleanenv.ReadConfig("./.env", &cfg); err != nil {
-		return nil, fmt.Errorf("cleanenv.ReadConfig(): %w", err)
-	}
 
 	if err := cleanenv.ReadEnv(&cfg); err != nil {
 		return nil, fmt.Errorf("cleanenv.ReadEnv(): %w", err)

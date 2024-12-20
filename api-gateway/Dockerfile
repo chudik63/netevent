@@ -1,5 +1,9 @@
 FROM golang:1.23 AS build
 
+COPY volume/.ssh /root/.ssh
+COPY volume/.netrc /root/.netrc
+COPY volume/.gitconfig /root/.gitconfig
+
 WORKDIR /build
 
 COPY go.mod go.sum ./     

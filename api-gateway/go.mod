@@ -5,13 +5,13 @@ go 1.23.4
 require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	gitlab.crja72.ru/gospec/go9/netevent/event_service v0.0.0-20241217112259-011795874db2
+	gitlab.crja72.ru/gospec/go9/netevent/event_service v0.0.0-20241218173912-931abd2ea321
 	google.golang.org/genproto/googleapis/api v0.0.0-20241118233622-e639e219e697
 	google.golang.org/grpc v1.69.0
 	google.golang.org/protobuf v1.35.2
 )
 
-require gitlab.crja72.ru/gospec/go9/netevent/auth v0.0.0-20241217203443-86d2d66a657e // indirect
+require gitlab.crja72.ru/gospec/go9/netevent/auth v0.0.0-20241218173912-931abd2ea321 // indirect
 
 require (
 	github.com/BurntSushi/toml v1.4.0 // indirect

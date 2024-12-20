@@ -1,6 +1,10 @@
 package config
 
-import "github.com/ilyakaznacheev/cleanenv"
+import (
+	"errors"
+
+	"github.com/ilyakaznacheev/cleanenv"
+)
 
 type Config struct {
 	GRPCServerPort string `env:"GRPC_SERVER_PORT"`
@@ -15,7 +19,12 @@ type Config struct {
 
 func New() (*Config, error) {
 	cfg := Config{}
-	err := cleanenv.ReadConfig("./.env", &cfg)
+
+	err := cleanenv.ReadEnv(&cfg)
+
+	if cfg == (Config{}) {
+		return nil, errors.New("config is empty")
+	}
 
 	if err != nil {
 		return nil, err
