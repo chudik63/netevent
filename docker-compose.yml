@@ -14,7 +14,6 @@ services:
   gateway:
     env_file:
       - .env
-      - ./api-gateway/.env
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
@@ -28,6 +27,7 @@ services:
         SSH_IDENTITY_FILE: ${SSH_IDENTITY_FILE}
         SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
         SSH_KEY: ${SSH_KEY}
+        KNOWN_HOSTS: ${KNOWN_HOSTS}
     container_name: gateway
     ports:
       - "${REST_SERVER_PORT}:${REST_SERVER_PORT}"
