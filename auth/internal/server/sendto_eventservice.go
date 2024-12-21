@@ -15,7 +15,7 @@ import (
 var eventPort = ":5300"
 
 func sendToEvent(data *models.Participant) error {
-	conn, err := grpc.NewClient(eventPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("events:"+eventPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return err
 	}
