@@ -75,21 +75,6 @@ curl -X POST http://localhost:80/api/v1/sign-in \
 
 ---
 
-### 3. SignOut: GET /api/v1/sign-out
-User sign-out.
-
-#### Response:
-```json
-{}
-```
-
-#### Example cURL Request:
-```bash
-curl -X GET http://localhost:80/api/v1/sign-out
-```
-
----
-
 ### 4. Create Event: POST /api/v1/event
 Create a new event.
 
