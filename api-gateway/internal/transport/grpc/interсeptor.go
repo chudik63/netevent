@@ -39,29 +39,31 @@ func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 			return nil, errors.New("missing metadata in request")
 		}
 
-		authHeader := md["authorization"]
-		if len(authHeader) > 0 {
-			token := strings.TrimSpace(authHeader[0])
-			if strings.HasPrefix(token, "Bearer ") {
-				token = strings.TrimPrefix(token, "Bearer ")
+		authHeader := md["Authorization"]
+		if len(authHeader) == 0 {
+			return nil, errors.New("permission denied")
+		}
 
-				resp, err := i.authClient.Authorise(ctx, &proto.AuthoriseRequest{
-					Token: token,
-				})
-				if err != nil {
-					return resp.GetMessage(), err
-				}
+		token := strings.TrimSpace(authHeader[0])
+		if strings.HasPrefix(token, "Bearer ") {
+			token = strings.TrimPrefix(token, "Bearer ")
 
-				role := resp.GetRole()
+			resp, err := i.authClient.Authorise(ctx, &proto.AuthoriseRequest{
+				Token: token,
+			})
+			if err != nil {
+				return resp.GetMessage(), err
+			}
 
-				if creatorRoutes[info.FullMethod] && role != "creator" {
-					return nil, errors.New("permission denied")
-				}
+			role := resp.GetRole()
+
+			if creatorRoutes[info.FullMethod] && role != "creator" {
+				return nil, errors.New("permission denied")
 			}
 		}
 
 		requestID := ""
-		if values := md["x-request-id"]; len(values) > 0 {
+		if values := md["X-Request-ID"]; len(values) > 0 {
 			requestID = values[0]
 		} else {
 			newUUID, err := uuid.NewUUID()
