@@ -11,6 +11,9 @@ Build and start all containers:
 docker-compose up
 ```
 
+# Architecture
+![architecture](architecture.png)
+
 # Usage
 ## API Documentation
 
