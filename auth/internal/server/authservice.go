@@ -77,7 +77,7 @@ func (a *Auth) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*p
 
 func (a *Auth) Authorise(ctx context.Context, in *pb.AuthoriseRequest) (*pb.AuthoriseResponse, error) {
 	auToken := in.GetToken()
-	flag, err := token.ValidTocken(auToken)
+	flag, err := token.ValidToken(auToken)
 	if err != nil {
 		return &pb.AuthoriseResponse{Role: "", Message: string(fmt.Sprintf("%v", err))}, err
 	}

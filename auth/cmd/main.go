@@ -8,7 +8,7 @@ import (
 
 	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres"
 	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/server"
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/loger"
+	loger "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/logger"
 	"go.uber.org/zap"
 )
 

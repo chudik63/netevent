@@ -1,4 +1,4 @@
-package loger
+package logger
 
 import (
 	"context"
@@ -15,19 +15,19 @@ type Logger interface {
 	Error(msg string, fields ...zap.Field)
 }
 
-type loger struct {
+type logger struct {
 	serviceName string
-	loger       *zap.Logger
+	logger      *zap.Logger
 }
 
-func (l loger) Info(msg string, fields ...zap.Field) {
+func (l logger) Info(msg string, fields ...zap.Field) {
 	fields = append(fields, zap.String("ServiceName", ServiceName))
-	l.loger.Info(msg, fields...)
+	l.logger.Info(msg, fields...)
 }
 
-func (l loger) Error(msg string, fields ...zap.Field) {
+func (l logger) Error(msg string, fields ...zap.Field) {
 	fields = append(fields, zap.String("ServiceName", ServiceName))
-	l.loger.Error(msg, fields...)
+	l.logger.Error(msg, fields...)
 }
 
 func Info(msg string, fields ...zap.Field) {
@@ -45,13 +45,12 @@ func Error(msg string, fields ...zap.Field) {
 }
 
 func New(serviceName string) Logger {
-	// zapLogger, _ := zap.NewProduction()
 	zapLogger, _ := zap.NewDevelopment()
 
 	defer zapLogger.Sync()
-	return &loger{
+	return &logger{
 		serviceName: serviceName,
-		loger:       zapLogger,
+		logger:      zapLogger,
 	}
 }
 

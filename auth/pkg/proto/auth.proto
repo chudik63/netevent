@@ -7,14 +7,13 @@ service AuthService {
   rpc Register(RegisterRequest) returns (RegisterResponse);
   rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
   rpc Authorise(AuthoriseRequest) returns (AuthoriseResponse);  
-  // rpc GetInterests(GetInterestsRequest) returns (GetInterestsResponse);  
 }
 
 message User {
   int64 id = 1;
   string name = 2;
   string email = 3;
-  string password = 4; // Should be hashed before storing
+  string password = 4;
   string role = 5;
   repeated string interests = 6; 
 }
@@ -33,7 +32,7 @@ message RegisterRequest {
 }
 
 message RegisterResponse {
-  string message = 1; // "OK" or error message
+  string message = 1; 
 }
 
 // Authenticate
@@ -53,13 +52,5 @@ message AuthoriseRequest {
 
 message AuthoriseResponse {
   string role = 1;
-  string message = 2; // "OK" or error message
+  string message = 2;
 }
-
-// message GetInterestsRequest {
-//   int64 user_id = 1;
-// }
-
-// message GetInterestsResponse {
-//   repeated string interests = 1;
-// }

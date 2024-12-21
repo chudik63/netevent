@@ -8,7 +8,7 @@ import (
 
 	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres"
 	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres/repository"
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/loger"
+	"gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/logger"
 	pb "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/proto"
 
 	"google.golang.org/grpc"
@@ -26,7 +26,7 @@ func New(ctx context.Context, port string, db *postgres.DB) *Server {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	srvLogger := loger.CtxGetLogger(ctx)
+	srvLogger := logger.CtxGetLogger(ctx)
 	opts := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(interceptorLogger(srvLogger)),
 	}
@@ -45,6 +45,6 @@ func (s *Server) Start(ctx context.Context) error {
 
 func (s *Server) Stop(ctx context.Context) {
 	s.grpcServer.GracefulStop()
-	l := loger.CtxGetLogger(ctx)
+	l := logger.CtxGetLogger(ctx)
 	l.Info("grpc server Stoped!")
 }

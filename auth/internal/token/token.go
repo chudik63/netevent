@@ -18,14 +18,14 @@ var (
 )
 
 func NewToken(name string) (string, error) {
-	return GetTocken(name, ExpTime)
+	return GetToken(name, ExpTime)
 }
 
 func RefreshToken(name string) (string, error) {
-	return GetTocken(name, LongExpTime)
+	return GetToken(name, LongExpTime)
 }
 
-func GetTocken(name string, expTime time.Duration) (string, error) {
+func GetToken(name string, expTime time.Duration) (string, error) {
 	calms := jwt.NewWithClaims(jwtMethod, jwt.MapClaims{
 		"sub": name,
 		"exp": time.Now().Add(expTime).Unix(),
@@ -33,16 +33,16 @@ func GetTocken(name string, expTime time.Duration) (string, error) {
 	})
 	fmt.Println(calms)
 
-	tocken, err := calms.SignedString(secretKey)
+	token, err := calms.SignedString(secretKey)
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(tocken)
+	fmt.Println(token)
 
-	return tocken, nil
+	return token, nil
 }
 
-func ValidTocken(token string) (bool, error) {
+func ValidToken(token string) (bool, error) {
 	valid, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -54,12 +54,12 @@ func ValidTocken(token string) (bool, error) {
 	case valid.Valid:
 		return true, nil
 	case errors.Is(err, jwt.ErrTokenExpired):
-		return false, errors.New("expired tocken")
+		return false, errors.New("expired token")
 	}
 	if err != nil {
 		return false, err
 	}
-	return false, errors.New("unexpected error with tocken")
+	return false, errors.New("unexpected error with token")
 }
 
 func GetNameToken(tkn string) (string, error) {

@@ -54,7 +54,7 @@ func (u *UserRepository) AuthUser(name string, password string, tkn *models.Toke
 	return nil
 }
 
-func (u *UserRepository) UpdateTocken(users *models.User) error {
+func (u *UserRepository) UpdateToken(users *models.User) error {
 	return nil
 }
 
