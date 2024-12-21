@@ -36,8 +36,7 @@ message Participant {
 }
 
 message CreateEventRequest {
-  string request_id = 1; 
-  Event event = 2;
+  Event event = 1;
 }
 
 message CreateEventResponse {
@@ -45,8 +44,7 @@ message CreateEventResponse {
 }
 
 message ReadEventRequest {
-  string request_id = 1; 
-  int64 event_id = 2;
+  int64 event_id = 1;
 }
 
 message ReadEventResponse {
@@ -54,23 +52,20 @@ message ReadEventResponse {
 }
 
 message UpdateEventRequest {
-  string request_id = 1; 
-  Event event = 2;
+  Event event = 1;
 }
 
 message UpdateEventResponse {
 }
 
 message DeleteEventRequest {
-  string request_id = 1; 
-  int64 event_id = 2;
+  int64 event_id = 1;
 }
 
 message DeleteEventResponse {
 }
 
-message ListEventsRequest {
-  string request_id = 1; 
+message ListEventsRequest { 
 }
 
 message ListEventsResponse {
@@ -78,8 +73,7 @@ message ListEventsResponse {
 }
 
 message ListEventsByCreatorRequest {
-  string request_id = 1; 
-  int64 creator_id = 2;
+  int64 creator_id = 1;
 }
 
 message ListEventsByCreatorResponse {
@@ -87,37 +81,33 @@ message ListEventsByCreatorResponse {
 }
 
 message ListEventsByInterestsRequest {
-  string request_id = 1; 
-  int64 user_id = 2;
+  int64 user_id = 1;
 }
 
 message ListEventsByInterestsResponse {
-  repeated Event events = 2;
+  repeated Event events = 1;
 }
 
 message RegisterUserRequest {
-  string request_id = 1; 
-  int64 user_id = 2;
-  int64 event_id = 3;
+  int64 user_id = 1;
+  int64 event_id = 2;
 }
 
 message RegisterUserResponse {
 }
 
 message SetChatStatusRequest {
-  string request_id = 1; 
-  int64 participant_id = 2;
-  int64 event_id = 3;
-  bool is_ready = 4;
+  int64 participant_id = 1;
+  int64 event_id = 2;
+  bool is_ready = 3;
 }
 
 message SetChatStatusResponse {
 }
 
 message ListUsersToChatRequest {
-  string request_id = 1; 
-  int64 event_id = 2;
-  int64 user_id = 3;
+  int64 event_id = 1;
+  int64 user_id = 2;
 }
 
 message ListUsersToChatResponse {
@@ -125,8 +115,7 @@ message ListUsersToChatResponse {
 }
 
 message ListRegistratedEventsRequest {
-  string request_id = 1; 
-  int64 user_id = 2;
+  int64 user_id = 1;
 }
 
 message ListRegistratedEventsResponse {
