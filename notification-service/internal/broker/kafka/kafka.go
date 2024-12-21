@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/IBM/sarama"
 	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
@@ -30,13 +31,14 @@ type Kafka struct {
 func New(cfg config.Kafka, repo NotificationRepository) (*Kafka, error) {
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
+	config.Consumer.Retry.Backoff = 5 * time.Second
 
 	consumer, err := sarama.NewConsumer([]string{fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)}, config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new kafka consumer: %w", err)
 	}
 
-	partitionConsumer, err := consumer.ConsumePartition(cfg.Topic, cfg.Partition, sarama.OffsetOldest)
+	partitionConsumer, err := consumer.ConsumePartition(cfg.Topic, cfg.Partition, sarama.OffsetNewest)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create kafka partition consumer: %w", err)
 	}

@@ -1,7 +1,5 @@
 package kafka
 
-import "fmt"
-
 type ErrStopKafkaConsumer struct{}
 
 func NewErrStopKafkaConsumer() error {
@@ -9,5 +7,5 @@ func NewErrStopKafkaConsumer() error {
 }
 
 func (e ErrStopKafkaConsumer) Error() string {
-	return fmt.Sprintf("failed to stop kafka consumer")
+	return "failed to stop kafka consumer"
 }

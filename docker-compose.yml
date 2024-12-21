@@ -126,6 +126,7 @@ services:
   notification-service:
     build: ./notification-service
     container_name: notification-service
+    restart: always
     env_file: 
       - .env
     depends_on:
