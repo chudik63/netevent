@@ -165,8 +165,8 @@ Update event details by event ID.
 
 #### Example cURL Request:
 ```bash
-curl -X PUT http://localhost:80/api/v1/event/1 \
-     -d '{"event": {"title": "Updated Event", "description": "Updated Description", "time": "2024-01-01 12:00:00", "place": "New Place", "interests": ["new_interest"]}}' \
+curl -X PUT http://localhost:80/api/v1/event \
+     -d '{"event": {"event_id": 1, "creator_id": 1, "title": "My Event", "description": "Event Description", "time": "2024-01-01 10:00:00", "place": "Place", "interests": ["coding", "tech"]}}' \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer ACCESS_TOKEN" \
      -H "X-Request-ID: UNIQUE_REQUEST_ID"
