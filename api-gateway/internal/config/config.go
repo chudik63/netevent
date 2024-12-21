@@ -11,10 +11,10 @@ type Config struct {
 	RestServerPort string `env:"REST_SERVER_PORT"`
 
 	AuthServiceHost string `env:"AUTH_SERVICE_HOST"`
-	AuthServicePort string `env:"AUTH_SERVICER_PORT"`
+	AuthServicePort string `env:"AUTH_SERVICE_PORT"`
 
-	EventServiceHost string `env:"EVENT_SERVICE_HOST"`
-	EventServicePort string `env:"EVENT_SERVICE_PORT"`
+	EventServiceHost string `env:"EVENTS_SERVICE_HOST"`
+	EventServicePort string `env:"EVENTS_SERVICE_PORT"`
 }
 
 func New() (*Config, error) {

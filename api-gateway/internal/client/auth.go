@@ -20,6 +20,7 @@ func NewAuthClient(ctx context.Context, cfg *config.Config) *AuthClient {
 	logs := logger.GetLoggerFromCtx(ctx)
 
 	conn, err := grpc.NewClient(cfg.AuthServiceHost+":"+cfg.AuthServicePort, grpc.WithTransportCredentials(insecure.NewCredentials()))
+
 	if err != nil {
 		logs.Fatal(ctx, "failed to create auth client", zap.String("err", err.Error()))
 	}
