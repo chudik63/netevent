@@ -51,19 +51,35 @@ func (p *Producer) Produce(ctx context.Context, message Message, topic string) {
 		Value: sarama.ByteEncoder(messageJSON),
 	}
 
-	partition, offset, err := p.producer.SendMessage(kafkaMsg)
-	if err != nil {
-		p.logger.Error(ctx, "kafka: failed to send message", zap.String("err", err.Error()))
+	const maxRetries = 5
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		partition, offset, err := p.producer.SendMessage(kafkaMsg)
+		if err != nil {
+			p.logger.Error(ctx, "kafka: failed to send message",
+				zap.String("err", err.Error()),
+				zap.Int("attempt", attempt),
+			)
+
+			if attempt == maxRetries {
+				p.logger.Error(ctx, "kafka: all retry attempts failed",
+					zap.String("topic", topic),
+					zap.String("err", err.Error()),
+				)
+				return
+			}
+
+			time.Sleep(time.Duration(attempt) * time.Second)
+			continue
+		}
+
+		p.logger.Info(ctx, "kafka: message sent",
+			zap.String("topic", topic),
+			zap.Int32("partition", partition),
+			zap.Int64("offset", offset),
+		)
 		return
 	}
-
-	p.logger.Info(ctx, "kafka: message sent",
-		zap.String("topic", topic),
-		zap.Int32("partition", partition),
-		zap.Int64("offset", offset),
-	)
 }
-
 func (p *Producer) Close() {
 	if err := p.producer.Close(); err != nil {
 		p.logger.Error(context.Background(), "kafka: failed to close producer", zap.String("err", err.Error()))
