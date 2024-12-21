@@ -13,7 +13,6 @@ docker-compose up
 
 # Architecture
 ![architecture](architecture.png)
-
 # Usage
 ## API Documentation
 
@@ -23,7 +22,6 @@ Create a new user account.
 #### Request Body:
 ```json
 {
-  "id": "USER_ID",
   "name": "USER_NAME",
   "email": "USER_EMAIL",
   "password": "USER_PASSWORD",
@@ -42,8 +40,9 @@ Create a new user account.
 #### Example cURL Request:
 ```bash
 curl -X POST http://localhost:80/api/v1/sign-up \
-     -d '{"id": 1, "name": "John Doe", "email": "john.doe@example.com", "password": "password123", "role": "user", "interests": ["sports", "music"]}' \
-     -H "Content-Type: application/json"
+     -d '{"name": "John Doe", "email": "john.doe@example.com", "password": "password123", "role": "user", "interests": ["sports", "music"]}' \
+     -H "Content-Type: application/json" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
@@ -73,19 +72,19 @@ User sign-in to get authentication tokens.
 ```bash
 curl -X POST http://localhost:80/api/v1/sign-in \
      -d '{"name": "John Doe", "password": "password123"}' \
-     -H "Content-Type: application/json"
+     -H "Content-Type: application/json" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
 
-### 4. Create Event: POST /api/v1/event
-Create a new event.
+### 4. Create Event: POST /api/v1/event (Only for creators)
+Create a new event. 
 
 #### Request Body:
 ```json
 {
   "event": {
-    "event_id": "EVENT_ID",
     "creator_id": "CREATOR_ID",
     "title": "EVENT_TITLE",
     "description": "EVENT_DESCRIPTION",
@@ -107,12 +106,14 @@ Create a new event.
 ```bash
 curl -X POST http://localhost:80/api/v1/event \
      -d '{"event": {"creator_id": 1, "title": "My Event", "description": "Event Description", "time": "2024-12-21T10:00:00", "place": "Place", "interests": ["coding", "tech"]}}' \
-     -H "Content-Type: application/json"
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
 
-### 5. Read Event: GET /api/v1/event/{event_id}
+### 5. Read Event: GET /api/v1/event/{event_id} (Only for creators)
 Read event details by event ID.
 
 #### Response:
@@ -132,12 +133,14 @@ Read event details by event ID.
 
 #### Example cURL Request:
 ```bash
-curl -X GET http://localhost:80/api/v1/event/1
+curl -X GET http://localhost:80/api/v1/event/1 \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
 
-### 6. Update Event: PUT /api/v1/event/{event_id}
+### 6. Update Event: PUT /api/v1/event/{event_id} (Only for creators)
 Update event details by event ID.
 
 #### Request Body:
@@ -164,12 +167,14 @@ Update event details by event ID.
 ```bash
 curl -X PUT http://localhost:80/api/v1/event/1 \
      -d '{"event": {"title": "Updated Event", "description": "Updated Description", "time": "2024-12-22T12:00:00", "place": "New Place", "interests": ["new_interest"]}}' \
-     -H "Content-Type: application/json"
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
 
-### 7. Delete Event: DELETE /api/v1/event/{event_id}
+### 7. Delete Event: DELETE /api/v1/event/{event_id} (Only for creators)
 Delete an event by event ID.
 
 #### Response:
@@ -179,7 +184,9 @@ Delete an event by event ID.
 
 #### Example cURL Request:
 ```bash
-curl -X DELETE http://localhost:80/api/v1/event/1
+curl -X DELETE http://localhost:80/api/v1/event/1 \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
@@ -206,12 +213,14 @@ List all events.
 
 #### Example cURL Request:
 ```bash
-curl -X GET http://localhost:80/api/v1/event
+curl -X GET http://localhost:80/api/v1/event \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
 
-### 9. List Events By Creator: GET /api/v1/event/creator/{creator_id}
+### 9. List Events By Creator: GET /api/v1/event/creator/{creator_id} (Only for creators)
 List all events created by a specific creator.
 
 #### Response:
@@ -233,7 +242,9 @@ List all events created by a specific creator.
 
 #### Example cURL Request:
 ```bash
-curl -X GET http://localhost:80/api/v1/event/creator/1
+curl -X GET http://localhost:80/api/v1/event/creator/1 \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
@@ -260,7 +271,9 @@ List all events based on user's interests.
 
 #### Example cURL Request:
 ```bash
-curl -X GET http://localhost:80/api/v1/event/interests/1
+curl -X GET http://localhost:80/api/v1/event/interests/1 \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
@@ -285,7 +298,9 @@ Register a user for an event.
 ```bash
 curl -X POST http://localhost:80/api/v1/event/register \
      -d '{"user_id": 1, "event_id": 1}' \
-     -H "Content-Type: application/json"
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
@@ -311,7 +326,9 @@ Set the chat status for a user in an event.
 ```bash
 curl -X PUT http://localhost:80/api/v1/event/chat \
      -d '{"user_id": 1, "event_id": 1, "is_ready": true}' \
-     -H "Content-Type: application/json"
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
@@ -334,7 +351,9 @@ List users available to chat in an event.
 
 #### Example cURL Request:
 ```bash
-curl -X GET http://localhost:80/api/v1/event/chat/1/1
+curl -X GET http://localhost:80/api/v1/event/chat/1/1 \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
 
 ---
@@ -361,11 +380,10 @@ List all events a user has registered for.
 
 #### Example cURL Request:
 ```bash
-curl -X GET http://localhost:80/api/v1/event/registrated/1
+curl -X GET http://localhost:80/api/v1/event/registrated/1 \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "X-Request-ID: UNIQUE_REQUEST_ID"
 ```
-
----
-
 
 # Technologies Used
 - Golang

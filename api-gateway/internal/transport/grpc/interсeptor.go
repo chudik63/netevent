@@ -31,7 +31,6 @@ func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 			"/gateway.GatewayService/ReadEvent":           true,
 			"/gateway.GatewayService/UpdateEvent":         true,
 			"/gateway.GatewayService/DeleteEvent":         true,
-			"/gateway.GatewayService/ListEvents":          true,
 			"/gateway.GatewayService/ListEventsByCreator": true,
 		}
 

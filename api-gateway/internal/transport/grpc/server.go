@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -38,13 +37,11 @@ func New(ctx context.Context, port, restPort string, authClient *client.AuthClie
 	reflection.Register(grpcServer)
 	gateway.RegisterGatewayServer(grpcServer, NewGatewayServer(authClient, eventClient))
 
-	conn, err := grpc.NewClient("0.0.0.0:"+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		logs.Fatal(ctx, "failed to set connection to grpc server", zap.String("err", err.Error()))
-	}
-
 	mux := runtime.NewServeMux()
-	gateway.RegisterGatewayHandler(context.Background(), mux, conn)
+	if err := gateway.RegisterGatewayHandlerServer(context.Background(), mux, NewGatewayServer(authClient, eventClient)); err != nil {
+		logs.Fatal(ctx, "failed to create gatewate handler", zap.String("err", err.Error()))
+		return nil, err
+	}
 	restSrv := &http.Server{
 		Addr:    ":" + restPort,
 		Handler: mux,
