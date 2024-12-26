@@ -29,7 +29,6 @@ RUN echo "${NETRC}" > /root/.netrc && \
     chmod 600 /root/.ssh/config && \
     chmod 600 /root/.ssh/known_hosts
 
-# Записываем SSH-ключи
 RUN printf "%s\n" "${SSH_PRIVATE_KEY}" > /root/.ssh/lms_gitlab && \
     echo "${SSH_KEY}" > /root/.ssh/lms_gitlab.pub && \
     chmod 600 /root/.ssh/lms_gitlab /root/.ssh/lms_gitlab.pub && \
