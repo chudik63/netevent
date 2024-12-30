@@ -10,9 +10,9 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/notification"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/pkg/logger"
+	"github.com/chudik63/netevent/notification-service/internal/application/config"
+	"github.com/chudik63/netevent/notification-service/internal/application/notification"
+	"github.com/chudik63/netevent/notification-service/pkg/logger"
 )
 
 const stopTimeout = 3 * time.Second

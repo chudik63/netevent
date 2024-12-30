@@ -1,4 +1,4 @@
-module gitlab.crja72.ru/gospec/go9/netevent/auth
+module github.com/chudik63/netevent/auth
 
 go 1.23.4
 

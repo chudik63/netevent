@@ -3,9 +3,10 @@ package client
 import (
 	"context"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/config"
-	event "gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/api/proto/event"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
+	"github.com/chudik63/netevent/api-gateway/internal/config"
+	event "github.com/chudik63/netevent/event_service/pkg/api/proto/event"
+	"github.com/chudik63/netevent/event_service/pkg/logger"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

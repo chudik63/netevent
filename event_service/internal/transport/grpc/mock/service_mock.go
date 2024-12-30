@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	models "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
+	models "github.com/chudik63/netevent/event_service/internal/models"
 )
 
 // MockService is a mock of Service interface.

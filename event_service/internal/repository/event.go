@@ -6,8 +6,8 @@ import (
 	"errors"
 	"strconv"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/postgres"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
+	"github.com/chudik63/netevent/event_service/internal/database/postgres"
+	"github.com/chudik63/netevent/event_service/internal/models"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/lib/pq"

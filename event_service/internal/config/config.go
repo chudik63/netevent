@@ -3,8 +3,8 @@ package config
 import (
 	"errors"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/cache"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/postgres"
+	"github.com/chudik63/netevent/event_service/internal/database/cache"
+	"github.com/chudik63/netevent/event_service/internal/database/postgres"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )

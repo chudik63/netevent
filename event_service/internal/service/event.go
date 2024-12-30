@@ -7,11 +7,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/chudik63/netevent/event_service/internal/database/cache"
+	"github.com/chudik63/netevent/event_service/internal/models"
+	"github.com/chudik63/netevent/event_service/internal/producer"
+	"github.com/chudik63/netevent/event_service/internal/repository"
+
 	"github.com/redis/go-redis/v9"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/cache"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/producer"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
 )
 
 //go:generate mockgen -source=event.go -destination=mock/mock.go

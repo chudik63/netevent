@@ -7,10 +7,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	client "gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/client"
-	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/config"
-	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/transport/grpc"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
+	client "github.com/chudik63/netevent/api-gateway/internal/client"
+	"github.com/chudik63/netevent/api-gateway/internal/config"
+	"github.com/chudik63/netevent/api-gateway/internal/transport/grpc"
+	"github.com/chudik63/netevent/event_service/pkg/logger"
+
 	"go.uber.org/zap"
 )
 

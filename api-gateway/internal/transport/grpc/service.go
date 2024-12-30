@@ -3,10 +3,10 @@ package grpc
 import (
 	"context"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/client"
-	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/pkg/api/gateway"
-	auth "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/proto"
-	event "gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/api/proto/event"
+	"github.com/chudik63/netevent/api-gateway/internal/client"
+	"github.com/chudik63/netevent/api-gateway/pkg/api/gateway"
+	auth "github.com/chudik63/netevent/auth/pkg/proto"
+	event "github.com/chudik63/netevent/event_service/pkg/api/proto/event"
 )
 
 type GatewayServer struct {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres/models"
+	"github.com/chudik63/netevent/auth/internal/db/postgres/models"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/chudik63/netevent/notification-service/internal/application/config"
+	"github.com/chudik63/netevent/notification-service/internal/domain"
+	"github.com/chudik63/netevent/notification-service/pkg/logger"
+
 	"github.com/IBM/sarama"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/domain"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/pkg/logger"
 )
 
 //go:generate mockery --name NotificationRepository  --structname MockNotificationRepository --filename mock_notification_repository_test.go --outpkg notification_test --output .

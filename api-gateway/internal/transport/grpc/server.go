@@ -6,9 +6,10 @@ import (
 	"net"
 	"net/http"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/client"
-	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/pkg/api/gateway"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
+	"github.com/chudik63/netevent/api-gateway/internal/client"
+	"github.com/chudik63/netevent/api-gateway/pkg/api/gateway"
+	"github.com/chudik63/netevent/event_service/pkg/logger"
+
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
+	"github.com/chudik63/netevent/event_service/pkg/logger"
 
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"

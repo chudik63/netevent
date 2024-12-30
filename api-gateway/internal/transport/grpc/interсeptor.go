@@ -5,9 +5,10 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/chudik63/netevent/api-gateway/internal/client"
+	"github.com/chudik63/netevent/auth/pkg/proto"
+
 	"github.com/google/uuid"
-	"gitlab.crja72.ru/gospec/go9/netevent/api-gateway/internal/client"
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )

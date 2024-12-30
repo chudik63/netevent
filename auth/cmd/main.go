@@ -6,9 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres"
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/server"
-	loger "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/logger"
+	"github.com/chudik63/netevent/auth/internal/db/postgres"
+	"github.com/chudik63/netevent/auth/internal/server"
+	loger "github.com/chudik63/netevent/auth/pkg/logger"
+
 	"go.uber.org/zap"
 )
 

@@ -6,8 +6,8 @@ import (
 	"html/template"
 	"net/smtp"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/domain"
+	"github.com/chudik63/netevent/notification-service/internal/application/config"
+	"github.com/chudik63/netevent/notification-service/internal/domain"
 )
 
 const templatePath = "./templates/mail.html"

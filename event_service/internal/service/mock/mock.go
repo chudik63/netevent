@@ -11,9 +11,9 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	redis "github.com/redis/go-redis/v9"
-	models "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
-	producer "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/producer"
-	repository "gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/repository"
+	models "github.com/chudik63/netevent/event_service/internal/models"
+	producer "github.com/chudik63/netevent/event_service/internal/producer"
+	repository "github.com/chudik63/netevent/event_service/internal/repository"
 )
 
 // MockRepository is a mock of Repository interface.

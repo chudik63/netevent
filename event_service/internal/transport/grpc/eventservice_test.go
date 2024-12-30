@@ -5,12 +5,13 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/chudik63/netevent/event_service/internal/models"
+	"github.com/chudik63/netevent/event_service/internal/transport/grpc/mock"
+	"github.com/chudik63/netevent/event_service/pkg/api/proto/event"
+	"github.com/chudik63/netevent/event_service/pkg/logger"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/transport/grpc/mock"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/api/proto/event"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

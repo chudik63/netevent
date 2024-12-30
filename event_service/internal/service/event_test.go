@@ -5,11 +5,12 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/chudik63/netevent/event_service/internal/models"
+	"github.com/chudik63/netevent/event_service/internal/producer"
+	"github.com/chudik63/netevent/event_service/internal/service/mock"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/producer"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/service/mock"
 )
 
 func TestCreateRegistration(t *testing.T) {

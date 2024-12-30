@@ -1,4 +1,4 @@
-module gitlab.crja72.ru/gospec/go9/netevent/notification-service
+module github.com/chudik63/netevent/notification-service
 
 go 1.23.2
 

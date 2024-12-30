@@ -1,4 +1,4 @@
-module gitlab.crja72.ru/gospec/go9/netevent/event_service
+module github.com/chudik63/netevent/event_service
 
 go 1.23.4
 

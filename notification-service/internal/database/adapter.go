@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/domain"
+	"github.com/chudik63/netevent/notification-service/internal/application/config"
+	"github.com/chudik63/netevent/notification-service/internal/domain"
 )
 
 type Closer = func() error

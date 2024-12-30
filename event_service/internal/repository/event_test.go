@@ -7,11 +7,12 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/chudik63/netevent/event_service/internal/database/postgres"
+	"github.com/chudik63/netevent/event_service/internal/models"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/database/postgres"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
 )
 
 func TestCreateEvent(t *testing.T) {

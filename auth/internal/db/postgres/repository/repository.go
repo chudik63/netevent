@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/chudik63/netevent/auth/internal/db/postgres"
+	"github.com/chudik63/netevent/auth/internal/db/postgres/models"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres"
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres/models"
 )
 
 type UserRepository struct {

@@ -7,12 +7,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chudik63/netevent/notification-service/internal/application/config"
+	"github.com/chudik63/netevent/notification-service/internal/domain"
+	"github.com/chudik63/netevent/notification-service/internal/service/notification"
+	"github.com/chudik63/netevent/notification-service/pkg/logger"
+
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/domain"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/service/notification"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/pkg/logger"
 )
 
 func TestRun(t *testing.T) {

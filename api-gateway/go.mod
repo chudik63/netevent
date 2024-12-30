@@ -1,4 +1,4 @@
-module gitlab.crja72.ru/gospec/go9/netevent/api-gateway
+module github.com/chudik63/netevent/api-gateway
 
 go 1.23.4
 
@@ -12,8 +12,8 @@ require (
 )
 
 require (
-	gitlab.crja72.ru/gospec/go9/netevent/auth v0.0.0-20241221015144-8f048a57e6ee // indirect
-	gitlab.crja72.ru/gospec/go9/netevent/event_service v0.0.0-20241221015144-8f048a57e6ee // indirect
+	github.com/chudik63/netevent/auth v0.0.0-20241221015144-8f048a57e6ee // indirect
+	github.com/chudik63/netevent/event_service v0.0.0-20241221015144-8f048a57e6ee // indirect
 )
 
 require (

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres/models"
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/db/postgres/repository"
-	"gitlab.crja72.ru/gospec/go9/netevent/auth/internal/token"
-	pb "gitlab.crja72.ru/gospec/go9/netevent/auth/pkg/proto"
+	"github.com/chudik63/netevent/auth/internal/db/postgres/models"
+	"github.com/chudik63/netevent/auth/internal/db/postgres/repository"
+	"github.com/chudik63/netevent/auth/internal/token"
+	pb "github.com/chudik63/netevent/auth/pkg/proto"
 )
 
 type Auth struct {

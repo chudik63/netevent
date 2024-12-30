@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/internal/models"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/api/proto/event"
-	"gitlab.crja72.ru/gospec/go9/netevent/event_service/pkg/logger"
+	"github.com/chudik63/netevent/event_service/internal/models"
+	"github.com/chudik63/netevent/event_service/pkg/api/proto/event"
+	"github.com/chudik63/netevent/event_service/pkg/logger"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"

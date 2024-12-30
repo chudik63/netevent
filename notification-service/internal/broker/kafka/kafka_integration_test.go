@@ -13,15 +13,16 @@ import (
 
 	_ "github.com/lib/pq"
 
+	"github.com/chudik63/netevent/notification-service/internal/application/config"
+	"github.com/chudik63/netevent/notification-service/internal/broker/kafka"
+	"github.com/chudik63/netevent/notification-service/internal/database"
+	"github.com/chudik63/netevent/notification-service/internal/domain"
+	"github.com/chudik63/netevent/notification-service/pkg/logger"
+
 	"github.com/IBM/sarama"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/application/config"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/broker/kafka"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/database"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/internal/domain"
-	"gitlab.crja72.ru/gospec/go9/netevent/notification-service/pkg/logger"
 )
 
 func TestKafka(t *testing.T) {
