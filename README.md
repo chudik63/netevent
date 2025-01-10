@@ -2,7 +2,7 @@
 App for networking on events 
 # Installation
 ```
-git clone git@gitlab.crja72.ru:gospec/go9/netevent.git
+git clone git@github.com:chudik63/netevent.git
 cd netevent
 ```
 # Main Commands
