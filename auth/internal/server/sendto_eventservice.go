@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	pb "event/pkg/api/proto/event"
+	"github.com/chudik63/netevent/event_service/pkg/api/proto/event"
 )
 
 var eventPort = ":5300"
@@ -21,12 +21,12 @@ func sendToEvent(data *models.Participant) error {
 	}
 	defer conn.Close()
 
-	c := pb.NewEventServiceClient(conn)
+	c := event.NewEventServiceClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	_, err = c.AddParticipant(ctx, &pb.AddParticipantRequest{
-		User: &pb.Participant{
+	_, err = c.AddParticipant(ctx, &event.AddParticipantRequest{
+		User: &event.Participant{
 			UserId:    data.UserId,
 			Name:      data.Name,
 			Interests: data.Interests,
