@@ -1,10 +1,10 @@
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/toml v1.4.0 h1:kuoIxZQy2WRRk1pttg9asf+WVv6tWQuBNVmK8+nqPr0=
 github.com/BurntSushi/toml v1.4.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
-github.com/chudik63/netevent/auth v0.0.0-20250110115343-3aa1e2c4bd3d h1:AXG2XhQpsMUsYyiADXqtvVSrRaC4WRhTc5XchD8jLro=
-github.com/chudik63/netevent/auth v0.0.0-20250110115343-3aa1e2c4bd3d/go.mod h1:XaeedUuRCKAOKpCV0FR+XX5s3GiBtaDzNWtxQDi1ug8=
-github.com/chudik63/netevent/event_service v0.0.0-20250110115343-3aa1e2c4bd3d h1:RgDO/PyDplYsS6V5Bi2HUIUmUakVEiJzI6rni5p31iI=
-github.com/chudik63/netevent/event_service v0.0.0-20250110115343-3aa1e2c4bd3d/go.mod h1:JVGAukNT0BtLXVCOEMjFAJtxlNgHcpVgSQewVad2oXQ=
+github.com/chudik63/netevent/auth v0.0.0-20250110160503-969b78266909 h1:wfjVsKagnBRVBuqkwSAJ7nDkRYCIQ7drvhME0Z5r1o8=
+github.com/chudik63/netevent/auth v0.0.0-20250110160503-969b78266909/go.mod h1:gp9YJCw1RVK1jvjWGUTKB8sLdQWWqD79k7W4mlz3aTM=
+github.com/chudik63/netevent/event_service v0.0.0-20250110160503-969b78266909 h1:fXDe2z0efnW7QogRLCc57GweHTLFf5f++MPLNxINBfw=
+github.com/chudik63/netevent/event_service v0.0.0-20250110160503-969b78266909/go.mod h1:JVGAukNT0BtLXVCOEMjFAJtxlNgHcpVgSQewVad2oXQ=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-logr/logr v1.4.2 h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
@@ -61,8 +61,8 @@ google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422 h1:
 google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422/go.mod h1:b6h1vNKhxaSoEI+5jc3PJUCustfli/mRab7295pY7rw=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20250102185135-69823020774d h1:xJJRGY7TJcvIlpSrN3K6LAWgNFUILlO+OMAqtg9aqnw=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20250102185135-69823020774d/go.mod h1:3ENsm/5D1mzDyhpzeRi1NR784I0BcofWBoSc5QqqMK4=
-google.golang.org/grpc v1.69.2 h1:U3S9QEtbXC0bYNvRtcoklF3xGtLViumSYxWykJS+7AU=
-google.golang.org/grpc v1.69.2/go.mod h1:vyjdE6jLBI76dgpDojsFGNaHlxdjXN9ghpnd2o7JGZ4=
+google.golang.org/grpc v1.69.4 h1:MF5TftSMkd8GLw/m0KM6V8CMOCY6NZ1NQDPGFgbTt4A=
+google.golang.org/grpc v1.69.4/go.mod h1:vyjdE6jLBI76dgpDojsFGNaHlxdjXN9ghpnd2o7JGZ4=
 google.golang.org/protobuf v1.36.2 h1:R8FeyR1/eLmkutZOM5CWghmo5itiG9z0ktFlTVLuTmU=
 google.golang.org/protobuf v1.36.2/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
