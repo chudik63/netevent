@@ -8,7 +8,7 @@ import (
 
 func StartMigration(db *sql.DB) error {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS "tuser" (
-		id INT PRIMARY KEY NOT NULL,
+		id serial PRIMARY KEY NOT NULL,
 		name VARCHAR(30),
 		password VARCHAR(30), 
 		role VARCHAR(30),

@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/chudik63/netevent/auth/internal/db/postgres/models"
@@ -19,28 +18,27 @@ type Auth struct {
 func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	us := in.GetUser()
 	mod := &models.User{
-		Id:        us.Id,
 		Name:      us.Name,
 		Password:  us.Password,
 		Email:     us.Email,
 		Role:      us.Role,
 		Interests: strings.Join(us.Interests, " "),
 	}
-	err := a.repo.NewUser(mod)
+	id, err := a.repo.NewUser(mod)
 	if err != nil {
-		return &pb.RegisterResponse{Message: "err in db: " + err.Error()}, err
+		return &pb.RegisterResponse{Id: 0}, err
 	}
 
 	err = sendToEvent(&models.Participant{
-		UserId:    us.Id,
+		UserId:    id,
 		Name:      us.Name,
 		Interests: us.Interests,
 		Email:     us.Email,
 	})
 	if err != nil {
-		return &pb.RegisterResponse{Message: "err to send event service: " + err.Error()}, err
+		return &pb.RegisterResponse{Id: 0}, err
 	}
-	return &pb.RegisterResponse{Message: "OK"}, nil
+	return &pb.RegisterResponse{Id: id}, nil
 }
 
 func (a *Auth) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*pb.AuthenticateResponse, error) {
@@ -79,23 +77,22 @@ func (a *Auth) Authorise(ctx context.Context, in *pb.AuthoriseRequest) (*pb.Auth
 	auToken := in.GetToken()
 	flag, err := token.ValidToken(auToken)
 	if err != nil {
-		return &pb.AuthoriseResponse{Role: "", Message: string(fmt.Sprintf("%v", err))}, err
+		return &pb.AuthoriseResponse{Role: ""}, err
 	}
 	if !flag {
-		return &pb.AuthoriseResponse{Role: "", Message: "error token not valid"}, nil
+		return &pb.AuthoriseResponse{Role: ""}, nil
 	}
 
 	name, err := token.GetNameToken(auToken)
 	if err != nil {
-		return &pb.AuthoriseResponse{Role: "", Message: "error token not valid"}, nil
+		return &pb.AuthoriseResponse{Role: ""}, nil
 	}
 
 	role, err := a.repo.GetRole(name)
 	if err != nil {
-		return &pb.AuthoriseResponse{Role: "", Message: "error not found in db on name: " + name + " " + err.Error()}, nil
+		return &pb.AuthoriseResponse{Role: ""}, nil
 	}
 	return &pb.AuthoriseResponse{
-		Role:    role,
-		Message: "OK",
+		Role: role,
 	}, nil
 }

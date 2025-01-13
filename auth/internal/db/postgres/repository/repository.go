@@ -19,19 +19,29 @@ func NewUserRepository(db *postgres.DB) *UserRepository {
 	return &UserRepository{db.Db}
 }
 
-func (u *UserRepository) NewUser(users *models.User) error {
-	_, err := sq.Insert("tuser").Columns("id", "name", "password", "email", "role", "interest").
-		Values(users.Id, users.Name, users.Password, users.Email, users.Role, users.Interests).PlaceholderFormat(sq.Dollar).
-		RunWith(u.db).Exec()
+func (u *UserRepository) NewUser(users *models.User) (int64, error) {
+	var id int64
+
+	err := sq.Insert("tuser").
+		Columns("id", "name", "password", "email", "role", "interest").
+		Values(users.Name, users.Password, users.Email, users.Role, users.Interests).
+		Suffix("RETURNING id").
+		PlaceholderFormat(sq.Dollar).
+		RunWith(u.db).
+		QueryRow().
+		Scan(&id)
+
 	if err != nil {
 		log.Println(err)
-		return fmt.Errorf("err in database: %w", err)
+		return 0, fmt.Errorf("err in database: %w", err)
 	}
-	return nil
+
+	return id, nil
 }
 
 func (u *UserRepository) AuthUser(name string, password string, tkn *models.Token) error {
 	us := models.User{}
+
 	err := sq.Select("id", "name", "password").
 		From("tuser").
 		Where(sq.Eq{"name": name}, sq.Eq{"password": password}).PlaceholderFormat(sq.Dollar).
@@ -41,9 +51,8 @@ func (u *UserRepository) AuthUser(name string, password string, tkn *models.Toke
 	if err != nil {
 		return fmt.Errorf("err in database: %w", err)
 	}
-	log.Println(us)
 
-	res, err := sq.Update("tuser").
+	_, err = sq.Update("tuser").
 		Set("accesstkn", tkn.AccessTkn).Set("accessttl", tkn.AccessTtl).
 		Set("refreshtkn", tkn.RefreshTkn).Set("refreshttl", tkn.RefreshTtl).
 		PlaceholderFormat(sq.Dollar).
@@ -51,7 +60,7 @@ func (u *UserRepository) AuthUser(name string, password string, tkn *models.Toke
 	if err != nil {
 		return fmt.Errorf("err in database: %w", err)
 	}
-	fmt.Println(res)
+
 	return nil
 }
 
@@ -60,12 +69,12 @@ func (u *UserRepository) UpdateToken(users *models.User) error {
 }
 
 func (u *UserRepository) GetRole(name string) (string, error) {
-	var role, nm string
+	var role string
 
-	err := sq.Select("role", "name").
+	err := sq.Select("role").
 		From("tuser").Where(sq.Eq{"name": name}).
 		PlaceholderFormat(sq.Dollar).
-		RunWith(u.db).QueryRow().Scan(&role, &nm)
+		RunWith(u.db).QueryRow().Scan(&role)
 
 	if err != nil {
 		return "", fmt.Errorf("err in database: %w", err)
