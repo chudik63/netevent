@@ -6,22 +6,23 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/chudik63/netevent/auth/internal/config"
 	"github.com/chudik63/netevent/auth/internal/db/postgres"
 	"github.com/chudik63/netevent/auth/internal/server"
-	loger "github.com/chudik63/netevent/auth/pkg/logger"
-
+	"github.com/chudik63/netevent/auth/pkg/logger"
 	"go.uber.org/zap"
 )
 
-var (
-	srvGrpcPort = "5100"
-)
-
 func main() {
-	mainLog := loger.New(loger.ServiceName)
+	mainLog := logger.New(logger.ServiceName)
 	mainLog.Info("start auth service")
 
-	db, err := postgres.New()
+	cfg, err := config.New()
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := postgres.New(cfg.Config)
 	if err != nil {
 		panic(err)
 	}
@@ -30,8 +31,8 @@ func main() {
 		panic(err)
 	}
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, loger.ServiceName, mainLog)
-	srv := server.New(ctx, srvGrpcPort, db)
+	ctx = context.WithValue(ctx, logger.ServiceName, mainLog)
+	srv := server.New(ctx, cfg.GRPCServerPort, db)
 	go func() {
 		if err := srv.Start(ctx); err != nil {
 			mainLog.Error("err server", zap.Error(err))
