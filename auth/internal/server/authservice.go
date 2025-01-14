@@ -19,6 +19,7 @@ type Auth struct {
 
 func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	us := in.GetUser()
+
 	mod := &models.User{
 		Name:      us.Name,
 		Password:  us.Password,
@@ -26,6 +27,7 @@ func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regist
 		Role:      us.Role,
 		Interests: strings.Join(us.Interests, " "),
 	}
+
 	id, err := a.repo.NewUser(mod)
 	if err != nil {
 		return &pb.RegisterResponse{Id: 0}, status.Errorf(codes.Internal, err.Error())
@@ -40,6 +42,7 @@ func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regist
 	if err != nil {
 		return &pb.RegisterResponse{Id: 0}, status.Errorf(codes.Internal, err.Error())
 	}
+
 	return &pb.RegisterResponse{Id: id}, status.New(codes.OK, "Success").Err()
 }
 
@@ -47,36 +50,27 @@ func (a *Auth) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*p
 	name := in.GetName()
 	pass := in.GetPassword()
 
-	SmallToken, err := token.NewToken(name)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, err.Error())
-	}
-	LongToken, err := token.RefreshToken(name)
+	user, err := a.repo.AuthUser(name, pass)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	tkn := &models.Token{
-		AccessTkn:  SmallToken,
-		AccessTtl:  int64(token.Small),
-		RefreshTkn: LongToken,
-		RefreshTtl: int64(token.Long),
-	}
-	err = a.repo.AuthUser(name, pass, tkn)
+	tokens, err := token.NewTokens(user.Id, user.Role)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &pb.AuthenticateResponse{Tokens: &pb.Token{
-		AccessToken:     SmallToken,
-		AccessTokenTtl:  int64(token.Small),
-		RefreshToken:    LongToken,
-		RefreshTokenTtl: int64(token.Long),
+		AccessToken:     tokens.AccessTkn,
+		AccessTokenTtl:  tokens.AccessTtl,
+		RefreshToken:    tokens.RefreshTkn,
+		RefreshTokenTtl: tokens.RefreshTtl,
 	}}, status.New(codes.OK, "Success").Err()
 }
 
 func (a *Auth) Authorise(ctx context.Context, in *pb.AuthoriseRequest) (*pb.AuthoriseResponse, error) {
 	auToken := in.GetToken()
+
 	flag, err := token.ValidToken(auToken)
 	if err != nil {
 		return &pb.AuthoriseResponse{Role: ""}, status.Errorf(codes.Internal, err.Error())
@@ -85,16 +79,18 @@ func (a *Auth) Authorise(ctx context.Context, in *pb.AuthoriseRequest) (*pb.Auth
 		return &pb.AuthoriseResponse{Role: ""}, nil
 	}
 
-	name, err := token.GetNameToken(auToken)
+	id, err := token.GetIdToken(auToken)
 	if err != nil {
 		return &pb.AuthoriseResponse{Role: ""}, status.Errorf(codes.Internal, err.Error())
 	}
 
-	role, err := a.repo.GetRole(name)
+	role, err := token.GetRoleToken(auToken)
 	if err != nil {
 		return &pb.AuthoriseResponse{Role: ""}, status.Errorf(codes.Internal, err.Error())
 	}
+
 	return &pb.AuthoriseResponse{
+		Id:   id,
 		Role: role,
 	}, status.New(codes.OK, "Success").Err()
 }
