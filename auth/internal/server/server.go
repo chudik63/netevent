@@ -3,13 +3,13 @@ package server
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 
 	"github.com/chudik63/netevent/auth/internal/db/postgres"
 	"github.com/chudik63/netevent/auth/internal/db/postgres/repository"
-	"github.com/chudik63/netevent/auth/pkg/logger"
 	pb "github.com/chudik63/netevent/auth/pkg/proto"
+	"github.com/chudik63/netevent/event_service/pkg/logger"
+	"go.uber.org/zap"
 
 	"google.golang.org/grpc"
 )
@@ -21,12 +21,13 @@ type Server struct {
 }
 
 func New(ctx context.Context, port string, db *postgres.DB) *Server {
+	srvLogger := logger.GetLoggerFromCtx(ctx)
+
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		srvLogger.Fatal(ctx, "failed to listen", zap.String("err: ", err.Error()))
 	}
 
-	srvLogger := logger.CtxGetLogger(ctx)
 	opts := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(interceptorLogger(srvLogger)),
 	}
@@ -34,7 +35,7 @@ func New(ctx context.Context, port string, db *postgres.DB) *Server {
 
 	repo := repository.NewUserRepository(db)
 	pb.RegisterAuthServiceServer(s, &Auth{repo: repo})
-	log.Printf("server listening at %v", lis.Addr())
+	srvLogger.Info(ctx, "server listening at", zap.Int("port", lis.Addr().(*net.TCPAddr).Port))
 
 	return &Server{s, lis, db}
 }
@@ -45,6 +46,6 @@ func (s *Server) Start(ctx context.Context) error {
 
 func (s *Server) Stop(ctx context.Context) {
 	s.grpcServer.GracefulStop()
-	l := logger.CtxGetLogger(ctx)
-	l.Info("grpc server Stoped!")
+	l := logger.GetLoggerFromCtx(ctx)
+	l.Info(ctx, "grpc server Stoped!")
 }

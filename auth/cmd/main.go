@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -9,33 +10,40 @@ import (
 	"github.com/chudik63/netevent/auth/internal/config"
 	"github.com/chudik63/netevent/auth/internal/db/postgres"
 	"github.com/chudik63/netevent/auth/internal/server"
-	"github.com/chudik63/netevent/auth/pkg/logger"
+	"github.com/chudik63/netevent/event_service/pkg/logger"
 	"go.uber.org/zap"
 )
 
+const (
+	serviceName = "auth"
+)
+
 func main() {
-	mainLog := logger.New(logger.ServiceName)
-	mainLog.Info("start auth service")
+	mainLog, err := logger.New(serviceName)
+	if err != nil {
+		panic(fmt.Errorf("failed to create logger: %v", err))
+	}
+
+	ctx := context.WithValue(context.Background(), logger.LoggerKey, mainLog)
 
 	cfg, err := config.New()
 	if err != nil {
-		panic(err)
+		mainLog.Fatal(ctx, "failed to read config", zap.String("err", err.Error()))
 	}
 
 	db, err := postgres.New(cfg.Config)
 	if err != nil {
-		panic(err)
+		mainLog.Fatal(ctx, "failed to create database", zap.String("err", err.Error()))
 	}
 	err = postgres.StartMigration(db.Db.DB)
 	if err != nil {
-		panic(err)
+		mainLog.Fatal(ctx, "failed to start migration", zap.String("err", err.Error()))
 	}
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, logger.ServiceName, mainLog)
+
 	srv := server.New(ctx, cfg.GRPCServerPort, db)
 	go func() {
 		if err := srv.Start(ctx); err != nil {
-			mainLog.Error("err server", zap.Error(err))
+			mainLog.Error(ctx, "err server", zap.Error(err))
 		}
 	}()
 
