@@ -17,17 +17,6 @@ services:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
-      args:
-        NETRC: ${NETRC}
-        GIT_URL: ${GIT_URL}
-        GIT_SSH_URL: ${GIT_SSH_URL}
-        SSH_HOST: ${SSH_HOST}
-        SSH_USER: ${SSH_USER}
-        SSH_HOSTNAME: ${SSH_HOSTNAME}
-        SSH_IDENTITY_FILE: ${SSH_IDENTITY_FILE}
-        SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
-        SSH_KEY: ${SSH_KEY}
-        KNOWN_HOSTS: ${KNOWN_HOSTS}
     container_name: gateway
     ports:
       - "${REST_SERVER_PORT}:${REST_SERVER_PORT}"
