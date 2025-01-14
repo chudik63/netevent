@@ -39,45 +39,27 @@ func (u *UserRepository) NewUser(users *models.User) (int64, error) {
 	return id, nil
 }
 
-func (u *UserRepository) AuthUser(name string, password string, tkn *models.Token) error {
-	us := models.User{}
+func (u *UserRepository) AuthUser(name string, password string) (*models.User, error) {
+	var user models.User
 
-	err := sq.Select("id", "name", "password").
+	err := sq.Select("id", "name", "password", "role", "email").
 		From("tuser").
 		Where(sq.Eq{"name": name}, sq.Eq{"password": password}).PlaceholderFormat(sq.Dollar).
 		RunWith(u.db).QueryRow().
-		Scan(&us.Id, &us.Name, &us.Password)
+		Scan(&user.Id, &user.Name, &user.Password, &user.Role, &user.Email)
 
 	if err != nil {
-		return fmt.Errorf("err in database: %w", err)
+		return nil, fmt.Errorf("err in database: %w", err)
 	}
 
-	_, err = sq.Update("tuser").
-		Set("accesstkn", tkn.AccessTkn).Set("accessttl", tkn.AccessTtl).
-		Set("refreshtkn", tkn.RefreshTkn).Set("refreshttl", tkn.RefreshTtl).
-		PlaceholderFormat(sq.Dollar).
-		RunWith(u.db).Exec()
-	if err != nil {
-		return fmt.Errorf("err in database: %w", err)
-	}
+	// _, err = sq.Update("tuser").
+	// 	Set("accesstkn", tkn.AccessTkn).Set("accessttl", tkn.AccessTtl).
+	// 	Set("refreshtkn", tkn.RefreshTkn).Set("refreshttl", tkn.RefreshTtl).
+	// 	PlaceholderFormat(sq.Dollar).
+	// 	RunWith(u.db).Exec()
+	// if err != nil {
+	// 	return fmt.Errorf("err in database: %w", err)
+	// }
 
-	return nil
-}
-
-func (u *UserRepository) UpdateToken(users *models.User) error {
-	return nil
-}
-
-func (u *UserRepository) GetRole(name string) (string, error) {
-	var role string
-
-	err := sq.Select("role").
-		From("tuser").Where(sq.Eq{"name": name}).
-		PlaceholderFormat(sq.Dollar).
-		RunWith(u.db).QueryRow().Scan(&role)
-
-	if err != nil {
-		return "", fmt.Errorf("err in database: %w", err)
-	}
-	return role, nil
+	return &user, nil
 }
