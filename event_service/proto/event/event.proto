@@ -32,7 +32,8 @@ message Event {
 message Participant {
   int64 user_id = 1;
   string name = 2;
-  repeated string interests = 3;
+  string email = 3;
+  repeated string interests = 4;
 }
 
 message CreateEventRequest {
