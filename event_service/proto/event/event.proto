@@ -125,7 +125,6 @@ message ListRegistratedEventsResponse {
 
 message AddParticipantRequest {
   Participant user = 1;
-  string email = 2;
 }
 
 message AddParticipantResponse {
