@@ -50,5 +50,6 @@ message AuthoriseRequest {
 }
 
 message AuthoriseResponse {
-  string role = 1;
+  int64 id = 1;
+  string role = 2;
 }
