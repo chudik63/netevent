@@ -29,9 +29,9 @@ func sendToEvent(data *models.Participant) error {
 		User: &event.Participant{
 			UserId:    data.UserId,
 			Name:      data.Name,
+			Email:     data.Email,
 			Interests: data.Interests,
 		},
-		Email: data.Email,
 	})
 	if err != nil {
 		return err
