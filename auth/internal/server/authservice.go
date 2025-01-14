@@ -30,7 +30,7 @@ func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regist
 
 	id, err := a.repo.NewUser(mod)
 	if err != nil {
-		return &pb.RegisterResponse{Id: 0}, status.Errorf(codes.Internal, err.Error())
+		return &pb.RegisterResponse{}, status.Errorf(codes.Internal, err.Error())
 	}
 
 	err = sendToEvent(&models.Participant{
@@ -40,10 +40,10 @@ func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regist
 		Email:     us.Email,
 	})
 	if err != nil {
-		return &pb.RegisterResponse{Id: 0}, status.Errorf(codes.Internal, err.Error())
+		return &pb.RegisterResponse{}, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &pb.RegisterResponse{Id: id}, status.New(codes.OK, "Success").Err()
+	return &pb.RegisterResponse{}, status.New(codes.OK, "Success").Err()
 }
 
 func (a *Auth) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*pb.AuthenticateResponse, error) {
