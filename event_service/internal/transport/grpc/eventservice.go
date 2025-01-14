@@ -275,7 +275,7 @@ func (s *EventService) AddParticipant(ctx context.Context, req *event.AddPartici
 	err := s.service.AddParticipant(ctx, &models.Participant{
 		UserID:    req.GetUser().GetUserId(),
 		Name:      req.GetUser().GetName(),
-		Email:     req.GetEmail(),
+		Email:     req.GetUser().GetEmail(),
 		Interests: req.GetUser().GetInterests(),
 	})
 
