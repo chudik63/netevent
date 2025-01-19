@@ -28,11 +28,10 @@ func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 		}
 
 		creatorRoutes := map[string]bool{
-			"/gateway.GatewayService/CreateEvent":         true,
-			"/gateway.GatewayService/ReadEvent":           true,
-			"/gateway.GatewayService/UpdateEvent":         true,
-			"/gateway.GatewayService/DeleteEvent":         true,
-			"/gateway.GatewayService/ListEventsByCreator": true,
+			"/gateway.GatewayService/CreateEvent": true,
+			"/gateway.GatewayService/ReadEvent":   true,
+			"/gateway.GatewayService/UpdateEvent": true,
+			"/gateway.GatewayService/DeleteEvent": true,
 		}
 
 		md, ok := metadata.FromIncomingContext(ctx)
@@ -46,21 +45,26 @@ func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 		}
 
 		token := strings.TrimSpace(authHeader[0])
-		if strings.HasPrefix(token, "Bearer ") {
-			token = strings.TrimPrefix(token, "Bearer ")
+		if !strings.HasPrefix(token, "Bearer ") {
+			return nil, errors.New("invalid authorization header")
+		}
 
-			resp, err := i.authClient.Authorise(ctx, &proto.AuthoriseRequest{
-				Token: token,
-			})
-			if err != nil {
-				return resp.GetMessage(), err
-			}
+		token = strings.TrimPrefix(token, "Bearer ")
 
-			role := resp.GetRole()
+		resp, err := i.authClient.Authorise(ctx, &proto.AuthoriseRequest{
+			Token: token,
+		})
+		if err != nil {
+			return nil, err
+		}
 
-			if creatorRoutes[info.FullMethod] && role != "creator" {
-				return nil, errors.New("permission denied")
-			}
+		role := resp.GetRole()
+		id := resp.GetId()
+
+		ctx = context.WithValue(ctx, "user_id", id)
+
+		if creatorRoutes[info.FullMethod] && role != "creator" {
+			return nil, errors.New("permission denied")
 		}
 
 		requestID := ""
