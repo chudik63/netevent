@@ -14,7 +14,8 @@ import (
 
 type Auth struct {
 	pb.UnimplementedAuthServiceServer
-	repo *repository.UserRepository
+	repo        *repository.UserRepository
+	eventAdress string
 }
 
 func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
@@ -38,7 +39,7 @@ func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regist
 		Name:      us.Name,
 		Interests: us.Interests,
 		Email:     us.Email,
-	})
+	}, a.eventAdress)
 	if err != nil {
 		return &pb.RegisterResponse{}, status.Errorf(codes.Internal, err.Error())
 	}

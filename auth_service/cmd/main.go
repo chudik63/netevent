@@ -41,7 +41,7 @@ func main() {
 		mainLog.Fatal(ctx, "failed to start migration", zap.String("err", err.Error()))
 	}
 
-	srv := server.New(ctx, cfg.GRPCServerPort, db)
+	srv := server.New(ctx, cfg, db)
 	go func() {
 		if err := srv.Start(ctx); err != nil {
 			mainLog.Error(ctx, "err server", zap.Error(err))

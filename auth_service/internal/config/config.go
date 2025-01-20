@@ -9,7 +9,9 @@ import (
 
 type Config struct {
 	postgres.Config
-	GRPCServerPort string `env:"AUTH_SERVICE_PORT"`
+	GRPCServerPort    string `env:"AUTH_SERVICE_PORT"`
+	EventsServicePort string `env:"EVENTS_SERVICE_PORT"`
+	EventsServiceHost string `env:"EVENTS_SERVICE_HOST"`
 }
 
 func New() (*Config, error) {

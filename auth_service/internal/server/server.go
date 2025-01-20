@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/chudik63/netevent/auth_service/internal/config"
 	"github.com/chudik63/netevent/auth_service/internal/db/postgres"
 	"github.com/chudik63/netevent/auth_service/internal/db/postgres/repository"
 	pb "github.com/chudik63/netevent/auth_service/pkg/proto"
@@ -20,10 +21,10 @@ type Server struct {
 	db         *postgres.DB
 }
 
-func New(ctx context.Context, port string, db *postgres.DB) *Server {
+func New(ctx context.Context, cfg *config.Config, db *postgres.DB) *Server {
 	srvLogger := logger.GetLoggerFromCtx(ctx)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.GRPCServerPort))
 	if err != nil {
 		srvLogger.Fatal(ctx, "failed to listen", zap.String("err: ", err.Error()))
 	}
@@ -34,7 +35,10 @@ func New(ctx context.Context, port string, db *postgres.DB) *Server {
 	s := grpc.NewServer(opts...)
 
 	repo := repository.NewUserRepository(db)
-	pb.RegisterAuthServiceServer(s, &Auth{repo: repo})
+	pb.RegisterAuthServiceServer(s, &Auth{
+		repo:        repo,
+		eventAdress: cfg.EventsServiceHost + ":" + cfg.EventsServicePort,
+	})
 	srvLogger.Info(ctx, "server listening at", zap.Int("port", lis.Addr().(*net.TCPAddr).Port))
 
 	return &Server{s, lis, db}

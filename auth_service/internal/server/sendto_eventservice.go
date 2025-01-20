@@ -12,10 +12,8 @@ import (
 	"github.com/chudik63/netevent/event_service/pkg/api/proto/event"
 )
 
-var eventPort = ":5300"
-
-func sendToEvent(data *models.Participant) error {
-	conn, err := grpc.NewClient("events"+eventPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func sendToEvent(data *models.Participant, eventAdress string) error {
+	conn, err := grpc.NewClient(eventAdress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return err
 	}
