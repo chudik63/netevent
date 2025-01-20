@@ -4,8 +4,6 @@ github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/Masterminds/squirrel v1.5.4 h1:uUcX/aBc8O7Fg9kaISIUsHXdKuqehiXAMQTYX8afzqM=
 github.com/Masterminds/squirrel v1.5.4/go.mod h1:NNaOrjSoIDfDA40n7sr2tPNZRfjzjA400rg+riTZj10=
-github.com/chudik63/netevent/event_service v0.0.0-20250114093753-3e9ae01bffa1 h1:Q3I+PyGSQ8PF7ESahaQ0lXeWBI5zIQjrZFM9VQbbqhM=
-github.com/chudik63/netevent/event_service v0.0.0-20250114093753-3e9ae01bffa1/go.mod h1:JVGAukNT0BtLXVCOEMjFAJtxlNgHcpVgSQewVad2oXQ=
 github.com/chudik63/netevent/event_service v0.0.0-20250114094106-7f17691702c1 h1:J4p/kWx2UqKEs+YSZn6Pq76TzOxd7sjFvUqV3deXADU=
 github.com/chudik63/netevent/event_service v0.0.0-20250114094106-7f17691702c1/go.mod h1:JVGAukNT0BtLXVCOEMjFAJtxlNgHcpVgSQewVad2oXQ=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

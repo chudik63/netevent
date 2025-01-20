@@ -35,6 +35,7 @@ func main() {
 	if err != nil {
 		mainLog.Fatal(ctx, "failed to create database", zap.String("err", err.Error()))
 	}
+
 	err = postgres.StartMigration(db.Db.DB)
 	if err != nil {
 		mainLog.Fatal(ctx, "failed to start migration", zap.String("err", err.Error()))

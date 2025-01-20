@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -26,13 +25,15 @@ type DB struct {
 func New(cfg Config) (*DB, error) {
 	dataSorceName := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
 		cfg.UserName, cfg.Password, cfg.DBname, cfg.Host, cfg.Port)
-	fmt.Println(dataSorceName)
+
 	db, err := sqlx.Connect("postgres", dataSorceName)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
+
 	if _, err := db.Connx(context.Background()); err != nil {
 		return nil, err
 	}
+
 	return &DB{Db: db}, nil
 }
