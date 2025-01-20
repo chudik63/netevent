@@ -84,7 +84,7 @@ func (s *EventService) CreateEvent(ctx context.Context, req *event.CreateEventRe
 
 	return &event.CreateEventResponse{
 		EventId: resp,
-	}, status.New(codes.OK, "Success").Err()
+	}, nil
 }
 
 func (s *EventService) DeleteEvent(ctx context.Context, req *event.DeleteEventRequest) (*event.DeleteEventResponse, error) {
@@ -92,13 +92,19 @@ func (s *EventService) DeleteEvent(ctx context.Context, req *event.DeleteEventRe
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, ctx.Value("request_id").(string)), "failed to delete event", zap.String("err", err.Error()))
+
 		if errors.Is(err, models.ErrWrongEventId) {
 			return nil, status.Errorf(codes.NotFound, err.Error())
 		}
+
+		if errors.Is(err, models.ErrAccessDenied) {
+			return nil, status.Errorf(codes.PermissionDenied, err.Error())
+		}
+
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &event.DeleteEventResponse{}, status.New(codes.OK, "Success").Err()
+	return &event.DeleteEventResponse{}, nil
 }
 
 func (s *EventService) ListEvents(ctx context.Context, req *event.ListEventsRequest) (*event.ListEventsResponse, error) {
@@ -111,7 +117,7 @@ func (s *EventService) ListEvents(ctx context.Context, req *event.ListEventsRequ
 
 	return &event.ListEventsResponse{
 		Events: convertEventsToGRPC(resp),
-	}, status.New(codes.OK, "Success").Err()
+	}, nil
 }
 
 func (s *EventService) ListEventsByCreator(ctx context.Context, req *event.ListEventsByCreatorRequest) (*event.ListEventsByCreatorResponse, error) {
@@ -124,7 +130,7 @@ func (s *EventService) ListEventsByCreator(ctx context.Context, req *event.ListE
 
 	return &event.ListEventsByCreatorResponse{
 		Events: convertEventsToGRPC(resp),
-	}, status.New(codes.OK, "Success").Err()
+	}, nil
 }
 
 func (s *EventService) ListEventsByInterests(ctx context.Context, req *event.ListEventsByInterestsRequest) (*event.ListEventsByInterestsResponse, error) {
@@ -140,7 +146,7 @@ func (s *EventService) ListEventsByInterests(ctx context.Context, req *event.Lis
 
 	return &event.ListEventsByInterestsResponse{
 		Events: convertEventsToGRPC(resp),
-	}, status.New(codes.OK, "Success").Err()
+	}, nil
 }
 
 func (s *EventService) ListRegistratedEvents(ctx context.Context, req *event.ListRegistratedEventsRequest) (*event.ListRegistratedEventsResponse, error) {
@@ -156,7 +162,7 @@ func (s *EventService) ListRegistratedEvents(ctx context.Context, req *event.Lis
 
 	return &event.ListRegistratedEventsResponse{
 		Events: convertEventsToGRPC(resp),
-	}, status.New(codes.OK, "Success").Err()
+	}, nil
 }
 
 func (s *EventService) ListUsersToChat(ctx context.Context, req *event.ListUsersToChatRequest) (*event.ListUsersToChatResponse, error) {
@@ -181,7 +187,7 @@ func (s *EventService) ListUsersToChat(ctx context.Context, req *event.ListUsers
 
 	return &event.ListUsersToChatResponse{
 		Participants: participants,
-	}, status.New(codes.OK, "Success").Err()
+	}, nil
 }
 
 func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventRequest) (*event.ReadEventResponse, error) {
@@ -205,7 +211,7 @@ func (s *EventService) ReadEvent(ctx context.Context, req *event.ReadEventReques
 			Place:       resp.Place,
 			Interests:   resp.Topics,
 		},
-	}, status.New(codes.OK, "Success").Err()
+	}, nil
 }
 
 func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUserRequest) (*event.RegisterUserResponse, error) {
@@ -225,12 +231,17 @@ func (s *EventService) RegisterUser(ctx context.Context, req *event.RegisterUser
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &event.RegisterUserResponse{}, status.New(codes.OK, "Success").Err()
+	return &event.RegisterUserResponse{}, nil
 }
 
 func (s *EventService) UpdateEvent(ctx context.Context, req *event.UpdateEventRequest) (*event.UpdateEventResponse, error) {
 	if _, err := time.Parse(models.TimeLayout, req.GetEvent().GetTime()); err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, ctx.Value("request_id").(string)), "failed to update event", zap.String("err", models.ErrWrongTimeFormat.Error()))
+
+		if errors.Is(err, models.ErrAccessDenied) {
+			return nil, status.Errorf(codes.PermissionDenied, err.Error())
+		}
+
 		return nil, status.Errorf(codes.InvalidArgument, models.ErrWrongTimeFormat.Error())
 	}
 
@@ -246,13 +257,15 @@ func (s *EventService) UpdateEvent(ctx context.Context, req *event.UpdateEventRe
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, ctx.Value("request_id").(string)), "failed to update event", zap.String("err", err.Error()))
+
 		if errors.Is(err, models.ErrWrongEventId) {
 			return nil, status.Errorf(codes.NotFound, err.Error())
 		}
+
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &event.UpdateEventResponse{}, status.New(codes.OK, "Success").Err()
+	return &event.UpdateEventResponse{}, nil
 }
 
 func (s *EventService) SetChatStatus(ctx context.Context, req *event.SetChatStatusRequest) (*event.SetChatStatusResponse, error) {
@@ -268,7 +281,7 @@ func (s *EventService) SetChatStatus(ctx context.Context, req *event.SetChatStat
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &event.SetChatStatusResponse{}, status.New(codes.OK, "Success").Err()
+	return &event.SetChatStatusResponse{}, nil
 }
 
 func (s *EventService) AddParticipant(ctx context.Context, req *event.AddParticipantRequest) (*event.AddParticipantResponse, error) {
@@ -284,5 +297,5 @@ func (s *EventService) AddParticipant(ctx context.Context, req *event.AddPartici
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &event.AddParticipantResponse{}, status.New(codes.OK, "Success").Err()
+	return &event.AddParticipantResponse{}, nil
 }
