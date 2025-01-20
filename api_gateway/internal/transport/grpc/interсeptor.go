@@ -40,7 +40,6 @@ func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 		}
 
 		md, ok := metadata.FromIncomingContext(ctx)
-
 		if !ok {
 			return nil, errors.New("missing metadata in request")
 		}
@@ -65,7 +64,14 @@ func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 		}
 
 		role := resp.GetRole()
+		if role == "" {
+			return nil, errors.New("failed to get role from token")
+		}
+
 		id := resp.GetId()
+		if id == 0 {
+			return nil, errors.New("failed to get id from token")
+		}
 
 		ctx = context.WithValue(ctx, "user_id", id)
 
