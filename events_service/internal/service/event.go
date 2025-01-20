@@ -65,10 +65,33 @@ func (s *EventService) ReadEvent(ctx context.Context, eventID int64) (*models.Ev
 }
 
 func (s *EventService) UpdateEvent(ctx context.Context, event *models.Event) error {
+	userId, ok := ctx.Value("user_id").(int64)
+	if !ok {
+		return models.ErrGetFromContexxt
+	}
+
+	if userId != event.CreatorID {
+		return models.ErrAccessDenied
+	}
+
 	return s.repository.UpdateEvent(ctx, event)
 }
 
 func (s *EventService) DeleteEvent(ctx context.Context, eventID int64) error {
+	event, err := s.repository.ReadEvent(ctx, eventID)
+	if err != nil {
+		return err
+	}
+
+	userId, ok := ctx.Value("user_id").(int64)
+	if !ok {
+		return models.ErrGetFromContexxt
+	}
+
+	if userId != event.CreatorID {
+		return models.ErrAccessDenied
+	}
+
 	return s.repository.DeleteEvent(ctx, eventID)
 }
 
