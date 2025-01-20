@@ -79,11 +79,18 @@ func GetIdToken(tkn string) (int64, error) {
 		}
 		return secretKey, nil
 	})
-	if claims, ok := calms.Claims.(jwt.MapClaims); ok && calms.Valid {
-		return claims["userId"].(int64), nil
+	if err != nil {
+		return 0, err
 	}
 
-	return 0, err
+	if claims, ok := calms.Claims.(jwt.MapClaims); ok && calms.Valid {
+		if userID, ok := claims["userId"].(float64); ok {
+			return int64(userID), nil
+		}
+		return 0, errors.New("userId not found or invalid type")
+	}
+
+	return 0, errors.New("invalid token claims")
 }
 
 func GetRoleToken(tkn string) (string, error) {
