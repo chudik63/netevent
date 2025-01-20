@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/chudik63/netevent/event_service/pkg/api/proto/event"
+	"github.com/chudik63/netevent/events_service/pkg/api/proto/event"
 )
 
 func sendToEvent(data *models.Participant, eventAdress string) error {

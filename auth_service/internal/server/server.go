@@ -9,7 +9,7 @@ import (
 	"github.com/chudik63/netevent/auth_service/internal/db/postgres"
 	"github.com/chudik63/netevent/auth_service/internal/db/postgres/repository"
 	pb "github.com/chudik63/netevent/auth_service/pkg/proto"
-	"github.com/chudik63/netevent/event_service/pkg/logger"
+	"github.com/chudik63/netevent/events_service/pkg/logger"
 	"go.uber.org/zap"
 
 	"google.golang.org/grpc"

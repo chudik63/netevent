@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/chudik63/netevent/event_service/pkg/logger"
+	"github.com/chudik63/netevent/events_service/pkg/logger"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

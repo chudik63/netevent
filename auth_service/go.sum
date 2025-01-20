@@ -6,6 +6,8 @@ github.com/Masterminds/squirrel v1.5.4 h1:uUcX/aBc8O7Fg9kaISIUsHXdKuqehiXAMQTYX8
 github.com/Masterminds/squirrel v1.5.4/go.mod h1:NNaOrjSoIDfDA40n7sr2tPNZRfjzjA400rg+riTZj10=
 github.com/chudik63/netevent/event_service v0.0.0-20250114094106-7f17691702c1 h1:J4p/kWx2UqKEs+YSZn6Pq76TzOxd7sjFvUqV3deXADU=
 github.com/chudik63/netevent/event_service v0.0.0-20250114094106-7f17691702c1/go.mod h1:JVGAukNT0BtLXVCOEMjFAJtxlNgHcpVgSQewVad2oXQ=
+github.com/chudik63/netevent/events_service v0.0.0-20250120102525-ff04621bcbb6 h1:yXTjmyQ6a1RkpEmeY471p3DBbkafCSRqN1IylqLHYzc=
+github.com/chudik63/netevent/events_service v0.0.0-20250120102525-ff04621bcbb6/go.mod h1:+wDbrtLJRDibVZ/FwkHPEpnB/GLYyPknt20k1oiTRYw=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-logr/logr v1.4.2 h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
