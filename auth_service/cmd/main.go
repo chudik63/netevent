@@ -9,6 +9,7 @@ import (
 
 	"github.com/chudik63/netevent/auth_service/internal/config"
 	"github.com/chudik63/netevent/auth_service/internal/db/postgres"
+	"github.com/chudik63/netevent/auth_service/internal/db/postgres/repository"
 	"github.com/chudik63/netevent/auth_service/internal/server"
 	"github.com/chudik63/netevent/events_service/pkg/logger"
 	"go.uber.org/zap"
@@ -41,7 +42,9 @@ func main() {
 		mainLog.Fatal(ctx, "failed to start migration", zap.String("err", err.Error()))
 	}
 
-	srv := server.New(ctx, cfg, db)
+	repo := repository.NewUserRepository(db)
+
+	srv := server.New(ctx, cfg, db, repo)
 	go func() {
 		if err := srv.Start(ctx); err != nil {
 			mainLog.Error(ctx, "err server", zap.Error(err))

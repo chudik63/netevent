@@ -13,9 +13,7 @@ func StartMigration(db *sql.DB) error {
 		password VARCHAR(30) NOT NULL, 
 		role VARCHAR(30) NOT NULL,
 		email   VARCHAR(30) NOT NULL,
-		interests TEXT,
-		refreshtkn TEXT,
-		refreshttl INT
+		interests TEXT
 	);`)
 	if err != nil {
 		return err

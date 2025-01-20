@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/chudik63/netevent/auth_service/internal/db/postgres/models"
@@ -31,7 +32,12 @@ func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regist
 
 	id, err := a.repo.NewUser(mod)
 	if err != nil {
-		return &pb.RegisterResponse{}, status.Errorf(codes.Internal, err.Error())
+
+		if errors.Is(err, models.ErrUserAlreadyExists) {
+			return nil, status.Errorf(codes.InvalidArgument, err.Error())
+		}
+
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	err = sendToEvent(&models.Participant{
@@ -41,10 +47,10 @@ func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regist
 		Email:     us.Email,
 	}, a.eventAdress)
 	if err != nil {
-		return &pb.RegisterResponse{}, status.Errorf(codes.Internal, err.Error())
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &pb.RegisterResponse{}, status.New(codes.OK, "Success").Err()
+	return &pb.RegisterResponse{}, nil
 }
 
 func (a *Auth) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*pb.AuthenticateResponse, error) {
@@ -53,6 +59,10 @@ func (a *Auth) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*p
 
 	user, err := a.repo.AuthUser(name, pass)
 	if err != nil {
+		if errors.Is(err, models.ErrUserNotFound) {
+			return nil, status.Errorf(codes.InvalidArgument, err.Error())
+		}
+
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -66,32 +76,32 @@ func (a *Auth) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*p
 		AccessTokenTtl:  tokens.AccessTtl,
 		RefreshToken:    tokens.RefreshTkn,
 		RefreshTokenTtl: tokens.RefreshTtl,
-	}}, status.New(codes.OK, "Success").Err()
+	}}, nil
 }
 
 func (a *Auth) Authorise(ctx context.Context, in *pb.AuthoriseRequest) (*pb.AuthoriseResponse, error) {
 	auToken := in.GetToken()
 
-	flag, err := token.ValidToken(auToken)
+	valid, err := token.ValidToken(auToken)
 	if err != nil {
-		return &pb.AuthoriseResponse{Role: ""}, status.Errorf(codes.Internal, err.Error())
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
-	if !flag {
-		return &pb.AuthoriseResponse{Role: ""}, nil
+	if !valid {
+		return nil, status.Error(codes.PermissionDenied, "invalid token")
 	}
 
 	id, err := token.GetIdToken(auToken)
 	if err != nil {
-		return &pb.AuthoriseResponse{Role: ""}, status.Errorf(codes.Internal, err.Error())
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	role, err := token.GetRoleToken(auToken)
 	if err != nil {
-		return &pb.AuthoriseResponse{Role: ""}, status.Errorf(codes.Internal, err.Error())
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &pb.AuthoriseResponse{
 		Id:   id,
 		Role: role,
-	}, status.New(codes.OK, "Success").Err()
+	}, nil
 }

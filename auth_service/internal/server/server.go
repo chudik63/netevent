@@ -21,7 +21,7 @@ type Server struct {
 	db         *postgres.DB
 }
 
-func New(ctx context.Context, cfg *config.Config, db *postgres.DB) *Server {
+func New(ctx context.Context, cfg *config.Config, db *postgres.DB, repo *repository.UserRepository) *Server {
 	srvLogger := logger.GetLoggerFromCtx(ctx)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.GRPCServerPort))
@@ -34,7 +34,6 @@ func New(ctx context.Context, cfg *config.Config, db *postgres.DB) *Server {
 	}
 	s := grpc.NewServer(opts...)
 
-	repo := repository.NewUserRepository(db)
 	pb.RegisterAuthServiceServer(s, &Auth{
 		repo:        repo,
 		eventAdress: cfg.EventsServiceHost + ":" + cfg.EventsServicePort,

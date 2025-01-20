@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"fmt"
-	"log"
+	"database/sql"
+	"errors"
 
 	"github.com/chudik63/netevent/auth_service/internal/db/postgres"
 	"github.com/chudik63/netevent/auth_service/internal/db/postgres/models"
@@ -19,12 +19,24 @@ func NewUserRepository(db *postgres.DB) *UserRepository {
 	return &UserRepository{db.Db}
 }
 
-func (u *UserRepository) NewUser(users *models.User) (int64, error) {
+func (u *UserRepository) NewUser(user *models.User) (int64, error) {
 	var id int64
 
-	err := sq.Insert("tuser").
+	err := sq.Select("id").
+		From("tuser").
+		Where(sq.Eq{"name": user}).
+		PlaceholderFormat(sq.Dollar).
+		RunWith(u.db).
+		QueryRow().
+		Scan(&id)
+
+	if id != 0 {
+		return 0, models.ErrUserAlreadyExists
+	}
+
+	err = sq.Insert("tuser").
 		Columns("name", "password", "email", "role", "interests").
-		Values(users.Name, users.Password, users.Email, users.Role, users.Interests).
+		Values(user.Name, user.Password, user.Email, user.Role, user.Interests).
 		Suffix("RETURNING id").
 		PlaceholderFormat(sq.Dollar).
 		RunWith(u.db).
@@ -32,8 +44,7 @@ func (u *UserRepository) NewUser(users *models.User) (int64, error) {
 		Scan(&id)
 
 	if err != nil {
-		log.Println(err)
-		return 0, fmt.Errorf("err in database: %w", err)
+		return 0, err
 	}
 
 	return id, nil
@@ -49,17 +60,12 @@ func (u *UserRepository) AuthUser(name string, password string) (*models.User, e
 		Scan(&user.Id, &user.Name, &user.Password, &user.Role, &user.Email)
 
 	if err != nil {
-		return nil, fmt.Errorf("err in database: %w", err)
-	}
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrUserNotFound
+		}
 
-	// _, err = sq.Update("tuser").
-	// 	Set("accesstkn", tkn.AccessTkn).Set("accessttl", tkn.AccessTtl).
-	// 	Set("refreshtkn", tkn.RefreshTkn).Set("refreshttl", tkn.RefreshTtl).
-	// 	PlaceholderFormat(sq.Dollar).
-	// 	RunWith(u.db).Exec()
-	// if err != nil {
-	// 	return fmt.Errorf("err in database: %w", err)
-	// }
+		return nil, err
+	}
 
 	return &user, nil
 }
