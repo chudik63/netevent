@@ -1,7 +1,7 @@
 services:
   nginx:
     image: nginx
-    container_name: nginx_container
+    container_name: nginx
     ports:
       - 8080:80
     volumes:
@@ -12,12 +12,12 @@ services:
       - netevent
 
   gateway:
-    env_file:
-      - .env
     build:
       context: ./api_gateway
       dockerfile: Dockerfile
     container_name: gateway
+    env_file:
+      - .env
     ports:
       - "${REST_SERVER_PORT}:${REST_SERVER_PORT}"
       - "${GRPC_SERVER_PORT}:${GRPC_SERVER_PORT}"
@@ -39,6 +39,7 @@ services:
 
   auth_postgres:
     image: postgres
+    container_name: auth_postgres
     restart: always
     env_file:
       - .env
@@ -57,6 +58,7 @@ services:
     build:
       context: ./events_service
       dockerfile: Dockerfile
+    container_name: events_service
     depends_on:
       events_postgres:
         condition: service_healthy
@@ -74,6 +76,7 @@ services:
 
   events_postgres:
     image: postgres:latest
+    container_name: events_postgres
     volumes:
       - events_postgres_data:/var/lib/postgresql/data
     env_file:
@@ -94,6 +97,7 @@ services:
   
   events_redis:
     image: redis:latest
+    container_name: events_redis
     env_file:
       - .env
     ports:
@@ -179,6 +183,7 @@ services:
 
   kafka:
     image: wurstmeister/kafka:latest
+    container_name: kafka
     env_file:
       - .env
     ports:
