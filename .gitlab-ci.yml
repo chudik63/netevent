@@ -12,9 +12,9 @@ stages:
   - check_coverage_notification
 
 variables:
-  EVENTDIR: event_service
-  NOTIFICATIONDIR: notification-service
-  AUTHDIR: auth
+  EVENTDIR: events_service
+  NOTIFICATIONDIR: notification_service
+  AUTHDIR: auth_service
 
 build_auth:
   stage: build_auth
