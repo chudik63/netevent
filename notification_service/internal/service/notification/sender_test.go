@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chudik63/netevent/notification-service/internal/application/config"
-	"github.com/chudik63/netevent/notification-service/internal/domain"
-	"github.com/chudik63/netevent/notification-service/internal/service/notification"
-	"github.com/chudik63/netevent/notification-service/pkg/logger"
+	"github.com/chudik63/netevent/notification_service/internal/application/config"
+	"github.com/chudik63/netevent/notification_service/internal/domain"
+	"github.com/chudik63/netevent/notification_service/internal/service/notification"
+	"github.com/chudik63/netevent/notification_service/pkg/logger"
 
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
