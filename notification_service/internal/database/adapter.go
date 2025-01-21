@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chudik63/netevent/notification-service/internal/application/config"
-	"github.com/chudik63/netevent/notification-service/internal/domain"
+	"github.com/chudik63/netevent/notification_service/internal/application/config"
+	"github.com/chudik63/netevent/notification_service/internal/domain"
 )
 
 type Closer = func() error
