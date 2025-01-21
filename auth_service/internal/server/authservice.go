@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/chudik63/netevent/auth_service/internal/db/postgres/models"
 	"github.com/chudik63/netevent/auth_service/internal/db/postgres/repository"
+	"github.com/chudik63/netevent/auth_service/internal/models"
 	"github.com/chudik63/netevent/auth_service/internal/token"
 	pb "github.com/chudik63/netevent/auth_service/pkg/proto"
 	"google.golang.org/grpc/codes"
@@ -34,7 +34,7 @@ func (a *Auth) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regist
 	if err != nil {
 
 		if errors.Is(err, models.ErrUserAlreadyExists) {
-			return nil, status.Errorf(codes.InvalidArgument, err.Error())
+			return nil, status.Errorf(codes.AlreadyExists, err.Error())
 		}
 
 		return nil, status.Errorf(codes.Internal, err.Error())
@@ -59,8 +59,9 @@ func (a *Auth) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*p
 
 	user, err := a.repo.AuthUser(name, pass)
 	if err != nil {
+
 		if errors.Is(err, models.ErrUserNotFound) {
-			return nil, status.Errorf(codes.InvalidArgument, err.Error())
+			return nil, status.Errorf(codes.NotFound, err.Error())
 		}
 
 		return nil, status.Errorf(codes.Internal, err.Error())
@@ -82,12 +83,14 @@ func (a *Auth) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*p
 func (a *Auth) Authorise(ctx context.Context, in *pb.AuthoriseRequest) (*pb.AuthoriseResponse, error) {
 	auToken := in.GetToken()
 
-	valid, err := token.ValidToken(auToken)
+	err := token.ValidToken(auToken)
 	if err != nil {
+
+		if errors.Is(err, models.ErrSignatureInvalid) {
+			return nil, status.Errorf(codes.PermissionDenied, err.Error())
+		}
+
 		return nil, status.Errorf(codes.Internal, err.Error())
-	}
-	if !valid {
-		return nil, status.Error(codes.PermissionDenied, "invalid token")
 	}
 
 	id, err := token.GetIdToken(auToken)

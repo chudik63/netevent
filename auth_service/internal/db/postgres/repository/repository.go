@@ -60,6 +60,7 @@ func (u *UserRepository) AuthUser(name string, password string) (*models.User, e
 		Scan(&user.Id, &user.Name, &user.Password, &user.Role, &user.Email)
 
 	if err != nil {
+
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrUserNotFound
 		}

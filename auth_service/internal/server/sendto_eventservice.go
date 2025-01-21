@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/chudik63/netevent/auth_service/internal/db/postgres/models"
+	"github.com/chudik63/netevent/auth_service/internal/models"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -34,5 +34,6 @@ func sendToEvent(data *models.Participant, eventAdress string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
