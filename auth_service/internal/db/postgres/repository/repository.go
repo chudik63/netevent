@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/chudik63/netevent/auth_service/internal/db/postgres"
-	"github.com/chudik63/netevent/auth_service/internal/db/postgres/models"
+	"github.com/chudik63/netevent/auth_service/internal/models"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
