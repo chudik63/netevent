@@ -6,8 +6,8 @@ import (
 	"html/template"
 	"net/smtp"
 
-	"github.com/chudik63/netevent/notification-service/internal/application/config"
-	"github.com/chudik63/netevent/notification-service/internal/domain"
+	"github.com/chudik63/netevent/notification_service/internal/application/config"
+	"github.com/chudik63/netevent/notification_service/internal/domain"
 )
 
 const templatePath = "./templates/mail.html"

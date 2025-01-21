@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/chudik63/netevent/notification-service/internal/application/config"
-	"github.com/chudik63/netevent/notification-service/internal/broker/kafka"
-	"github.com/chudik63/netevent/notification-service/internal/database"
-	"github.com/chudik63/netevent/notification-service/internal/service/notification"
-	"github.com/chudik63/netevent/notification-service/pkg/logger"
-	"github.com/chudik63/netevent/notification-service/pkg/mail/gmail"
+	"github.com/chudik63/netevent/notification_service/internal/application/config"
+	"github.com/chudik63/netevent/notification_service/internal/broker/kafka"
+	"github.com/chudik63/netevent/notification_service/internal/database"
+	"github.com/chudik63/netevent/notification_service/internal/service/notification"
+	"github.com/chudik63/netevent/notification_service/pkg/logger"
+	"github.com/chudik63/netevent/notification_service/pkg/mail/gmail"
 
 	"golang.org/x/sync/errgroup"
 )
