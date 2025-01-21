@@ -24,7 +24,7 @@ services:
     networks:
       - netevent
 
-  auth:
+  auth_service:
     build: ./auth_service
     container_name: auth_service
     restart: always
@@ -53,7 +53,7 @@ services:
     networks:
       - netevent
       
-  events:
+  events_service:
     build:
       context: ./events_service
       dockerfile: Dockerfile
@@ -62,7 +62,7 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-      redis:
+      events_redis:
         condition: service_healthy
     restart: always
     env_file:
@@ -92,9 +92,41 @@ services:
       timeout: 5s
       retries: 5
   
-  notification-postgres:
+  events_redis:
+    image: redis:latest
+    env_file:
+      - .env
+    ports:
+      - "${EVENTS_REDIS_PORT}:${EVENTS_REDIS_PORT}"
+    volumes:
+      - redis_data:/data
+    networks:
+      - netevent
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  notification_service:
+    build: ./notification_service
+    container_name: notification_service
+    restart: always
+    env_file: 
+      - .env
+    depends_on:
+      kafka:
+        condition: service_healthy
+      zookeeper:
+        condition: service_healthy
+      notification_migrate:
+        condition: service_completed_successfully
+    networks:
+      - netevent
+  
+  notification_postgres:
     image: postgres:latest
-    container_name: notification_postgres_container
+    container_name: notification_postgres
     volumes:
       - notification_postgres_data:/var/lib/postgresql/data
     ports:
@@ -113,34 +145,17 @@ services:
       timeout: 5s
       retries: 10
 
-
-  notification-service:
-    build: ./notification_service
-    container_name: notification-service
-    restart: always
-    env_file: 
-      - .env
-    depends_on:
-      kafka:
-        condition: service_healthy
-      zookeeper:
-        condition: service_healthy
-      notification-migrate:
-        condition: service_completed_successfully
-    networks:
-      - netevent
-
-  notification-migrate:
+  notification_migrate:
     image: migrate/migrate
     depends_on:
-      notification-postgres:
+      notification_postgres:
         condition: service_healthy
     env_file: 
       - .env
     networks:
       - netevent
     volumes:
-      - ./notification-service/internal/database/migrations/:/database/migrations
+      - ./notification_service/internal/database/migrations/:/database/migrations
     command:
       [
         "-path",
@@ -149,22 +164,6 @@ services:
         "${NOTIFICATION_DB_URL}",
         "up",
       ]
-
-  redis:
-    image: redis:latest
-    env_file:
-      - .env
-    ports:
-      - "${EVENTS_REDIS_PORT}:${EVENTS_REDIS_PORT}"
-    volumes:
-      - redis_data:/data
-    networks:
-      - netevent
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
@@ -202,10 +201,10 @@ services:
       retries: 5
 
 volumes:
-  events_postgres_data:
-  redis_data:
-  notification_postgres_data:
   auth_postgres_data:
+  events_postgres_data:
+  notification_postgres_data:
+  redis_data:
 
 networks:
   netevent:
