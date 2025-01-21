@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chudik63/netevent/auth_service/internal/db/postgres/models"
+	"github.com/chudik63/netevent/auth_service/internal/models"
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
@@ -37,14 +37,14 @@ func NewTokens(id int64, role string) (*models.Token, error) {
 }
 
 func GetToken(id int64, role string, expTime time.Duration) (string, error) {
-	calms := jwt.NewWithClaims(jwtMethod, jwt.MapClaims{
+	tkn := jwt.NewWithClaims(jwtMethod, jwt.MapClaims{
 		"userId":   id,
 		"userRole": role,
 		"exp":      time.Now().Add(expTime).Unix(),
 		"iat":      time.Now().Unix(),
 	})
 
-	token, err := calms.SignedString(secretKey)
+	token, err := tkn.SignedString(secretKey)
 	if err != nil {
 		return "", err
 	}
@@ -52,8 +52,8 @@ func GetToken(id int64, role string, expTime time.Duration) (string, error) {
 	return token, nil
 }
 
-func ValidToken(token string) (bool, error) {
-	valid, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+func ValidToken(token string) error {
+	tkn, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
@@ -61,21 +61,25 @@ func ValidToken(token string) (bool, error) {
 	})
 
 	switch {
-	case valid.Valid:
-		return true, nil
+	case tkn.Valid:
+		return nil
 	case errors.Is(err, jwt.ErrTokenExpired):
-		return false, errors.New("expired token")
+		return models.ErrTokenExpired
+	case errors.Is(err, jwt.ErrSignatureInvalid):
+		return models.ErrSignatureInvalid
 	}
+
 	if err != nil {
-		return false, err
+		return err
 	}
-	return false, errors.New("unexpected error with token")
+
+	return errors.New("unexpected error with token")
 }
 
-func GetIdToken(tkn string) (int64, error) {
-	calms, err := jwt.Parse(tkn, func(tkn *jwt.Token) (interface{}, error) {
-		if _, ok := tkn.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", tkn.Header["alg"])
+func GetIdToken(token string) (int64, error) {
+	tkn, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 		return secretKey, nil
 	})
@@ -83,26 +87,35 @@ func GetIdToken(tkn string) (int64, error) {
 		return 0, err
 	}
 
-	if claims, ok := calms.Claims.(jwt.MapClaims); ok && calms.Valid {
+	if claims, ok := tkn.Claims.(jwt.MapClaims); ok && tkn.Valid {
 		if userID, ok := claims["userId"].(float64); ok {
 			return int64(userID), nil
 		}
-		return 0, errors.New("userId not found or invalid type")
+		return 0, models.ErrGetFromClaims
 	}
 
 	return 0, errors.New("invalid token claims")
 }
 
-func GetRoleToken(tkn string) (string, error) {
-	calms, err := jwt.Parse(tkn, func(tkn *jwt.Token) (interface{}, error) {
-		if _, ok := tkn.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", tkn.Header["alg"])
+func GetRoleToken(token string) (string, error) {
+	tkn, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 		return secretKey, nil
 	})
-	if claims, ok := calms.Claims.(jwt.MapClaims); ok && calms.Valid {
-		return claims["userRole"].(string), nil
+	if err != nil {
+		return "", err
 	}
 
-	return "", err
+	if claims, ok := tkn.Claims.(jwt.MapClaims); ok && tkn.Valid {
+		role, ok := claims["userRole"].(string)
+		if ok {
+			return role, nil
+		}
+
+		return "", models.ErrGetFromClaims
+	}
+
+	return "", errors.New("invalid token claims")
 }

@@ -1,43 +1,168 @@
 package token
 
-// func TestNewToken(t *testing.T) {
-// 	type Data struct {
-// 		name  string
-// 		token string
-// 	}
-// 	data := []Data{
-// 		Data{
-// 			name: "useraфвыаввв",
-// 			//token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.cThIIoDvwdueQB468K5xDc5633seEFoqwxjF_xSJyQQ`,
-// 		},
-// 	}
-// 	for _, v := range data {
-// 		toc, err := NewToken(v.name)
-// 		if err != nil {
-// 			t.Errorf("error %v", err)
-// 		}
-// 		time.Sleep(time.Second)
-// 		if res, err := ValidToken(toc); err != nil || !res {
-// 			t.Errorf("error %v %v", err, res)
-// 		}
-// 	}
-// }
+import (
+	"testing"
+	"time"
 
-// func TestGetName(t *testing.T) {
-// 	data := []int64{
-// 		1, 2, 3, 4, 5,
-// 	}
-// 	for _, v := range data {
-// 		tock, err := NewTokens(v, "user")
-// 		if err != nil {
-// 			t.Error(err.Error())
-// 		}
-// 		id, err := GetIdToken(tock.AccessTkn)
-// 		if err != nil {
-// 			t.Error(err.Error())
-// 		}
-// 		if id != v {
-// 			t.Errorf("name not eauel %s = %s", id, v)
-// 		}
-// 	}
-// }
+	"github.com/chudik63/netevent/auth_service/internal/models"
+	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestValidToken(t *testing.T) {
+	testTable := []struct {
+		name        string
+		id          int64
+		role        string
+		expTime     time.Duration
+		secretKey   []byte
+		expectedErr error
+	}{
+		{
+			name:        "OK",
+			id:          1,
+			role:        "user",
+			expTime:     100 * time.Second,
+			secretKey:   []byte("secret key"),
+			expectedErr: nil,
+		},
+		{
+			name:        "Wrong secret key",
+			id:          1,
+			role:        "user",
+			expTime:     100 * time.Second,
+			secretKey:   []byte("WRONG KEY"),
+			expectedErr: models.ErrSignatureInvalid,
+		},
+		{
+			name:        "Token is expired",
+			id:          1,
+			role:        "user",
+			expTime:     1 * time.Second,
+			secretKey:   []byte("secret key"),
+			expectedErr: models.ErrTokenExpired,
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+				"userId":   testCase.id,
+				"userRole": testCase.role,
+				"exp":      time.Now().Add(testCase.expTime).Unix(),
+				"iat":      time.Now().Unix(),
+			})
+
+			token, err := tkn.SignedString(testCase.secretKey)
+
+			time.Sleep(1 * time.Second)
+
+			err = ValidToken(token)
+			assert.Equal(t, err, testCase.expectedErr)
+		})
+	}
+}
+
+func TestGetIdToken(t *testing.T) {
+	testTable := []struct {
+		name        string
+		id          interface{}
+		expTime     time.Duration
+		expectedId  int64
+		expectedErr error
+	}{
+		{
+			name:        "OK",
+			id:          1,
+			expTime:     100 * time.Second,
+			expectedId:  1,
+			expectedErr: nil,
+		},
+		{
+			name:        "Wrong id type",
+			id:          "aba",
+			expTime:     100 * time.Second,
+			expectedId:  0,
+			expectedErr: models.ErrGetFromClaims,
+		},
+		{
+			name:        "No id in claims",
+			expTime:     100 * time.Second,
+			expectedId:  0,
+			expectedErr: models.ErrGetFromClaims,
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			claims := jwt.MapClaims{
+				"exp": time.Now().Add(testCase.expTime).Unix(),
+				"iat": time.Now().Unix(),
+			}
+
+			if testCase.id != nil {
+				claims["userId"] = testCase.id
+			}
+
+			tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+			token, err := tkn.SignedString([]byte("secret key"))
+
+			id, err := GetIdToken(token)
+			assert.Equal(t, id, testCase.expectedId)
+			assert.Equal(t, err, testCase.expectedErr)
+		})
+	}
+}
+
+func TestGetRoleToken(t *testing.T) {
+	testTable := []struct {
+		name         string
+		role         interface{}
+		expTime      time.Duration
+		expectedRole string
+		expectedErr  error
+	}{
+		{
+			name:         "OK",
+			role:         "user",
+			expTime:      100 * time.Second,
+			expectedRole: "user",
+			expectedErr:  nil,
+		},
+		{
+			name:         "Wrong role type",
+			role:         1,
+			expTime:      100 * time.Second,
+			expectedRole: "",
+			expectedErr:  models.ErrGetFromClaims,
+		},
+		{
+			name:         "No id in claims",
+			expTime:      100 * time.Second,
+			expectedRole: "",
+			expectedErr:  models.ErrGetFromClaims,
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			claims := jwt.MapClaims{
+				"exp": time.Now().Add(testCase.expTime).Unix(),
+				"iat": time.Now().Unix(),
+			}
+
+			if testCase.role != nil {
+				claims["userRole"] = testCase.role
+			}
+
+			tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+			token, err := tkn.SignedString([]byte("secret key"))
+
+			id, err := GetRoleToken(token)
+			assert.Equal(t, id, testCase.expectedRole)
+			assert.Equal(t, err, testCase.expectedErr)
+		})
+	}
+}
