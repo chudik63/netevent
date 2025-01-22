@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"strconv"
 	"strings"
 
 	"github.com/chudik63/netevent/api_gateway/internal/client"
@@ -73,24 +74,21 @@ func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 			return nil, errors.New("failed to get id from token")
 		}
 
-		ctx = context.WithValue(ctx, "user_id", id)
+		md.Append("userID", strconv.FormatInt(id, 10))
 
 		if creatorRoutes[info.FullMethod] && role != "creator" {
 			return nil, errors.New("permission denied")
 		}
 
-		requestID := ""
-		if values := md.Get("X-Request-ID"); len(values) > 0 {
-			requestID = values[0]
-		} else {
+		if len(md.Get("X-Request-ID")) == 0 {
 			newUUID, err := uuid.NewUUID()
 			if err == nil {
-				requestID = newUUID.String()
+				md.Set("X-Request-ID", newUUID.String())
 			}
 		}
 
-		ctx = context.WithValue(ctx, "request_id", requestID)
+		newCtx := metadata.NewIncomingContext(ctx, md)
 
-		return handler(ctx, req)
+		return handler(newCtx, req)
 	}
 }
