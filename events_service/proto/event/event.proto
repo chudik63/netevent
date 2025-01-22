@@ -53,6 +53,7 @@ message ReadEventResponse {
 
 message UpdateEventRequest {
   Event event = 1;
+  int64 user_id = 2;
 }
 
 message UpdateEventResponse {
@@ -60,6 +61,7 @@ message UpdateEventResponse {
 
 message DeleteEventRequest {
   int64 event_id = 1;
+  int64 user_id = 2;
 }
 
 message DeleteEventResponse {
