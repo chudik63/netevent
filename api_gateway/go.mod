@@ -4,7 +4,7 @@ go 1.23.5
 
 require (
 	github.com/chudik63/netevent/auth_service v0.0.0-20250120103428-82e6b7c29206
-	github.com/chudik63/netevent/events_service v0.0.0-20250120103428-82e6b7c29206
+	github.com/chudik63/netevent/events_service v0.0.0-20250122214636-21763589f233
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.25.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0

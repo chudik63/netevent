@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/chudik63/netevent/api_gateway/internal/client"
 	"github.com/chudik63/netevent/api_gateway/pkg/api/gateway"
@@ -94,8 +95,12 @@ func (s *GatewayServer) SignIn(ctx context.Context, req *gateway.SignInRequest) 
 
 func (s *GatewayServer) CreateEvent(ctx context.Context, req *gateway.CreateEventRequest) (*gateway.CreateEventResponse, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
-	userId := md.Get("userID")
 	if !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "failed read metadata from context")
+	}
+
+	userId, err := strconv.ParseInt(md.Get("userID")[0], 10, 64)
+	if err != nil || userId == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id in context")
 	}
 
@@ -140,7 +145,17 @@ func (s *GatewayServer) ReadEvent(ctx context.Context, req *gateway.ReadEventReq
 }
 
 func (s *GatewayServer) UpdateEvent(ctx context.Context, req *gateway.UpdateEventRequest) (*gateway.UpdateEventResponse, error) {
-	_, err := s.eventClient.UpdateEvent(ctx, &event.UpdateEventRequest{
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "failed read metadata from context")
+	}
+
+	userId, err := strconv.ParseInt(md.Get("userID")[0], 10, 64)
+	if err != nil || userId == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id in context")
+	}
+
+	_, err = s.eventClient.UpdateEvent(ctx, &event.UpdateEventRequest{
 		Event: &event.Event{
 			EventId:     req.GetEvent().GetEventId(),
 			CreatorId:   req.GetEvent().GetCreatorId(),
@@ -150,6 +165,7 @@ func (s *GatewayServer) UpdateEvent(ctx context.Context, req *gateway.UpdateEven
 			Place:       req.GetEvent().GetPlace(),
 			Interests:   req.GetEvent().GetInterests(),
 		},
+		UserId: userId,
 	})
 	if err != nil {
 		return nil, err
@@ -159,8 +175,19 @@ func (s *GatewayServer) UpdateEvent(ctx context.Context, req *gateway.UpdateEven
 }
 
 func (s *GatewayServer) DeleteEvent(ctx context.Context, req *gateway.DeleteEventRequest) (*gateway.DeleteEventResponse, error) {
-	_, err := s.eventClient.DeleteEvent(ctx, &event.DeleteEventRequest{
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "failed read metadata from context")
+	}
+
+	userId, err := strconv.ParseInt(md.Get("userID")[0], 10, 64)
+	if err != nil || userId == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id in context")
+	}
+
+	_, err = s.eventClient.DeleteEvent(ctx, &event.DeleteEventRequest{
 		EventId: req.GetEventId(),
+		UserId:  userId,
 	})
 	if err != nil {
 		return nil, err
@@ -170,7 +197,9 @@ func (s *GatewayServer) DeleteEvent(ctx context.Context, req *gateway.DeleteEven
 }
 
 func (s *GatewayServer) ListEvents(ctx context.Context, req *gateway.ListEventsRequest) (*gateway.ListEventsResponse, error) {
-	resp, err := s.eventClient.ListEvents(ctx, &event.ListEventsRequest{})
+	resp, err := s.eventClient.ListEvents(ctx, &event.ListEventsRequest{
+		CreatorId: req.GetCreatorId(),
+	})
 
 	if err != nil {
 		return nil, err
@@ -181,28 +210,20 @@ func (s *GatewayServer) ListEvents(ctx context.Context, req *gateway.ListEventsR
 	}, nil
 }
 
-func (s *GatewayServer) ListEventsByCreator(ctx context.Context, req *gateway.ListEventsByCreatorRequest) (*gateway.ListEventsByCreatorResponse, error) {
-	resp, err := s.eventClient.ListEventsByCreator(ctx, &event.ListEventsByCreatorRequest{
-		CreatorId: req.GetCreatorId(),
-	})
-
-	if err != nil {
-		return nil, err
+func (s *GatewayServer) ListEventsByInterests(ctx context.Context, req *gateway.ListEventsByInterestsRequest) (*gateway.ListEventsByInterestsResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "failed read metadata from context")
 	}
 
-	return &gateway.ListEventsByCreatorResponse{
-		Events: convertEvents(resp.GetEvents()),
-	}, nil
-}
-
-func (s *GatewayServer) ListEventsByInterests(ctx context.Context, req *gateway.ListEventsByInterestsRequest) (*gateway.ListEventsByInterestsResponse, error) {
-	userId, ok := ctx.Value("user_id").(int64)
-	if !ok {
+	userId, err := strconv.ParseInt(md.Get("userID")[0], 10, 64)
+	if err != nil || userId == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id in context")
 	}
 
 	resp, err := s.eventClient.ListEventsByInterests(ctx, &event.ListEventsByInterestsRequest{
-		UserId: userId,
+		CreatorId: req.GetCreatorId(),
+		UserId:    userId,
 	})
 
 	if err != nil {
@@ -215,8 +236,13 @@ func (s *GatewayServer) ListEventsByInterests(ctx context.Context, req *gateway.
 }
 
 func (s *GatewayServer) ListRegistratedEvents(ctx context.Context, req *gateway.ListRegistratedEventsRequest) (*gateway.ListRegistratedEventsResponse, error) {
-	userId, ok := ctx.Value("user_id").(int64)
+	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "failed read metadata from context")
+	}
+
+	userId, err := strconv.ParseInt(md.Get("userID")[0], 10, 64)
+	if err != nil || userId == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id in context")
 	}
 
@@ -234,8 +260,13 @@ func (s *GatewayServer) ListRegistratedEvents(ctx context.Context, req *gateway.
 }
 
 func (s *GatewayServer) ListUsersToChat(ctx context.Context, req *gateway.ListUsersToChatRequest) (*gateway.ListUsersToChatResponse, error) {
-	userId, ok := ctx.Value("user_id").(int64)
+	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "failed read metadata from context")
+	}
+
+	userId, err := strconv.ParseInt(md.Get("userID")[0], 10, 64)
+	if err != nil || userId == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id in context")
 	}
 
@@ -254,12 +285,17 @@ func (s *GatewayServer) ListUsersToChat(ctx context.Context, req *gateway.ListUs
 }
 
 func (s *GatewayServer) RegisterUser(ctx context.Context, req *gateway.RegisterUserRequest) (*gateway.RegisterUserResponse, error) {
-	userId, ok := ctx.Value("user_id").(int64)
+	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "failed read metadata from context")
+	}
+
+	userId, err := strconv.ParseInt(md.Get("userID")[0], 10, 64)
+	if err != nil || userId == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id in context")
 	}
 
-	_, err := s.eventClient.RegisterUser(ctx, &event.RegisterUserRequest{
+	_, err = s.eventClient.RegisterUser(ctx, &event.RegisterUserRequest{
 		UserId:  userId,
 		EventId: req.GetEventId(),
 	})
@@ -272,12 +308,17 @@ func (s *GatewayServer) RegisterUser(ctx context.Context, req *gateway.RegisterU
 }
 
 func (s *GatewayServer) SetChatStatus(ctx context.Context, req *gateway.SetChatStatusRequest) (*gateway.SetChatStatusResponse, error) {
-	userId, ok := ctx.Value("user_id").(int64)
+	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "failed read metadata from context")
+	}
+
+	userId, err := strconv.ParseInt(md.Get("userID")[0], 10, 64)
+	if err != nil || userId == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id in context")
 	}
 
-	_, err := s.eventClient.SetChatStatus(ctx, &event.SetChatStatusRequest{
+	_, err = s.eventClient.SetChatStatus(ctx, &event.SetChatStatusRequest{
 		ParticipantId: userId,
 		EventId:       req.GetEventId(),
 		IsReady:       req.GetIsReady(),

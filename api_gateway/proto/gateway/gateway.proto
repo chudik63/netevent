@@ -49,7 +49,13 @@ service Gateway {
 
     rpc ListEvents(ListEventsRequest) returns (ListEventsResponse) {
         option (google.api.http) = {
-            get: "/api/v1/event/?creator={creator_id}&byInterests={by_interests}"
+            get: "/api/v1/event/?creator={creator_id}"
+        };
+    }
+
+    rpc ListEventsByInterests(ListEventsByInterestsRequest) returns (ListEventsByInterestsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/event/?byInterests={by_interests}&creator={creator_id}"
         };
     }
 
@@ -127,10 +133,17 @@ message DeleteEventResponse {
 
 message ListEventsRequest {
     int64 creator_id = 1;
-    bool by_interests = 2;
 }
 
 message ListEventsResponse {
+    repeated Event events = 1;
+}
+
+message ListEventsByInterestsRequest {
+    int64 creator_id = 1;
+}
+
+message ListEventsByInterestsResponse {
     repeated Event events = 1;
 }
 

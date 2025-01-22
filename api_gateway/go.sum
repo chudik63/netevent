@@ -2,8 +2,14 @@ github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/chudik63/netevent/auth_service v0.0.0-20250120103428-82e6b7c29206 h1:vNmttMPnAZuH7bcuBJNlEEF8vliXmgdIuQOaLnop9Jg=
 github.com/chudik63/netevent/auth_service v0.0.0-20250120103428-82e6b7c29206/go.mod h1:PH6SDs1pBYDq7uwo6JJSDIOYQIh7QBpIJ2gmHp+OrWs=
-github.com/chudik63/netevent/events_service v0.0.0-20250120103428-82e6b7c29206 h1:oVygQXH+LeLohB0hPdvqD2SCBJpdWvlWxikFPUuEkKI=
-github.com/chudik63/netevent/events_service v0.0.0-20250120103428-82e6b7c29206/go.mod h1:+wDbrtLJRDibVZ/FwkHPEpnB/GLYyPknt20k1oiTRYw=
+github.com/chudik63/netevent/events_service v0.0.0-20250120102525-ff04621bcbb6 h1:yXTjmyQ6a1RkpEmeY471p3DBbkafCSRqN1IylqLHYzc=
+github.com/chudik63/netevent/events_service v0.0.0-20250120102525-ff04621bcbb6/go.mod h1:+wDbrtLJRDibVZ/FwkHPEpnB/GLYyPknt20k1oiTRYw=
+github.com/chudik63/netevent/events_service v0.0.0-20250122143401-ffb705a1d869 h1:F50bPRhAazEd8UuWsu/1D8Fs3plYig5lyi0CQnLt/lQ=
+github.com/chudik63/netevent/events_service v0.0.0-20250122143401-ffb705a1d869/go.mod h1:+wDbrtLJRDibVZ/FwkHPEpnB/GLYyPknt20k1oiTRYw=
+github.com/chudik63/netevent/events_service v0.0.0-20250122151353-05316ebc7cd5 h1:cJQPugKjo5TRshiM4fxlNcG8qDn6n/QJW47xldEGeSo=
+github.com/chudik63/netevent/events_service v0.0.0-20250122151353-05316ebc7cd5/go.mod h1:+wDbrtLJRDibVZ/FwkHPEpnB/GLYyPknt20k1oiTRYw=
+github.com/chudik63/netevent/events_service v0.0.0-20250122214636-21763589f233 h1:vPTQSVU75jSPuTIFqVTkm4r2m27sND11Jbtrt+mnNlg=
+github.com/chudik63/netevent/events_service v0.0.0-20250122214636-21763589f233/go.mod h1:+wDbrtLJRDibVZ/FwkHPEpnB/GLYyPknt20k1oiTRYw=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-logr/logr v1.4.2 h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
