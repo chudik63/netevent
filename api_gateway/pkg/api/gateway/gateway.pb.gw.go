@@ -411,7 +411,7 @@ func interceptor_local_request_Gateway(
 
 	handler := func(ctx context.Context, req any) (any, error) {
 		if req, ok := req.(*http.Request); ok {
-			resp, md, err := method(annotatedContext, inboundMarshaler, server, req, pathParams)
+			resp, md, err := method(ctx, inboundMarshaler, server, req, pathParams)
 			return handlerResponse{resp: resp, md: md}, err
 		}
 		return nil, errors.New("error converting req to *http.Request")
