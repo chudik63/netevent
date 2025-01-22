@@ -224,11 +224,20 @@ func (r *EventRepository) ListEvents(ctx context.Context, equations Creds) ([]*m
 		if key != "id" && key != "creator_id" && key != "title" && key != "description" && key != "time" && key != "place" {
 			return nil, models.ErrWrongArgument
 		}
+
+		if key == "title" || key == "time" {
+			query = query.Where(sq.Like{key: "%" + value.(string) + "%"})
+			continue
+		}
+
 		query = query.Where(sq.Eq{key: value})
 	}
 
 	rows, err := query.Query()
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNotFound
+		}
 		return nil, err
 	}
 	defer rows.Close()
@@ -291,6 +300,9 @@ func (r *EventRepository) ListEventsByInterests(ctx context.Context, userID int6
 
 	rows, err := query.Query()
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNotFound
+		}
 		return nil, err
 	}
 	defer func() {

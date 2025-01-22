@@ -12,5 +12,5 @@ var (
 	ErrRegistrationNotFound = errors.New("registration not found")
 	ErrWrongArgument        = errors.New("wrong argument")
 	ErrAccessDenied         = errors.New("access denied")
-	ErrGetFromContexxt      = errors.New("failed to get a value from context")
+	ErrNotFound             = errors.New("not found")
 )

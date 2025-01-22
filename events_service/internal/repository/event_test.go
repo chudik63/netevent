@@ -442,20 +442,20 @@ func TestListEvents(t *testing.T) {
 	}{
 		{
 			name:      "OK test",
-			equations: Creds{"creator_id": int64(1)},
+			equations: Creds{},
 			mockBehavior: func(equations Creds) {
 				rows := sqlmock.NewRows([]string{
 					"id", "creator_id", "title", "description", "time", "place", "topics",
 				}).AddRow(
 					1, 1, "Event 1", "Description 1", "2024-12-16 10:00:00", "Place 1", pq.StringArray{"topic1", "topic2"},
 				).AddRow(
-					2, 1, "Event 2", "Description 2", "2024-12-16 11:00:00", "Place 2", pq.StringArray{"topic3"},
+					2, 2, "Event 2", "Description 2", "2024-12-16 11:00:00", "Place 2", pq.StringArray{"topic3"},
 				)
 
 				mock.ExpectQuery("SELECT e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE").
-					WithArgs(equations["creator_id"]).
 					WillReturnRows(rows)
 			},
+
 			expectedEvents: []*models.Event{
 				{
 					EventID:     1,
@@ -468,7 +468,169 @@ func TestListEvents(t *testing.T) {
 				},
 				{
 					EventID:     2,
+					CreatorID:   2,
+					Title:       "Event 2",
+					Description: "Description 2",
+					Time:        "2024-12-16 11:00:00",
+					Place:       "Place 2",
+					Topics:      []string{"topic3"},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name:      "With creator id test",
+			equations: Creds{"creator_id": int64(1)},
+			mockBehavior: func(equations Creds) {
+				rows := sqlmock.NewRows([]string{
+					"id", "creator_id", "title", "description", "time", "place", "topics",
+				}).AddRow(
+					1, 1, "Event 1", "Description 1", "2024-12-16 10:00:00", "Place 1", pq.StringArray{"topic1", "topic2"},
+				)
+
+				mock.ExpectQuery("SELECT e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE").
+					WithArgs(equations["creator_id"]).
+					WillReturnRows(rows)
+			},
+
+			expectedEvents: []*models.Event{
+				{
+					EventID:     1,
 					CreatorID:   1,
+					Title:       "Event 1",
+					Description: "Description 1",
+					Time:        "2024-12-16 10:00:00",
+					Place:       "Place 1",
+					Topics:      []string{"topic1", "topic2"},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name:      "With title test",
+			equations: Creds{"title": "Event 1"},
+			mockBehavior: func(equations Creds) {
+				rows := sqlmock.NewRows([]string{
+					"id", "creator_id", "title", "description", "time", "place", "topics",
+				}).AddRow(
+					1, 1, "Event 1", "Description 1", "2024-12-16 10:00:00", "Place 1", pq.StringArray{"topic1", "topic2"},
+				)
+
+				mock.ExpectQuery("SELECT e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE").
+					WithArgs("%" + equations["title"].(string) + "%").
+					WillReturnRows(rows)
+			},
+
+			expectedEvents: []*models.Event{
+				{
+					EventID:     1,
+					CreatorID:   1,
+					Title:       "Event 1",
+					Description: "Description 1",
+					Time:        "2024-12-16 10:00:00",
+					Place:       "Place 1",
+					Topics:      []string{"topic1", "topic2"},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name:      "With particular title test",
+			equations: Creds{"title": "Even"},
+			mockBehavior: func(equations Creds) {
+				rows := sqlmock.NewRows([]string{
+					"id", "creator_id", "title", "description", "time", "place", "topics",
+				}).AddRow(
+					1, 1, "Event 1", "Description 1", "2024-12-16 10:00:00", "Place 1", pq.StringArray{"topic1", "topic2"},
+				).AddRow(
+					2, 2, "Event 2", "Description 2", "2024-12-16 11:00:00", "Place 2", pq.StringArray{"topic3"},
+				)
+
+				mock.ExpectQuery("SELECT e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE").
+					WithArgs("%" + equations["title"].(string) + "%").
+					WillReturnRows(rows)
+			},
+
+			expectedEvents: []*models.Event{
+				{
+					EventID:     1,
+					CreatorID:   1,
+					Title:       "Event 1",
+					Description: "Description 1",
+					Time:        "2024-12-16 10:00:00",
+					Place:       "Place 1",
+					Topics:      []string{"topic1", "topic2"},
+				},
+				{
+					EventID:     2,
+					CreatorID:   2,
+					Title:       "Event 2",
+					Description: "Description 2",
+					Time:        "2024-12-16 11:00:00",
+					Place:       "Place 2",
+					Topics:      []string{"topic3"},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name:      "With place test",
+			equations: Creds{"place": "Place 1"},
+			mockBehavior: func(equations Creds) {
+				rows := sqlmock.NewRows([]string{
+					"id", "creator_id", "title", "description", "time", "place", "topics",
+				}).AddRow(
+					1, 1, "Event 1", "Description 1", "2024-12-16 10:00:00", "Place 1", pq.StringArray{"topic1", "topic2"},
+				)
+
+				mock.ExpectQuery("SELECT e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE").
+					WithArgs(equations["place"]).
+					WillReturnRows(rows)
+			},
+
+			expectedEvents: []*models.Event{
+				{
+					EventID:     1,
+					CreatorID:   1,
+					Title:       "Event 1",
+					Description: "Description 1",
+					Time:        "2024-12-16 10:00:00",
+					Place:       "Place 1",
+					Topics:      []string{"topic1", "topic2"},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name:      "With time test",
+			equations: Creds{"time": "2024-12-16"},
+			mockBehavior: func(equations Creds) {
+				rows := sqlmock.NewRows([]string{
+					"id", "creator_id", "title", "description", "time", "place", "topics",
+				}).AddRow(
+					1, 1, "Event 1", "Description 1", "2024-12-16 10:00:00", "Place 1", pq.StringArray{"topic1", "topic2"},
+				).AddRow(
+					2, 2, "Event 2", "Description 2", "2024-12-16 11:00:00", "Place 2", pq.StringArray{"topic3"},
+				)
+
+				mock.ExpectQuery("SELECT e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE").
+					WithArgs("%" + equations["time"].(string) + "%").
+					WillReturnRows(rows)
+			},
+
+			expectedEvents: []*models.Event{
+				{
+					EventID:     1,
+					CreatorID:   1,
+					Title:       "Event 1",
+					Description: "Description 1",
+					Time:        "2024-12-16 10:00:00",
+					Place:       "Place 1",
+					Topics:      []string{"topic1", "topic2"},
+				},
+				{
+					EventID:     2,
+					CreatorID:   2,
 					Title:       "Event 2",
 					Description: "Description 2",
 					Time:        "2024-12-16 11:00:00",
@@ -513,6 +675,165 @@ func TestListEvents(t *testing.T) {
 			testCase.mockBehavior(testCase.equations)
 
 			events, err := r.ListEvents(context.Background(), testCase.equations)
+
+			if testCase.expectedError != nil {
+				assert.Error(t, err)
+				assert.Equal(t, testCase.expectedError.Error(), err.Error())
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, testCase.expectedEvents, events)
+			}
+
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("Expectations were not met: %v", err)
+			}
+		})
+	}
+}
+
+func TestListEventsByInterests(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Failed to create sqlmock: %v", err)
+	}
+	defer db.Close()
+
+	r := New(postgres.DB{DB: db})
+
+	type mockBehavior func(userID int64, equations Creds)
+
+	testTable := []struct {
+		name           string
+		userID         int64
+		equations      Creds
+		mockBehavior   mockBehavior
+		expectedEvents []*models.Event
+		expectedError  error
+	}{
+		{
+			name:      "OK test",
+			userID:    1,
+			equations: Creds{},
+			mockBehavior: func(userID int64, equations Creds) {
+				mock.ExpectQuery("SELECT COALESCE").
+					WithArgs(userID).
+					WillReturnRows(sqlmock.NewRows([]string{"array_agg"}).AddRow(pq.StringArray{"topic1"}))
+
+				mock.ExpectQuery("SELECT e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE").
+					WithArgs("%topic1%").
+					WillReturnRows(sqlmock.NewRows([]string{
+						"id", "creator_id", "title", "description", "time", "place", "topics",
+					}).AddRow(
+						1, 1, "Event 1", "Description 1", "2024-12-16 10:00:00", "Place 1", pq.StringArray{"topic1", "topic2"},
+					))
+			},
+			expectedEvents: []*models.Event{
+				{
+					EventID:     1,
+					CreatorID:   1,
+					Title:       "Event 1",
+					Description: "Description 1",
+					Time:        "2024-12-16 10:00:00",
+					Place:       "Place 1",
+					Topics:      []string{"topic1", "topic2"},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name:      "No Interests test",
+			userID:    1,
+			equations: Creds{},
+			mockBehavior: func(userID int64, equations Creds) {
+				mock.ExpectQuery("SELECT COALESCE").
+					WithArgs(userID).
+					WillReturnRows(sqlmock.NewRows([]string{"array_agg"}).AddRow(pq.StringArray{}))
+
+				mock.ExpectQuery("SELECT e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE\\(array_agg\\(t\\.topic\\), '\\{\\}'\\)").
+					WithArgs().
+					WillReturnRows(sqlmock.NewRows([]string{
+						"id", "creator_id", "title", "description", "time", "place", "topics",
+					}).AddRow(
+						1, 1, "Event 1", "Description 1", "2024-12-16 10:00:00", "Place 1", pq.StringArray{"topic1", "topic2"},
+					).AddRow(
+						2, 2, "Event 2", "Description 2", "2024-12-16 11:00:00", "Place 2", pq.StringArray{"topic2"},
+					))
+			},
+			expectedEvents: []*models.Event{
+				{
+					EventID:     1,
+					CreatorID:   1,
+					Title:       "Event 1",
+					Description: "Description 1",
+					Time:        "2024-12-16 10:00:00",
+					Place:       "Place 1",
+					Topics:      []string{"topic1", "topic2"},
+				},
+				{
+					EventID:     2,
+					CreatorID:   2,
+					Title:       "Event 2",
+					Description: "Description 2",
+					Time:        "2024-12-16 11:00:00",
+					Place:       "Place 2",
+					Topics:      []string{"topic2"},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name:      "With creator id test",
+			userID:    1,
+			equations: Creds{"creator_id": 1},
+			mockBehavior: func(userID int64, equations Creds) {
+				mock.ExpectQuery("SELECT COALESCE").
+					WithArgs(userID).
+					WillReturnRows(sqlmock.NewRows([]string{"array_agg"}).AddRow(pq.StringArray{"topic1"}))
+
+				mock.ExpectQuery("SELECT e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE").
+					WithArgs(equations["creator_id"], "%topic1%").
+					WillReturnRows(sqlmock.NewRows([]string{
+						"id", "creator_id", "title", "description", "time", "place", "topics",
+					}).AddRow(
+						1, 1, "Event 1", "Description 1", "2024-12-16 10:00:00", "Place 1", pq.StringArray{"topic1", "topic2"},
+					))
+			},
+			expectedEvents: []*models.Event{
+				{
+					EventID:     1,
+					CreatorID:   1,
+					Title:       "Event 1",
+					Description: "Description 1",
+					Time:        "2024-12-16 10:00:00",
+					Place:       "Place 1",
+					Topics:      []string{"topic1", "topic2"},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name:      "No event with such topics and creator id test",
+			userID:    1,
+			equations: Creds{"creator_id": 2},
+			mockBehavior: func(userID int64, equations Creds) {
+				mock.ExpectQuery("SELECT COALESCE").
+					WithArgs(userID).
+					WillReturnRows(sqlmock.NewRows([]string{"array_agg"}).AddRow(pq.StringArray{"topic1"}))
+
+				mock.ExpectQuery("SELECT e.id, e.creator_id, e.title, e.description, e.time, e.place, COALESCE").
+					WithArgs(equations["creator_id"], "%topic1%").
+					WillReturnError(sql.ErrNoRows)
+			},
+			expectedEvents: nil,
+			expectedError:  models.ErrNotFound,
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehavior(testCase.userID, testCase.equations)
+
+			events, err := r.ListEventsByInterests(context.Background(), testCase.userID, testCase.equations)
 
 			if testCase.expectedError != nil {
 				assert.Error(t, err)
