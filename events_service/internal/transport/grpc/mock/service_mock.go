@@ -8,9 +8,9 @@ import (
 	context "context"
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
 	models "github.com/chudik63/netevent/events_service/internal/models"
-	"github.com/chudik63/netevent/events_service/internal/repository"
+	repository "github.com/chudik63/netevent/events_service/internal/repository"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockService is a mock of Service interface.
@@ -80,17 +80,17 @@ func (mr *MockServiceMockRecorder) CreateRegistration(ctx, userID, eventID inter
 }
 
 // DeleteEvent mocks base method.
-func (m *MockService) DeleteEvent(ctx context.Context, eventID int64) error {
+func (m *MockService) DeleteEvent(ctx context.Context, eventID, userID int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteEvent", ctx, eventID)
+	ret := m.ctrl.Call(m, "DeleteEvent", ctx, eventID, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteEvent indicates an expected call of DeleteEvent.
-func (mr *MockServiceMockRecorder) DeleteEvent(ctx, eventID interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) DeleteEvent(ctx, eventID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteEvent", reflect.TypeOf((*MockService)(nil).DeleteEvent), ctx, eventID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteEvent", reflect.TypeOf((*MockService)(nil).DeleteEvent), ctx, eventID, userID)
 }
 
 // ListEvents mocks base method.
@@ -183,15 +183,15 @@ func (mr *MockServiceMockRecorder) SetChatStatus(ctx, participantID, eventID, is
 }
 
 // UpdateEvent mocks base method.
-func (m *MockService) UpdateEvent(ctx context.Context, event *models.Event) error {
+func (m *MockService) UpdateEvent(ctx context.Context, event *models.Event, userID int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateEvent", ctx, event)
+	ret := m.ctrl.Call(m, "UpdateEvent", ctx, event, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateEvent indicates an expected call of UpdateEvent.
-func (mr *MockServiceMockRecorder) UpdateEvent(ctx, event interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) UpdateEvent(ctx, event, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEvent", reflect.TypeOf((*MockService)(nil).UpdateEvent), ctx, event)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEvent", reflect.TypeOf((*MockService)(nil).UpdateEvent), ctx, event, userID)
 }

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/chudik63/netevent/events_service/internal/models"
+	"github.com/chudik63/netevent/events_service/internal/repository"
 	"github.com/chudik63/netevent/events_service/internal/transport/grpc/mock"
 	"github.com/chudik63/netevent/events_service/pkg/api/proto/event"
 	"github.com/chudik63/netevent/events_service/pkg/logger"
@@ -13,6 +14,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -123,7 +125,7 @@ func TestCreateEvent(t *testing.T) {
 
 			eventservice := NewEventService(ctx, service)
 
-			resp, err := eventservice.CreateEvent(context.WithValue(ctx, "request_id", "test"), testCase.inputRequest)
+			resp, err := eventservice.CreateEvent(metadata.NewIncomingContext(ctx, metadata.MD{"x-request-id": []string{"test"}}), testCase.inputRequest)
 
 			assert.Equal(t, testCase.expectedResponse, resp)
 			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
@@ -207,7 +209,7 @@ func TestReadEvent(t *testing.T) {
 
 			eventservice := NewEventService(ctx, service)
 
-			resp, err := eventservice.ReadEvent(context.WithValue(ctx, "request_id", "test"), testCase.inputReadRequest)
+			resp, err := eventservice.ReadEvent(metadata.NewIncomingContext(ctx, metadata.MD{"x-request-id": []string{"test"}}), testCase.inputReadRequest)
 
 			assert.Equal(t, testCase.expectedResponse, resp)
 			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
@@ -216,7 +218,7 @@ func TestReadEvent(t *testing.T) {
 }
 
 func TestUpdateEvent(t *testing.T) {
-	type mockBehavior func(s *mock.MockService, event *models.Event)
+	type mockBehavior func(s *mock.MockService, event *models.Event, userId int64)
 
 	testTable := []struct {
 		name               string
@@ -237,9 +239,10 @@ func TestUpdateEvent(t *testing.T) {
 					Place:       "Updated Place",
 					Interests:   []string{"updated_interest1", "updated_interest2"},
 				},
+				UserId: 1,
 			},
-			mockBehavior: func(s *mock.MockService, event *models.Event) {
-				s.EXPECT().UpdateEvent(gomock.Any(), event).Return(nil)
+			mockBehavior: func(s *mock.MockService, event *models.Event, userId int64) {
+				s.EXPECT().UpdateEvent(gomock.Any(), event, userId).Return(nil)
 			},
 			expectedStatusCode: codes.OK,
 			expectedResponse:   &event.UpdateEventResponse{},
@@ -256,8 +259,9 @@ func TestUpdateEvent(t *testing.T) {
 					Place:       "Updated Place",
 					Interests:   []string{"updated_interest1", "updated_interest2"},
 				},
+				UserId: 1,
 			},
-			mockBehavior: func(s *mock.MockService, event *models.Event) {
+			mockBehavior: func(s *mock.MockService, event *models.Event, userId int64) {
 			},
 			expectedStatusCode: codes.InvalidArgument,
 			expectedResponse:   nil,
@@ -274,9 +278,10 @@ func TestUpdateEvent(t *testing.T) {
 					Place:       "Updated Place",
 					Interests:   []string{"updated_interest1", "updated_interest2"},
 				},
+				UserId: 1,
 			},
-			mockBehavior: func(s *mock.MockService, event *models.Event) {
-				s.EXPECT().UpdateEvent(gomock.Any(), event).Return(models.ErrWrongEventId)
+			mockBehavior: func(s *mock.MockService, event *models.Event, userId int64) {
+				s.EXPECT().UpdateEvent(gomock.Any(), event, userId).Return(models.ErrWrongEventId)
 			},
 			expectedStatusCode: codes.NotFound,
 			expectedResponse:   nil,
@@ -293,11 +298,32 @@ func TestUpdateEvent(t *testing.T) {
 					Place:       "Updated Place",
 					Interests:   []string{"updated_interest1", "updated_interest2"},
 				},
+				UserId: 1,
 			},
-			mockBehavior: func(s *mock.MockService, event *models.Event) {
-				s.EXPECT().UpdateEvent(gomock.Any(), event).Return(errors.New("internal error"))
+			mockBehavior: func(s *mock.MockService, event *models.Event, userId int64) {
+				s.EXPECT().UpdateEvent(gomock.Any(), event, userId).Return(errors.New("internal error"))
 			},
 			expectedStatusCode: codes.Internal,
+			expectedResponse:   nil,
+		},
+		{
+			name: "Access denied error test",
+			inputUpdateRequest: &event.UpdateEventRequest{
+				Event: &event.Event{
+					EventId:     42,
+					CreatorId:   1,
+					Title:       "Updated Event",
+					Description: "Updated Description",
+					Time:        "2024-01-01 10:00:00",
+					Place:       "Updated Place",
+					Interests:   []string{"updated_interest1", "updated_interest2"},
+				},
+				UserId: 11,
+			},
+			mockBehavior: func(s *mock.MockService, event *models.Event, userId int64) {
+				s.EXPECT().UpdateEvent(gomock.Any(), event, userId).Return(models.ErrAccessDenied)
+			},
+			expectedStatusCode: codes.PermissionDenied,
 			expectedResponse:   nil,
 		},
 	}
@@ -319,11 +345,11 @@ func TestUpdateEvent(t *testing.T) {
 				Time:        testCase.inputUpdateRequest.GetEvent().GetTime(),
 				Place:       testCase.inputUpdateRequest.GetEvent().GetPlace(),
 				Topics:      testCase.inputUpdateRequest.GetEvent().GetInterests(),
-			})
+			}, testCase.inputUpdateRequest.GetUserId())
 
 			eventservice := NewEventService(ctx, service)
 
-			resp, err := eventservice.UpdateEvent(context.WithValue(ctx, "request_id", "test"), testCase.inputUpdateRequest)
+			resp, err := eventservice.UpdateEvent(metadata.NewIncomingContext(ctx, metadata.MD{"x-request-id": []string{"test"}}), testCase.inputUpdateRequest)
 
 			assert.Equal(t, testCase.expectedResponse, resp)
 			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
@@ -332,7 +358,7 @@ func TestUpdateEvent(t *testing.T) {
 }
 
 func TestDeleteEvent(t *testing.T) {
-	type mockBehavior func(s *mock.MockService, eventID int64)
+	type mockBehavior func(s *mock.MockService, eventID int64, userId int64)
 
 	testTable := []struct {
 		name               string
@@ -345,9 +371,10 @@ func TestDeleteEvent(t *testing.T) {
 			name: "OK test",
 			inputDeleteRequest: &event.DeleteEventRequest{
 				EventId: 1,
+				UserId:  1,
 			},
-			mockBehavior: func(s *mock.MockService, eventID int64) {
-				s.EXPECT().DeleteEvent(gomock.Any(), eventID).Return(nil)
+			mockBehavior: func(s *mock.MockService, eventID int64, userId int64) {
+				s.EXPECT().DeleteEvent(gomock.Any(), eventID, userId).Return(nil)
 			},
 			expectedStatusCode: codes.OK,
 			expectedResponse:   &event.DeleteEventResponse{},
@@ -356,9 +383,10 @@ func TestDeleteEvent(t *testing.T) {
 			name: "Not Found test",
 			inputDeleteRequest: &event.DeleteEventRequest{
 				EventId: 99,
+				UserId:  1,
 			},
-			mockBehavior: func(s *mock.MockService, eventID int64) {
-				s.EXPECT().DeleteEvent(gomock.Any(), eventID).Return(models.ErrWrongEventId)
+			mockBehavior: func(s *mock.MockService, eventID int64, userId int64) {
+				s.EXPECT().DeleteEvent(gomock.Any(), eventID, userId).Return(models.ErrWrongEventId)
 			},
 			expectedStatusCode: codes.NotFound,
 			expectedResponse:   nil,
@@ -367,11 +395,24 @@ func TestDeleteEvent(t *testing.T) {
 			name: "Internal Error test",
 			inputDeleteRequest: &event.DeleteEventRequest{
 				EventId: 42,
+				UserId:  1,
 			},
-			mockBehavior: func(s *mock.MockService, eventID int64) {
-				s.EXPECT().DeleteEvent(gomock.Any(), eventID).Return(errors.New("internal error"))
+			mockBehavior: func(s *mock.MockService, eventID int64, userId int64) {
+				s.EXPECT().DeleteEvent(gomock.Any(), eventID, userId).Return(errors.New("internal error"))
 			},
 			expectedStatusCode: codes.Internal,
+			expectedResponse:   nil,
+		},
+		{
+			name: "Access Denied Error test",
+			inputDeleteRequest: &event.DeleteEventRequest{
+				EventId: 42,
+				UserId:  1211,
+			},
+			mockBehavior: func(s *mock.MockService, eventID int64, userId int64) {
+				s.EXPECT().DeleteEvent(gomock.Any(), eventID, userId).Return(models.ErrAccessDenied)
+			},
+			expectedStatusCode: codes.PermissionDenied,
 			expectedResponse:   nil,
 		},
 	}
@@ -385,11 +426,168 @@ func TestDeleteEvent(t *testing.T) {
 			ctx := context.WithValue(context.Background(), logger.LoggerKey, log)
 
 			service := mock.NewMockService(c)
-			testCase.mockBehavior(service, testCase.inputDeleteRequest.GetEventId())
+			testCase.mockBehavior(service, testCase.inputDeleteRequest.GetEventId(), testCase.inputDeleteRequest.GetUserId())
 
 			eventservice := NewEventService(ctx, service)
 
-			resp, err := eventservice.DeleteEvent(context.WithValue(ctx, "request_id", "test"), testCase.inputDeleteRequest)
+			resp, err := eventservice.DeleteEvent(metadata.NewIncomingContext(ctx, metadata.MD{"x-request-id": []string{"test"}}), testCase.inputDeleteRequest)
+
+			assert.Equal(t, testCase.expectedResponse, resp)
+			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
+		})
+	}
+}
+
+func TestListEvents(t *testing.T) {
+	type mockBehavior func(s *mock.MockService, creds repository.Creds)
+
+	testTable := []struct {
+		name               string
+		inputRequest       *event.ListEventsRequest
+		mockBehavior       mockBehavior
+		expectedStatusCode codes.Code
+		expectedResponse   *event.ListEventsResponse
+	}{
+		{
+			name:         "OK test",
+			inputRequest: &event.ListEventsRequest{},
+			mockBehavior: func(s *mock.MockService, creds repository.Creds) {
+				s.EXPECT().ListEvents(gomock.Any(), creds).Return([]*models.Event{{EventID: 1, CreatorID: 1}, {EventID: 2, CreatorID: 2}}, nil)
+			},
+			expectedStatusCode: codes.OK,
+			expectedResponse: &event.ListEventsResponse{
+				Events: []*event.Event{{EventId: 1, CreatorId: 1}, {EventId: 2, CreatorId: 2}},
+			},
+		},
+		{
+			name:         "With creator id test",
+			inputRequest: &event.ListEventsRequest{CreatorId: 1},
+			mockBehavior: func(s *mock.MockService, creds repository.Creds) {
+				s.EXPECT().ListEvents(gomock.Any(), creds).Return([]*models.Event{{EventID: 1, CreatorID: 1}}, nil)
+			},
+			expectedStatusCode: codes.OK,
+			expectedResponse: &event.ListEventsResponse{
+				Events: []*event.Event{{EventId: 1, CreatorId: 1}},
+			},
+		},
+		{
+			name:         "Error not found test",
+			inputRequest: &event.ListEventsRequest{CreatorId: 11212},
+			mockBehavior: func(s *mock.MockService, creds repository.Creds) {
+				s.EXPECT().ListEvents(gomock.Any(), creds).Return(nil, models.ErrNotFound)
+			},
+			expectedStatusCode: codes.NotFound,
+			expectedResponse:   nil,
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			log, _ := logger.New("test")
+			ctx := context.WithValue(context.Background(), logger.LoggerKey, log)
+
+			service := mock.NewMockService(c)
+
+			creds := repository.Creds{}
+			if creatorID := testCase.inputRequest.GetCreatorId(); creatorID != 0 {
+				creds["creator_id"] = creatorID
+			}
+			testCase.mockBehavior(service, creds)
+
+			eventService := NewEventService(ctx, service)
+
+			resp, err := eventService.ListEvents(metadata.NewIncomingContext(ctx, metadata.MD{"x-request-id": []string{"test"}}), testCase.inputRequest)
+
+			assert.Equal(t, testCase.expectedResponse, resp)
+			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
+		})
+	}
+}
+
+func TestListEventsByInterests(t *testing.T) {
+	type mockBehavior func(s *mock.MockService, userId int64, creds repository.Creds)
+
+	testTable := []struct {
+		name               string
+		inputRequest       *event.ListEventsByInterestsRequest
+		mockBehavior       mockBehavior
+		expectedStatusCode codes.Code
+		expectedResponse   *event.ListEventsByInterestsResponse
+	}{
+		{
+			name: "OK test",
+			inputRequest: &event.ListEventsByInterestsRequest{
+				UserId: 1,
+			},
+			mockBehavior: func(s *mock.MockService, userId int64, creds repository.Creds) {
+				s.EXPECT().ListEventsByInterests(gomock.Any(), userId, creds).Return([]*models.Event{{EventID: 1, CreatorID: 1}, {EventID: 2, CreatorID: 2}}, nil)
+			},
+			expectedStatusCode: codes.OK,
+			expectedResponse: &event.ListEventsByInterestsResponse{
+				Events: []*event.Event{{EventId: 1, CreatorId: 1}, {EventId: 2, CreatorId: 2}},
+			},
+		},
+		{
+			name: "User not found test",
+			inputRequest: &event.ListEventsByInterestsRequest{
+				UserId: 99,
+			},
+			mockBehavior: func(s *mock.MockService, userId int64, creds repository.Creds) {
+				s.EXPECT().ListEventsByInterests(gomock.Any(), userId, creds).Return(nil, models.ErrWrongUserId)
+			},
+			expectedStatusCode: codes.InvalidArgument,
+			expectedResponse:   nil,
+		},
+		{
+			name: "With creator id filter",
+			inputRequest: &event.ListEventsByInterestsRequest{
+				UserId:    1,
+				CreatorId: 1,
+			},
+			mockBehavior: func(s *mock.MockService, userId int64, creds repository.Creds) {
+				s.EXPECT().ListEventsByInterests(gomock.Any(), userId, creds).Return([]*models.Event{{EventID: 1, CreatorID: 1}}, nil)
+			},
+			expectedStatusCode: codes.OK,
+			expectedResponse: &event.ListEventsByInterestsResponse{
+				Events: []*event.Event{{EventId: 1, CreatorId: 1}},
+			},
+		},
+		{
+			name: "Not Found test",
+			inputRequest: &event.ListEventsByInterestsRequest{
+				UserId:    1,
+				CreatorId: 3232313,
+			},
+			mockBehavior: func(s *mock.MockService, userId int64, creds repository.Creds) {
+				s.EXPECT().ListEventsByInterests(gomock.Any(), userId, creds).Return(nil, models.ErrNotFound)
+			},
+			expectedStatusCode: codes.NotFound,
+			expectedResponse:   nil,
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			log, _ := logger.New("test")
+			ctx := context.WithValue(context.Background(), logger.LoggerKey, log)
+
+			service := mock.NewMockService(c)
+
+			creds := repository.Creds{}
+			if creatorID := testCase.inputRequest.GetCreatorId(); creatorID != 0 {
+				creds["creator_id"] = creatorID
+			}
+			testCase.mockBehavior(service, testCase.inputRequest.GetUserId(), creds)
+
+			eventService := NewEventService(ctx, service)
+
+			resp, err := eventService.ListEventsByInterests(metadata.NewIncomingContext(ctx, metadata.MD{"x-request-id": []string{"test"}}), testCase.inputRequest)
 
 			assert.Equal(t, testCase.expectedResponse, resp)
 			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
@@ -470,7 +668,7 @@ func TestRegisterUser(t *testing.T) {
 
 			eventservice := NewEventService(ctx, service)
 
-			resp, err := eventservice.RegisterUser(context.WithValue(ctx, "request_id", "test"), testCase.inputRegisterRequest)
+			resp, err := eventservice.RegisterUser(metadata.NewIncomingContext(ctx, metadata.MD{"x-request-id": []string{"test"}}), testCase.inputRegisterRequest)
 
 			assert.Equal(t, testCase.expectedResponse, resp)
 			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
@@ -555,7 +753,7 @@ func TestSetChatStatus(t *testing.T) {
 
 			eventservice := NewEventService(ctx, service)
 
-			resp, err := eventservice.SetChatStatus(context.WithValue(ctx, "request_id", "test"), testCase.inputRequest)
+			resp, err := eventservice.SetChatStatus(metadata.NewIncomingContext(ctx, metadata.MD{"x-request-id": []string{"test"}}), testCase.inputRequest)
 
 			assert.Equal(t, testCase.expectedResponse, resp)
 			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
@@ -623,7 +821,7 @@ func TestListRegistratedEvents(t *testing.T) {
 
 			eventService := NewEventService(ctx, service)
 
-			resp, err := eventService.ListRegistratedEvents(context.WithValue(ctx, "request_id", "test"), testCase.inputRequest)
+			resp, err := eventService.ListRegistratedEvents(metadata.NewIncomingContext(ctx, metadata.MD{"x-request-id": []string{"test"}}), testCase.inputRequest)
 
 			assert.Equal(t, testCase.expectedResponse, resp)
 			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
@@ -693,7 +891,7 @@ func TestListUsersToChat(t *testing.T) {
 
 			eventService := NewEventService(ctx, service)
 
-			resp, err := eventService.ListUsersToChat(context.WithValue(ctx, "request_id", "test"), testCase.inputRequest)
+			resp, err := eventService.ListUsersToChat(metadata.NewIncomingContext(ctx, metadata.MD{"x-request-id": []string{"test"}}), testCase.inputRequest)
 
 			assert.Equal(t, testCase.expectedResponse, resp)
 			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
