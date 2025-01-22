@@ -65,31 +65,21 @@ func (s *EventService) ReadEvent(ctx context.Context, eventID int64) (*models.Ev
 	return s.repository.ReadEvent(ctx, eventID)
 }
 
-func (s *EventService) UpdateEvent(ctx context.Context, event *models.Event) error {
-	userId, ok := ctx.Value("user_id").(int64)
-	if !ok {
-		return models.ErrGetFromContexxt
-	}
-
-	if userId != event.CreatorID {
+func (s *EventService) UpdateEvent(ctx context.Context, event *models.Event, userID int64) error {
+	if userID != event.CreatorID {
 		return models.ErrAccessDenied
 	}
 
 	return s.repository.UpdateEvent(ctx, event)
 }
 
-func (s *EventService) DeleteEvent(ctx context.Context, eventID int64) error {
+func (s *EventService) DeleteEvent(ctx context.Context, eventID int64, userID int64) error {
 	event, err := s.repository.ReadEvent(ctx, eventID)
 	if err != nil {
 		return err
 	}
 
-	userId, ok := ctx.Value("user_id").(int64)
-	if !ok {
-		return models.ErrGetFromContexxt
-	}
-
-	if userId != event.CreatorID {
+	if userID != event.CreatorID {
 		return models.ErrAccessDenied
 	}
 

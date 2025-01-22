@@ -9,11 +9,11 @@ import (
 	reflect "reflect"
 	time "time"
 
-	gomock "github.com/golang/mock/gomock"
-	redis "github.com/redis/go-redis/v9"
 	models "github.com/chudik63/netevent/events_service/internal/models"
 	producer "github.com/chudik63/netevent/events_service/internal/producer"
 	repository "github.com/chudik63/netevent/events_service/internal/repository"
+	gomock "github.com/golang/mock/gomock"
+	redis "github.com/redis/go-redis/v9"
 )
 
 // MockRepository is a mock of Repository interface.
@@ -112,18 +112,18 @@ func (mr *MockRepositoryMockRecorder) ListEvents(ctx, equations interface{}) *go
 }
 
 // ListEventsByInterests mocks base method.
-func (m *MockRepository) ListEventsByInterests(ctx context.Context, userID int64, creds repository.Creds) ([]*models.Event, error) {
+func (m *MockRepository) ListEventsByInterests(ctx context.Context, userID int64, equations repository.Creds) ([]*models.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListEventsByInterests", ctx, userID, creds)
+	ret := m.ctrl.Call(m, "ListEventsByInterests", ctx, userID, equations)
 	ret0, _ := ret[0].([]*models.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListEventsByInterests indicates an expected call of ListEventsByInterests.
-func (mr *MockRepositoryMockRecorder) ListEventsByInterests(ctx, userID, creds interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) ListEventsByInterests(ctx, userID, equations interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEventsByInterests", reflect.TypeOf((*MockRepository)(nil).ListEventsByInterests), ctx, userID, creds)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEventsByInterests", reflect.TypeOf((*MockRepository)(nil).ListEventsByInterests), ctx, userID, equations)
 }
 
 // ListRegistratedEvents mocks base method.
