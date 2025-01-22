@@ -26,8 +26,6 @@ const (
 	Gateway_UpdateEvent_FullMethodName           = "/gateway.Gateway/UpdateEvent"
 	Gateway_DeleteEvent_FullMethodName           = "/gateway.Gateway/DeleteEvent"
 	Gateway_ListEvents_FullMethodName            = "/gateway.Gateway/ListEvents"
-	Gateway_ListEventsByCreator_FullMethodName   = "/gateway.Gateway/ListEventsByCreator"
-	Gateway_ListEventsByInterests_FullMethodName = "/gateway.Gateway/ListEventsByInterests"
 	Gateway_RegisterUser_FullMethodName          = "/gateway.Gateway/RegisterUser"
 	Gateway_SetChatStatus_FullMethodName         = "/gateway.Gateway/SetChatStatus"
 	Gateway_ListUsersToChat_FullMethodName       = "/gateway.Gateway/ListUsersToChat"
@@ -45,8 +43,6 @@ type GatewayClient interface {
 	UpdateEvent(ctx context.Context, in *UpdateEventRequest, opts ...grpc.CallOption) (*UpdateEventResponse, error)
 	DeleteEvent(ctx context.Context, in *DeleteEventRequest, opts ...grpc.CallOption) (*DeleteEventResponse, error)
 	ListEvents(ctx context.Context, in *ListEventsRequest, opts ...grpc.CallOption) (*ListEventsResponse, error)
-	ListEventsByCreator(ctx context.Context, in *ListEventsByCreatorRequest, opts ...grpc.CallOption) (*ListEventsByCreatorResponse, error)
-	ListEventsByInterests(ctx context.Context, in *ListEventsByInterestsRequest, opts ...grpc.CallOption) (*ListEventsByInterestsResponse, error)
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
 	SetChatStatus(ctx context.Context, in *SetChatStatusRequest, opts ...grpc.CallOption) (*SetChatStatusResponse, error)
 	ListUsersToChat(ctx context.Context, in *ListUsersToChatRequest, opts ...grpc.CallOption) (*ListUsersToChatResponse, error)
@@ -131,26 +127,6 @@ func (c *gatewayClient) ListEvents(ctx context.Context, in *ListEventsRequest, o
 	return out, nil
 }
 
-func (c *gatewayClient) ListEventsByCreator(ctx context.Context, in *ListEventsByCreatorRequest, opts ...grpc.CallOption) (*ListEventsByCreatorResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListEventsByCreatorResponse)
-	err := c.cc.Invoke(ctx, Gateway_ListEventsByCreator_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *gatewayClient) ListEventsByInterests(ctx context.Context, in *ListEventsByInterestsRequest, opts ...grpc.CallOption) (*ListEventsByInterestsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListEventsByInterestsResponse)
-	err := c.cc.Invoke(ctx, Gateway_ListEventsByInterests_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *gatewayClient) RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RegisterUserResponse)
@@ -202,8 +178,6 @@ type GatewayServer interface {
 	UpdateEvent(context.Context, *UpdateEventRequest) (*UpdateEventResponse, error)
 	DeleteEvent(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error)
 	ListEvents(context.Context, *ListEventsRequest) (*ListEventsResponse, error)
-	ListEventsByCreator(context.Context, *ListEventsByCreatorRequest) (*ListEventsByCreatorResponse, error)
-	ListEventsByInterests(context.Context, *ListEventsByInterestsRequest) (*ListEventsByInterestsResponse, error)
 	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error)
 	SetChatStatus(context.Context, *SetChatStatusRequest) (*SetChatStatusResponse, error)
 	ListUsersToChat(context.Context, *ListUsersToChatRequest) (*ListUsersToChatResponse, error)
@@ -238,12 +212,6 @@ func (UnimplementedGatewayServer) DeleteEvent(context.Context, *DeleteEventReque
 }
 func (UnimplementedGatewayServer) ListEvents(context.Context, *ListEventsRequest) (*ListEventsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListEvents not implemented")
-}
-func (UnimplementedGatewayServer) ListEventsByCreator(context.Context, *ListEventsByCreatorRequest) (*ListEventsByCreatorResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListEventsByCreator not implemented")
-}
-func (UnimplementedGatewayServer) ListEventsByInterests(context.Context, *ListEventsByInterestsRequest) (*ListEventsByInterestsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListEventsByInterests not implemented")
 }
 func (UnimplementedGatewayServer) RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
@@ -404,42 +372,6 @@ func _Gateway_ListEvents_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Gateway_ListEventsByCreator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListEventsByCreatorRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GatewayServer).ListEventsByCreator(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Gateway_ListEventsByCreator_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GatewayServer).ListEventsByCreator(ctx, req.(*ListEventsByCreatorRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Gateway_ListEventsByInterests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListEventsByInterestsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GatewayServer).ListEventsByInterests(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Gateway_ListEventsByInterests_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GatewayServer).ListEventsByInterests(ctx, req.(*ListEventsByInterestsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Gateway_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RegisterUserRequest)
 	if err := dec(in); err != nil {
@@ -546,14 +478,6 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListEvents",
 			Handler:    _Gateway_ListEvents_Handler,
-		},
-		{
-			MethodName: "ListEventsByCreator",
-			Handler:    _Gateway_ListEventsByCreator_Handler,
-		},
-		{
-			MethodName: "ListEventsByInterests",
-			Handler:    _Gateway_ListEventsByInterests_Handler,
 		},
 		{
 			MethodName: "RegisterUser",

@@ -39,10 +39,10 @@ Create a new user account.
 
 #### Example cURL Request:
 ```bash
-curl -X POST http://localhost:80/api/v1/sign-up \
-     -d '{"name": "John Doe", "email": "john.doe@example.com", "password": "password123", "role": "user", "interests": ["sports", "music"]}' \
+curl -X POST http://localhost:8080/api/v1/sign-up \
+     -d '{"name": "Vitalya", "email": "vitamin11182005@gmail.com", "password": "password", "role": "user", "interests": ["sports", "music"]}' \
      -H "Content-Type: application/json" \
-     -H "X-Request-ID: UNIQUE_REQUEST_ID"
+     -H "X-Request-ID: 1"
 ```
 
 ---
@@ -85,7 +85,6 @@ Create a new event.
 ```json
 {
   "event": {
-    "creator_id": "CREATOR_ID",
     "title": "EVENT_TITLE",
     "description": "EVENT_DESCRIPTION",
     "time": "EVENT_TIME",

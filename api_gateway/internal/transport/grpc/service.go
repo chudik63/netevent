@@ -8,6 +8,7 @@ import (
 	auth "github.com/chudik63/netevent/auth_service/pkg/proto"
 	event "github.com/chudik63/netevent/events_service/pkg/api/proto/event"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -92,7 +93,8 @@ func (s *GatewayServer) SignIn(ctx context.Context, req *gateway.SignInRequest) 
 }
 
 func (s *GatewayServer) CreateEvent(ctx context.Context, req *gateway.CreateEventRequest) (*gateway.CreateEventResponse, error) {
-	userId, ok := ctx.Value("user_id").(int64)
+	md, ok := metadata.FromIncomingContext(ctx)
+	userId := md.Get("userID")
 	if !ok {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id in context")
 	}

@@ -11,6 +11,7 @@ import (
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -64,7 +65,9 @@ func convertEventsToGRPC(events []*models.Event) []*event.Event {
 
 func (s *EventService) CreateEvent(ctx context.Context, req *event.CreateEventRequest) (*event.CreateEventResponse, error) {
 	if _, err := time.Parse(models.TimeLayout, req.GetEvent().GetTime()); err != nil {
-		s.logger.Error(context.WithValue(ctx, logger.RequestID, ctx.Value("request_id").(string)), "failed to create event", zap.String("err", models.ErrWrongTimeFormat.Error()))
+		md, _ := metadata.FromIncomingContext(ctx)
+		requestID := md.Get("X-Request-ID")
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, requestID), "failed to create event", zap.String("err", models.ErrWrongTimeFormat.Error()))
 		return nil, status.Errorf(codes.InvalidArgument, models.ErrWrongTimeFormat.Error())
 	}
 
