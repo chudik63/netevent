@@ -24,6 +24,7 @@ const (
 	EventService_UpdateEvent_FullMethodName           = "/event.EventService/UpdateEvent"
 	EventService_DeleteEvent_FullMethodName           = "/event.EventService/DeleteEvent"
 	EventService_ListEvents_FullMethodName            = "/event.EventService/ListEvents"
+	EventService_ListEventsByInterests_FullMethodName = "/event.EventService/ListEventsByInterests"
 	EventService_RegisterUser_FullMethodName          = "/event.EventService/RegisterUser"
 	EventService_SetChatStatus_FullMethodName         = "/event.EventService/SetChatStatus"
 	EventService_ListUsersToChat_FullMethodName       = "/event.EventService/ListUsersToChat"
@@ -40,6 +41,7 @@ type EventServiceClient interface {
 	UpdateEvent(ctx context.Context, in *UpdateEventRequest, opts ...grpc.CallOption) (*UpdateEventResponse, error)
 	DeleteEvent(ctx context.Context, in *DeleteEventRequest, opts ...grpc.CallOption) (*DeleteEventResponse, error)
 	ListEvents(ctx context.Context, in *ListEventsRequest, opts ...grpc.CallOption) (*ListEventsResponse, error)
+	ListEventsByInterests(ctx context.Context, in *ListEventsByInterestsRequest, opts ...grpc.CallOption) (*ListEventsByInterestsResponse, error)
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
 	SetChatStatus(ctx context.Context, in *SetChatStatusRequest, opts ...grpc.CallOption) (*SetChatStatusResponse, error)
 	ListUsersToChat(ctx context.Context, in *ListUsersToChatRequest, opts ...grpc.CallOption) (*ListUsersToChatResponse, error)
@@ -105,6 +107,16 @@ func (c *eventServiceClient) ListEvents(ctx context.Context, in *ListEventsReque
 	return out, nil
 }
 
+func (c *eventServiceClient) ListEventsByInterests(ctx context.Context, in *ListEventsByInterestsRequest, opts ...grpc.CallOption) (*ListEventsByInterestsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListEventsByInterestsResponse)
+	err := c.cc.Invoke(ctx, EventService_ListEventsByInterests_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *eventServiceClient) RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RegisterUserResponse)
@@ -164,6 +176,7 @@ type EventServiceServer interface {
 	UpdateEvent(context.Context, *UpdateEventRequest) (*UpdateEventResponse, error)
 	DeleteEvent(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error)
 	ListEvents(context.Context, *ListEventsRequest) (*ListEventsResponse, error)
+	ListEventsByInterests(context.Context, *ListEventsByInterestsRequest) (*ListEventsByInterestsResponse, error)
 	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error)
 	SetChatStatus(context.Context, *SetChatStatusRequest) (*SetChatStatusResponse, error)
 	ListUsersToChat(context.Context, *ListUsersToChatRequest) (*ListUsersToChatResponse, error)
@@ -193,6 +206,9 @@ func (UnimplementedEventServiceServer) DeleteEvent(context.Context, *DeleteEvent
 }
 func (UnimplementedEventServiceServer) ListEvents(context.Context, *ListEventsRequest) (*ListEventsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListEvents not implemented")
+}
+func (UnimplementedEventServiceServer) ListEventsByInterests(context.Context, *ListEventsByInterestsRequest) (*ListEventsByInterestsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListEventsByInterests not implemented")
 }
 func (UnimplementedEventServiceServer) RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
@@ -320,6 +336,24 @@ func _EventService_ListEvents_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventService_ListEventsByInterests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListEventsByInterestsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).ListEventsByInterests(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_ListEventsByInterests_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).ListEventsByInterests(ctx, req.(*ListEventsByInterestsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _EventService_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RegisterUserRequest)
 	if err := dec(in); err != nil {
@@ -436,6 +470,10 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListEvents",
 			Handler:    _EventService_ListEvents_Handler,
+		},
+		{
+			MethodName: "ListEventsByInterests",
+			Handler:    _EventService_ListEventsByInterests_Handler,
 		},
 		{
 			MethodName: "RegisterUser",

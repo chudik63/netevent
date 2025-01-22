@@ -10,6 +10,7 @@ service EventService {
   rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse);
   rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
   rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
+  rpc ListEventsByInterests(ListEventsByInterestsRequest) returns (ListEventsByInterestsResponse);
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
   rpc SetChatStatus(SetChatStatusRequest) returns (SetChatStatusResponse);
   rpc ListUsersToChat(ListUsersToChatRequest) returns (ListUsersToChatResponse);
