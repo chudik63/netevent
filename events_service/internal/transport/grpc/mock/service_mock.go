@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/chudik63/netevent/events_service/internal/models"
+	"github.com/chudik63/netevent/events_service/internal/repository"
 )
 
 // MockService is a mock of Service interface.
@@ -93,48 +94,33 @@ func (mr *MockServiceMockRecorder) DeleteEvent(ctx, eventID interface{}) *gomock
 }
 
 // ListEvents mocks base method.
-func (m *MockService) ListEvents(ctx context.Context) ([]*models.Event, error) {
+func (m *MockService) ListEvents(ctx context.Context, creds repository.Creds) ([]*models.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListEvents", ctx)
+	ret := m.ctrl.Call(m, "ListEvents", ctx, creds)
 	ret0, _ := ret[0].([]*models.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListEvents indicates an expected call of ListEvents.
-func (mr *MockServiceMockRecorder) ListEvents(ctx interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) ListEvents(ctx, creds interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEvents", reflect.TypeOf((*MockService)(nil).ListEvents), ctx)
-}
-
-// ListEventsByCreator mocks base method.
-func (m *MockService) ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListEventsByCreator", ctx, creatorID)
-	ret0, _ := ret[0].([]*models.Event)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListEventsByCreator indicates an expected call of ListEventsByCreator.
-func (mr *MockServiceMockRecorder) ListEventsByCreator(ctx, creatorID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEventsByCreator", reflect.TypeOf((*MockService)(nil).ListEventsByCreator), ctx, creatorID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEvents", reflect.TypeOf((*MockService)(nil).ListEvents), ctx, creds)
 }
 
 // ListEventsByInterests mocks base method.
-func (m *MockService) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {
+func (m *MockService) ListEventsByInterests(ctx context.Context, userID int64, creds repository.Creds) ([]*models.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListEventsByInterests", ctx, userID)
+	ret := m.ctrl.Call(m, "ListEventsByInterests", ctx, userID, creds)
 	ret0, _ := ret[0].([]*models.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListEventsByInterests indicates an expected call of ListEventsByInterests.
-func (mr *MockServiceMockRecorder) ListEventsByInterests(ctx, userID interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) ListEventsByInterests(ctx, userID, creds interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEventsByInterests", reflect.TypeOf((*MockService)(nil).ListEventsByInterests), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEventsByInterests", reflect.TypeOf((*MockService)(nil).ListEventsByInterests), ctx, userID, creds)
 }
 
 // ListRegistratedEvents mocks base method.

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -23,11 +24,11 @@ type Repository interface {
 	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, eventID int64) error
 	ListEvents(ctx context.Context, equations repository.Creds) ([]*models.Event, error)
+	ListEventsByInterests(ctx context.Context, userID int64, equations repository.Creds) ([]*models.Event, error)
 	CreateRegistration(ctx context.Context, userID int64, eventID int64) error
 	ListRegistratedEvents(ctx context.Context, userID int64) ([]*models.Event, error)
 	SetChatStatus(ctx context.Context, userID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64, userID int64) ([]*models.Participant, error)
-	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
 	CreateParticipant(ctx context.Context, participant *models.Participant) error
 	ReadParticipant(ctx context.Context, userID int64) (*models.Participant, error)
 	UpdateParticipant(ctx context.Context, participant *models.Participant) error
@@ -95,12 +96,8 @@ func (s *EventService) DeleteEvent(ctx context.Context, eventID int64) error {
 	return s.repository.DeleteEvent(ctx, eventID)
 }
 
-func (s *EventService) ListEvents(ctx context.Context) ([]*models.Event, error) {
-	return s.repository.ListEvents(ctx, repository.Creds{})
-}
-
-func (s *EventService) ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error) {
-	return s.repository.ListEvents(ctx, repository.Creds{"creator_id": creatorID})
+func (s *EventService) ListEvents(ctx context.Context, creds repository.Creds) ([]*models.Event, error) {
+	return s.repository.ListEvents(ctx, creds)
 }
 
 func (s *EventService) CreateRegistration(ctx context.Context, userID int64, eventID int64) error {
@@ -186,13 +183,16 @@ func (s *EventService) ListRegistratedEvents(ctx context.Context, userID int64) 
 	return s.repository.ListRegistratedEvents(ctx, userID)
 }
 
-func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {
+func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64, creds repository.Creds) ([]*models.Event, error) {
 	_, err := s.repository.ReadParticipant(ctx, userID)
 	if errors.Is(err, models.ErrWrongUserId) {
 		return nil, err
 	}
 
-	cacheKey := "eventsByInterests:" + strconv.FormatInt(userID, 10)
+	cacheKey := strconv.FormatInt(userID, 10) + "_eventsByInterests"
+	for cred, value := range creds {
+		cacheKey += fmt.Sprintf("_%s=%s", cred, value)
+	}
 
 	cachedData, err := s.cache.Get(ctx, cacheKey).Result()
 	if err == nil && cachedData != "" {
@@ -202,7 +202,7 @@ func (s *EventService) ListEventsByInterests(ctx context.Context, userID int64) 
 		}
 	}
 
-	events, err := s.repository.ListEventsByInterests(ctx, userID)
+	events, err := s.repository.ListEventsByInterests(ctx, userID, creds)
 	if err != nil {
 		return nil, err
 	}

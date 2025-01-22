@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/chudik63/netevent/events_service/internal/models"
+	"github.com/chudik63/netevent/events_service/internal/repository"
 	"github.com/chudik63/netevent/events_service/pkg/api/proto/event"
 	"github.com/chudik63/netevent/events_service/pkg/logger"
 
@@ -22,12 +23,11 @@ type Service interface {
 	ReadEvent(ctx context.Context, eventID int64) (*models.Event, error)
 	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, eventID int64) error
-	ListEvents(ctx context.Context) ([]*models.Event, error)
-	ListEventsByCreator(ctx context.Context, creatorID int64) ([]*models.Event, error)
+	ListEvents(ctx context.Context, creds repository.Creds) ([]*models.Event, error)
+	ListEventsByInterests(ctx context.Context, userID int64, creds repository.Creds) ([]*models.Event, error)
 	CreateRegistration(ctx context.Context, userID int64, eventID int64) error
 	SetChatStatus(ctx context.Context, participantID int64, eventID int64, isReady bool) error
 	ListUsersToChat(ctx context.Context, eventID int64, userID int64) ([]*models.Participant, error)
-	ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error)
 	ListRegistratedEvents(ctx context.Context, userID int64) ([]*models.Event, error)
 	AddParticipant(ctx context.Context, participant *models.Participant) error
 }
@@ -111,10 +111,15 @@ func (s *EventService) DeleteEvent(ctx context.Context, req *event.DeleteEventRe
 }
 
 func (s *EventService) ListEvents(ctx context.Context, req *event.ListEventsRequest) (*event.ListEventsResponse, error) {
-	resp, err := s.service.ListEvents(ctx)
+	creds := repository.Creds{}
+	if creatorID := req.GetCreatorId(); creatorID != 0 {
+		creds["creator_id"] = creatorID
+	}
+
+	resp, err := s.service.ListEvents(ctx, creds)
 
 	if err != nil {
-		s.logger.Error(context.WithValue(ctx, logger.RequestID, ctx.Value("request_id").(string)), "failed to list events", zap.String("err", err.Error()))
+		s.logger.Error(context.WithValue(ctx, logger.RequestID, ctx.Value("request_id").(string)), "failed to list events by interests", zap.String("err", err.Error()))
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -123,21 +128,13 @@ func (s *EventService) ListEvents(ctx context.Context, req *event.ListEventsRequ
 	}, nil
 }
 
-func (s *EventService) ListEventsByCreator(ctx context.Context, req *event.ListEventsByCreatorRequest) (*event.ListEventsByCreatorResponse, error) {
-	resp, err := s.service.ListEventsByCreator(ctx, req.GetCreatorId())
-
-	if err != nil {
-		s.logger.Error(context.WithValue(ctx, logger.RequestID, ctx.Value("request_id").(string)), "failed to list events", zap.String("err", err.Error()))
-		return nil, status.Errorf(codes.Internal, err.Error())
+func (s *EventService) ListEventsByInterests(ctx context.Context, req *event.ListEventsByInterestsRequest) (*event.ListEventsByInterestsResponse, error) {
+	creds := repository.Creds{}
+	if creatorID := req.GetCreatorId(); creatorID != 0 {
+		creds["creator_id"] = creatorID
 	}
 
-	return &event.ListEventsByCreatorResponse{
-		Events: convertEventsToGRPC(resp),
-	}, nil
-}
-
-func (s *EventService) ListEventsByInterests(ctx context.Context, req *event.ListEventsByInterestsRequest) (*event.ListEventsByInterestsResponse, error) {
-	resp, err := s.service.ListEventsByInterests(ctx, req.GetUserId())
+	resp, err := s.service.ListEventsByInterests(ctx, req.GetUserId(), creds)
 
 	if err != nil {
 		s.logger.Error(context.WithValue(ctx, logger.RequestID, ctx.Value("request_id").(string)), "failed to list events by interests", zap.String("err", err.Error()))

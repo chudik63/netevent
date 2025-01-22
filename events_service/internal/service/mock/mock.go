@@ -112,18 +112,18 @@ func (mr *MockRepositoryMockRecorder) ListEvents(ctx, equations interface{}) *go
 }
 
 // ListEventsByInterests mocks base method.
-func (m *MockRepository) ListEventsByInterests(ctx context.Context, userID int64) ([]*models.Event, error) {
+func (m *MockRepository) ListEventsByInterests(ctx context.Context, userID int64, creds repository.Creds) ([]*models.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListEventsByInterests", ctx, userID)
+	ret := m.ctrl.Call(m, "ListEventsByInterests", ctx, userID, creds)
 	ret0, _ := ret[0].([]*models.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListEventsByInterests indicates an expected call of ListEventsByInterests.
-func (mr *MockRepositoryMockRecorder) ListEventsByInterests(ctx, userID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) ListEventsByInterests(ctx, userID, creds interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEventsByInterests", reflect.TypeOf((*MockRepository)(nil).ListEventsByInterests), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEventsByInterests", reflect.TypeOf((*MockRepository)(nil).ListEventsByInterests), ctx, userID, creds)
 }
 
 // ListRegistratedEvents mocks base method.

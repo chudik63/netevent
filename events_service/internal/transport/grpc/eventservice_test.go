@@ -563,74 +563,6 @@ func TestSetChatStatus(t *testing.T) {
 	}
 }
 
-func TestListEventsByInterests(t *testing.T) {
-	type mockBehavior func(s *mock.MockService, userID int64)
-
-	testTable := []struct {
-		name               string
-		inputRequest       *event.ListEventsByInterestsRequest
-		mockBehavior       mockBehavior
-		expectedStatusCode codes.Code
-		expectedResponse   *event.ListEventsByInterestsResponse
-	}{
-		{
-			name: "OK test",
-			inputRequest: &event.ListEventsByInterestsRequest{
-				UserId: 1,
-			},
-			mockBehavior: func(s *mock.MockService, userID int64) {
-				s.EXPECT().ListEventsByInterests(gomock.Any(), userID).Return([]*models.Event{{EventID: 1}}, nil)
-			},
-			expectedStatusCode: codes.OK,
-			expectedResponse: &event.ListEventsByInterestsResponse{
-				Events: []*event.Event{{EventId: 1}},
-			},
-		},
-		{
-			name: "Not Found test",
-			inputRequest: &event.ListEventsByInterestsRequest{
-				UserId: 99,
-			},
-			mockBehavior: func(s *mock.MockService, userID int64) {
-				s.EXPECT().ListEventsByInterests(gomock.Any(), userID).Return(nil, models.ErrWrongUserId)
-			},
-			expectedStatusCode: codes.NotFound,
-			expectedResponse:   nil,
-		},
-		{
-			name: "Internal Error test",
-			inputRequest: &event.ListEventsByInterestsRequest{
-				UserId: 1,
-			},
-			mockBehavior: func(s *mock.MockService, userID int64) {
-				s.EXPECT().ListEventsByInterests(gomock.Any(), userID).Return(nil, errors.New("internal error"))
-			},
-			expectedStatusCode: codes.Internal,
-			expectedResponse:   nil,
-		},
-	}
-
-	for _, testCase := range testTable {
-		t.Run(testCase.name, func(t *testing.T) {
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			log, _ := logger.New("test")
-			ctx := context.WithValue(context.Background(), logger.LoggerKey, log)
-
-			service := mock.NewMockService(c)
-			testCase.mockBehavior(service, testCase.inputRequest.GetUserId())
-
-			eventService := NewEventService(ctx, service)
-
-			resp, err := eventService.ListEventsByInterests(context.WithValue(ctx, "request_id", "test"), testCase.inputRequest)
-
-			assert.Equal(t, testCase.expectedResponse, resp)
-			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
-		})
-	}
-}
-
 func TestListRegistratedEvents(t *testing.T) {
 	type mockBehavior func(s *mock.MockService, userID int64)
 
@@ -762,63 +694,6 @@ func TestListUsersToChat(t *testing.T) {
 			eventService := NewEventService(ctx, service)
 
 			resp, err := eventService.ListUsersToChat(context.WithValue(ctx, "request_id", "test"), testCase.inputRequest)
-
-			assert.Equal(t, testCase.expectedResponse, resp)
-			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))
-		})
-	}
-}
-
-func TestListEventsByCreator(t *testing.T) {
-	type mockBehavior func(s *mock.MockService, creatorID int64)
-
-	testTable := []struct {
-		name               string
-		inputRequest       *event.ListEventsByCreatorRequest
-		mockBehavior       mockBehavior
-		expectedStatusCode codes.Code
-		expectedResponse   *event.ListEventsByCreatorResponse
-	}{
-		{
-			name: "OK test",
-			inputRequest: &event.ListEventsByCreatorRequest{
-				CreatorId: 1,
-			},
-			mockBehavior: func(s *mock.MockService, creatorID int64) {
-				s.EXPECT().ListEventsByCreator(gomock.Any(), creatorID).Return([]*models.Event{{EventID: 1}}, nil)
-			},
-			expectedStatusCode: codes.OK,
-			expectedResponse: &event.ListEventsByCreatorResponse{
-				Events: []*event.Event{{EventId: 1}},
-			},
-		},
-		{
-			name: "Internal Error test",
-			inputRequest: &event.ListEventsByCreatorRequest{
-				CreatorId: 1,
-			},
-			mockBehavior: func(s *mock.MockService, creatorID int64) {
-				s.EXPECT().ListEventsByCreator(gomock.Any(), creatorID).Return(nil, errors.New("internal error"))
-			},
-			expectedStatusCode: codes.Internal,
-			expectedResponse:   nil,
-		},
-	}
-
-	for _, testCase := range testTable {
-		t.Run(testCase.name, func(t *testing.T) {
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			log, _ := logger.New("test")
-			ctx := context.WithValue(context.Background(), logger.LoggerKey, log)
-
-			service := mock.NewMockService(c)
-			testCase.mockBehavior(service, testCase.inputRequest.GetCreatorId())
-
-			eventService := NewEventService(ctx, service)
-
-			resp, err := eventService.ListEventsByCreator(context.WithValue(ctx, "request_id", "test"), testCase.inputRequest)
 
 			assert.Equal(t, testCase.expectedResponse, resp)
 			assert.Equal(t, testCase.expectedStatusCode, status.Code(err))

@@ -19,18 +19,13 @@ type Server struct {
 }
 
 func NewServer(ctx context.Context, cfg *config.Config, service Service) (*Server, error) {
-	l := logger.GetLoggerFromCtx(ctx)
-
 	lis, err := net.Listen("tcp", ":"+cfg.GRPCServerPort)
 
 	if err != nil {
 		return nil, err
 	}
 
-	opts := []grpc.ServerOption{
-		grpc.ChainUnaryInterceptor(interceptor()),
-	}
-	s := grpc.NewServer(opts...)
+	grpcServer := grpc.NewServer()
 	event.RegisterEventServiceServer(grpcServer, NewEventService(ctx, service))
 
 	reflection.Register(grpcServer)
