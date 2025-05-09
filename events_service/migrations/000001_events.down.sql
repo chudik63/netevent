@@ -1,9 +1,9 @@
-DROP TABLE IF EXISTS public.events;
+DROP TABLE IF EXISTS events;
 
-DROP TABLE IF EXISTS public.topics;
+DROP TABLE IF EXISTS topics;
 
-DROP TABLE IF EXISTS public.users;
+DROP TABLE IF EXISTS users;
 
-DROP TABLE IF EXISTS public.registrations;
+DROP TABLE IF EXISTS registrations;
 
-DROP TABLE IF EXISTS public.interests;
+DROP TABLE IF EXISTS interests;

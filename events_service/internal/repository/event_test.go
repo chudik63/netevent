@@ -47,11 +47,11 @@ func TestCreateEvent(t *testing.T) {
 				mock.ExpectBegin()
 
 				rows := sqlmock.NewRows([]string{"id"}).AddRow(id)
-				mock.ExpectQuery("INSERT INTO public.events").
+				mock.ExpectQuery("INSERT INTO events").
 					WithArgs(event.CreatorID, event.Title, event.Description, event.Time, event.Place).
 					WillReturnRows(rows)
 
-				mock.ExpectExec("INSERT INTO public.topics").
+				mock.ExpectExec("INSERT INTO topics").
 					WithArgs(id, "test1", id, "test2").
 					WillReturnResult(sqlmock.NewResult(2, 2))
 
@@ -66,7 +66,7 @@ func TestCreateEvent(t *testing.T) {
 			mockBehavior: func(event *models.Event, id int64) {
 				mock.ExpectBegin()
 
-				mock.ExpectQuery("INSERT INTO public.events").
+				mock.ExpectQuery("INSERT INTO events").
 					WithArgs(event.CreatorID, event.Title, event.Description, event.Time, event.Place).
 					WillReturnError(errors.New("insert event error"))
 
@@ -89,11 +89,11 @@ func TestCreateEvent(t *testing.T) {
 				mock.ExpectBegin()
 
 				rows := sqlmock.NewRows([]string{"id"}).AddRow(id)
-				mock.ExpectQuery("INSERT INTO public.events").
+				mock.ExpectQuery("INSERT INTO events").
 					WithArgs(event.CreatorID, event.Title, event.Description, event.Time, event.Place).
 					WillReturnRows(rows)
 
-				mock.ExpectExec("INSERT INTO public.topics").
+				mock.ExpectExec("INSERT INTO topics").
 					WithArgs(id, "test1", id, "test2").
 					WillReturnError(errors.New("insert topics error"))
 
@@ -232,15 +232,15 @@ func TestUpdateEvent(t *testing.T) {
 			mockBehavior: func(event *models.Event) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.events").
+				mock.ExpectExec("UPDATE events").
 					WithArgs(event.CreatorID, event.Title, event.Description, event.Time, event.Place, event.EventID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("DELETE FROM public.topics").
+				mock.ExpectExec("DELETE FROM topics").
 					WithArgs(event.EventID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("INSERT INTO public.topics").
+				mock.ExpectExec("INSERT INTO topics").
 					WithArgs(event.EventID, "Topic3", event.EventID, "Topic4").
 					WillReturnResult(sqlmock.NewResult(2, 2))
 
@@ -254,7 +254,7 @@ func TestUpdateEvent(t *testing.T) {
 			mockBehavior: func(event *models.Event) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.events").
+				mock.ExpectExec("UPDATE events").
 					WithArgs(event.CreatorID, event.Title, event.Description, event.Time, event.Place, event.EventID).
 					WillReturnError(errors.New("update event error"))
 
@@ -271,11 +271,11 @@ func TestUpdateEvent(t *testing.T) {
 			mockBehavior: func(event *models.Event) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.events").
+				mock.ExpectExec("UPDATE events").
 					WithArgs(event.CreatorID, event.Title, event.Description, event.Time, event.Place, event.EventID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("DELETE FROM public.topics").
+				mock.ExpectExec("DELETE FROM topics").
 					WithArgs(event.EventID).
 					WillReturnError(errors.New("delete topics error"))
 
@@ -324,11 +324,11 @@ func TestDeleteEvent(t *testing.T) {
 			mockBehavior: func(eventID int64) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("DELETE FROM public.topics").
+				mock.ExpectExec("DELETE FROM topics").
 					WithArgs(eventID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("DELETE FROM public.events").
+				mock.ExpectExec("DELETE FROM events").
 					WithArgs(eventID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -342,7 +342,7 @@ func TestDeleteEvent(t *testing.T) {
 			mockBehavior: func(eventID int64) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("DELETE FROM public.topics").
+				mock.ExpectExec("DELETE FROM topics").
 					WithArgs(eventID).
 					WillReturnError(errors.New("delete topics error"))
 
@@ -356,11 +356,11 @@ func TestDeleteEvent(t *testing.T) {
 			mockBehavior: func(eventID int64) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("DELETE FROM public.topics").
+				mock.ExpectExec("DELETE FROM topics").
 					WithArgs(eventID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("DELETE FROM public.events").
+				mock.ExpectExec("DELETE FROM events").
 					WithArgs(eventID).
 					WillReturnError(errors.New("delete event error"))
 
@@ -374,11 +374,11 @@ func TestDeleteEvent(t *testing.T) {
 			mockBehavior: func(eventID int64) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("DELETE FROM public.topics").
+				mock.ExpectExec("DELETE FROM topics").
 					WithArgs(eventID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("DELETE FROM public.events").
+				mock.ExpectExec("DELETE FROM events").
 					WithArgs(eventID).
 					WillReturnResult(sqlmock.NewResult(0, 0))
 
@@ -392,11 +392,11 @@ func TestDeleteEvent(t *testing.T) {
 			mockBehavior: func(eventID int64) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("DELETE FROM public.topics").
+				mock.ExpectExec("DELETE FROM topics").
 					WithArgs(eventID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("DELETE FROM public.events").
+				mock.ExpectExec("DELETE FROM events").
 					WithArgs(eventID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -873,7 +873,7 @@ func TestCreateRegistration(t *testing.T) {
 			userID:  1,
 			eventID: 1,
 			mockBehavior: func(userID int64, eventID int64) {
-				mock.ExpectExec("INSERT INTO public.registrations").
+				mock.ExpectExec("INSERT INTO registrations").
 					WithArgs(eventID, userID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 			},
@@ -884,7 +884,7 @@ func TestCreateRegistration(t *testing.T) {
 			userID:  1,
 			eventID: 1,
 			mockBehavior: func(userID int64, eventID int64) {
-				mock.ExpectExec("INSERT INTO public.registrations").
+				mock.ExpectExec("INSERT INTO registrations").
 					WithArgs(eventID, userID).
 					WillReturnError(errors.New("insert error"))
 			},
@@ -939,11 +939,11 @@ func TestCreateParticipant(t *testing.T) {
 			},
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
-				mock.ExpectQuery("INSERT INTO public.users").
+				mock.ExpectQuery("INSERT INTO users").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
 					WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow(1))
 
-				mock.ExpectExec("INSERT INTO public.interests").
+				mock.ExpectExec("INSERT INTO interests").
 					WithArgs(1, "coding", 1, "gaming").
 					WillReturnResult(sqlmock.NewResult(2, 2))
 
@@ -962,7 +962,7 @@ func TestCreateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectQuery("INSERT INTO public.users").
+				mock.ExpectQuery("INSERT INTO users").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
 					WillReturnError(errors.New("insert user error"))
 
@@ -981,11 +981,11 @@ func TestCreateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectQuery("INSERT INTO public.users").
+				mock.ExpectQuery("INSERT INTO users").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
 					WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow(1))
 
-				mock.ExpectExec("INSERT INTO public.interests").
+				mock.ExpectExec("INSERT INTO interests").
 					WithArgs(1, "coding", 1, "gaming").
 					WillReturnError(errors.New("insert interests error"))
 
@@ -1004,11 +1004,11 @@ func TestCreateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectQuery("INSERT INTO public.users").
+				mock.ExpectQuery("INSERT INTO users").
 					WithArgs(participant.UserID, participant.Name, participant.Email).
 					WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow(1))
 
-				mock.ExpectExec("INSERT INTO public.interests").
+				mock.ExpectExec("INSERT INTO interests").
 					WithArgs(1, "coding", 1, "gaming").
 					WillReturnResult(sqlmock.NewResult(2, 2))
 
@@ -1168,15 +1168,15 @@ func TestUpdateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.users").
+				mock.ExpectExec("UPDATE users").
 					WithArgs(participant.Name, participant.Email, participant.UserID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("DELETE FROM public.interests").
+				mock.ExpectExec("DELETE FROM interests").
 					WithArgs(participant.UserID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("INSERT INTO public.interests").
+				mock.ExpectExec("INSERT INTO interests").
 					WithArgs(participant.UserID, "interest1", participant.UserID, "interest2").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -1208,7 +1208,7 @@ func TestUpdateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.users").
+				mock.ExpectExec("UPDATE users").
 					WithArgs(participant.Name, participant.Email, participant.UserID).
 					WillReturnError(errors.New("update error"))
 			},
@@ -1225,7 +1225,7 @@ func TestUpdateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.users").
+				mock.ExpectExec("UPDATE users").
 					WithArgs(participant.Name, participant.Email, participant.UserID).
 					WillReturnResult(sqlmock.NewResult(0, 0))
 			},
@@ -1242,11 +1242,11 @@ func TestUpdateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.users").
+				mock.ExpectExec("UPDATE users").
 					WithArgs(participant.Name, participant.Email, participant.UserID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("DELETE FROM public.interests").
+				mock.ExpectExec("DELETE FROM interests").
 					WithArgs(participant.UserID).
 					WillReturnError(errors.New("delete error"))
 			},
@@ -1263,15 +1263,15 @@ func TestUpdateParticipant(t *testing.T) {
 			mockBehavior: func(participant *models.Participant) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("UPDATE public.users").
+				mock.ExpectExec("UPDATE users").
 					WithArgs(participant.Name, participant.Email, participant.UserID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("DELETE FROM public.interests").
+				mock.ExpectExec("DELETE FROM interests").
 					WithArgs(participant.UserID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 
-				mock.ExpectExec("INSERT INTO public.interests").
+				mock.ExpectExec("INSERT INTO interests").
 					WithArgs(participant.UserID, "interest1", participant.UserID, "interest2").
 					WillReturnError(errors.New("insert error"))
 			},
@@ -1324,7 +1324,7 @@ func TestSetChatStatus(t *testing.T) {
 			eventID: 2,
 			isReady: true,
 			mockBehavior: func(userID int64, eventID int64, isReady bool) {
-				mock.ExpectExec("UPDATE public.registrations").
+				mock.ExpectExec("UPDATE registrations").
 					WithArgs(isReady, strconv.FormatInt(eventID, 10), strconv.FormatInt(userID, 10)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 			},
@@ -1336,7 +1336,7 @@ func TestSetChatStatus(t *testing.T) {
 			eventID: 2,
 			isReady: true,
 			mockBehavior: func(userID int64, eventID int64, isReady bool) {
-				mock.ExpectExec("UPDATE public.registrations").
+				mock.ExpectExec("UPDATE registrations").
 					WithArgs(isReady, strconv.FormatInt(eventID, 10), strconv.FormatInt(userID, 10)).
 					WillReturnError(errors.New("update error"))
 			},

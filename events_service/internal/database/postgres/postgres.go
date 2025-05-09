@@ -5,10 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/chudik63/netevent/events_service/pkg/logger"
-
 	_ "github.com/lib/pq"
-	"go.uber.org/zap"
 )
 
 type Config struct {
@@ -23,19 +20,17 @@ type DB struct {
 	*sql.DB
 }
 
-func New(ctx context.Context, config Config) DB {
-	l := logger.GetLoggerFromCtx(ctx)
-
+func New(ctx context.Context, config Config) (DB, error) {
 	dsn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable host=%s port=%s", config.UserName, config.Password, config.DbName, config.Host, config.Port)
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		l.Fatal(ctx, "failed to open database", zap.String("err", err.Error()))
+		return DB{}, fmt.Errorf("failed to open database: %w", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		l.Fatal(ctx, "failed to ping database", zap.String("err", err.Error()))
+		return DB{}, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	return DB{db}
+	return DB{db}, nil
 }

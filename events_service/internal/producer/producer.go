@@ -3,6 +3,7 @@ package producer
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/chudik63/netevent/events_service/pkg/logger"
@@ -30,8 +31,7 @@ func New(ctx context.Context, address []string) (*Producer, error) {
 
 	producer, err := sarama.NewSyncProducer(address, config)
 	if err != nil {
-		l.Fatal(ctx, "failed to create Kafka producer", zap.String("err", err.Error()))
-		return nil, err
+		return nil, fmt.Errorf("failed to create Kafka producer: %w", err)
 	}
 
 	return &Producer{
@@ -43,7 +43,7 @@ func New(ctx context.Context, address []string) (*Producer, error) {
 func (p *Producer) Produce(ctx context.Context, message Message, topic string) {
 	messageJSON, err := json.Marshal(message)
 	if err != nil {
-		p.logger.Error(context.Background(), "kafka: failed to marshal message", zap.String("err", err.Error()))
+		p.logger.Error(context.Background(), "kafka: failed to marshal message", zap.Error(err))
 		return
 	}
 
@@ -57,14 +57,14 @@ func (p *Producer) Produce(ctx context.Context, message Message, topic string) {
 		partition, offset, err := p.producer.SendMessage(kafkaMsg)
 		if err != nil {
 			p.logger.Error(ctx, "kafka: failed to send message",
-				zap.String("err", err.Error()),
+				zap.Error(err),
 				zap.Int("attempt", attempt),
 			)
 
 			if attempt == maxRetries {
 				p.logger.Error(ctx, "kafka: all retry attempts failed",
 					zap.String("topic", topic),
-					zap.String("err", err.Error()),
+					zap.Error(err),
 				)
 				return
 			}
@@ -83,6 +83,6 @@ func (p *Producer) Produce(ctx context.Context, message Message, topic string) {
 }
 func (p *Producer) Close() {
 	if err := p.producer.Close(); err != nil {
-		p.logger.Error(context.Background(), "kafka: failed to close producer", zap.String("err", err.Error()))
+		p.logger.Error(context.Background(), "kafka: failed to close producer", zap.Error(err))
 	}
 }

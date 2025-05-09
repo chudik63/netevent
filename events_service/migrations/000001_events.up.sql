@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS public.events
+CREATE TABLE IF NOT EXISTS events
 (
     id serial PRIMARY KEY,
     creator_id INT NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.events
     place TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS public.topics
+CREATE TABLE IF NOT EXISTS topics
 (
     id serial PRIMARY KEY,
     event_id INT NOT NULL,
@@ -16,14 +16,14 @@ CREATE TABLE IF NOT EXISTS public.topics
     CONSTRAINT fk_event FOREIGN KEY (event_id) REFERENCES public.events(id)
 );
 
-CREATE TABLE IF NOT EXISTS public.users
+CREATE TABLE IF NOT EXISTS users
 (
     user_id INT PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS public.registrations
+CREATE TABLE IF NOT EXISTS registrations
 (
     event_id INT,
     user_id INT,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS public.registrations
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(user_id)
 );
 
-CREATE TABLE IF NOT EXISTS public.interests
+CREATE TABLE IF NOT EXISTS interests
 (
     id serial PRIMARY KEY,
     user_id INT NOT NULL,

@@ -8,20 +8,36 @@ import (
 )
 
 const (
-	LoggerKey   = "logger"
 	RequestID   = "requestID"
 	ServiceName = "service"
 )
 
+type (
+	LoggerKey    struct{}
+	RequestIDKey struct{}
+)
+
 type Logger interface {
+	Debug(ctx context.Context, msg string, fields ...zap.Field)
 	Info(ctx context.Context, msg string, fields ...zap.Field)
+	Warn(ctx context.Context, msg string, fields ...zap.Field)
 	Error(ctx context.Context, msg string, fields ...zap.Field)
 	Fatal(ctx context.Context, msg string, fields ...zap.Field)
+	Stop() error
 }
 
 type logger struct {
 	serviceName string
 	logger      *zap.Logger
+}
+
+func (l logger) Debug(ctx context.Context, msg string, fields ...zap.Field) {
+	fields = append(fields, zap.String(ServiceName, l.serviceName))
+
+	if ctx.Value(RequestID) != nil {
+		fields = append(fields, zap.String(RequestID, ctx.Value(RequestID).(string)))
+	}
+	l.logger.Debug(msg, fields...)
 }
 
 func (l logger) Info(ctx context.Context, msg string, fields ...zap.Field) {
@@ -31,6 +47,15 @@ func (l logger) Info(ctx context.Context, msg string, fields ...zap.Field) {
 		fields = append(fields, zap.String(RequestID, ctx.Value(RequestID).(string)))
 	}
 	l.logger.Info(msg, fields...)
+}
+
+func (l logger) Warn(ctx context.Context, msg string, fields ...zap.Field) {
+	fields = append(fields, zap.String(ServiceName, l.serviceName))
+
+	if ctx.Value(RequestID) != nil {
+		fields = append(fields, zap.String(RequestID, ctx.Value(RequestID).(string)))
+	}
+	l.logger.Warn(msg, fields...)
 }
 
 func (l logger) Error(ctx context.Context, msg string, fields ...zap.Field) {
@@ -67,7 +92,7 @@ func New(serviceName string) (Logger, error) {
 	}
 
 	config := zap.Config{
-		Level:            zap.NewAtomicLevelAt(zap.InfoLevel),
+		Level:            zap.NewAtomicLevelAt(zap.DebugLevel),
 		Development:      true,
 		Encoding:         "console",
 		EncoderConfig:    encoderConfig,
@@ -86,10 +111,16 @@ func New(serviceName string) (Logger, error) {
 	}, nil
 }
 
-func (l logger) Stop() {
+func (l logger) Stop() error {
 	_ = l.logger.Sync()
+
+	return nil
 }
 
 func GetLoggerFromCtx(ctx context.Context) Logger {
-	return ctx.Value(LoggerKey).(Logger)
+	return ctx.Value(LoggerKey{}).(Logger)
+}
+
+func SetToCtx(ctx context.Context, l Logger) context.Context {
+	return context.WithValue(ctx, LoggerKey{}, l)
 }

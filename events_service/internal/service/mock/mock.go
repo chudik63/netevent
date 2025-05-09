@@ -2,7 +2,7 @@
 // Source: event.go
 
 // Package mock_service is a generated GoMock package.
-package mock
+package mock_service
 
 import (
 	context "context"
