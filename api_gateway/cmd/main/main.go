@@ -31,8 +31,11 @@ func main() {
 		mainLogger.Fatal(ctx, "failed to create config", zap.String("err", err.Error()))
 	}
 
-	authClient := client.NewAuthClient(ctx, cfg)
-	eventClient := client.NewEventClient(ctx, cfg)
+	// authClient := client.NewAuthClient(ctx, cfg)
+	// eventClient := client.NewEventClient(ctx, cfg)
+
+	authClient := &client.AuthClient{}
+	eventClient := &client.EventClient{}
 
 	grpcserver, err := grpc.New(ctx, cfg.GRPCServerPort, cfg.RestServerPort, authClient, eventClient)
 	if err != nil {

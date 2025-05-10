@@ -9,7 +9,6 @@ import (
 	"github.com/chudik63/netevent/api_gateway/internal/client"
 	"github.com/chudik63/netevent/api_gateway/pkg/api/gateway"
 	"github.com/chudik63/netevent/events_service/pkg/logger"
-
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -50,6 +49,7 @@ func New(ctx context.Context, port, restPort string, authClient *client.AuthClie
 		logs.Fatal(ctx, "failed to create gatewate handler", zap.String("err", err.Error()))
 		return nil, err
 	}
+
 	restSrv := &http.Server{
 		Addr:    ":" + restPort,
 		Handler: mux,
@@ -76,7 +76,6 @@ func (s *Server) Start(ctx context.Context) error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-
 	s.grpcServer.GracefulStop()
 	return s.restServer.Shutdown(ctx)
 }
