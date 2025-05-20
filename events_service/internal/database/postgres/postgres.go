@@ -5,23 +5,16 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/chudik63/netevent/events_service/internal/config"
 	_ "github.com/lib/pq"
 )
-
-type Config struct {
-	UserName string `env:"EVENTS_POSTGRES_USER"`
-	Password string `env:"EVENTS_POSTGRES_PASSWORD"`
-	Host     string `env:"EVENTS_POSTGRES_HOST"`
-	Port     string `env:"EVENTS_POSTGRES_PORT"`
-	DbName   string `env:"EVENTS_POSTGRES_DB"`
-}
 
 type DB struct {
 	*sql.DB
 }
 
-func New(ctx context.Context, config Config) (DB, error) {
-	dsn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable host=%s port=%s", config.UserName, config.Password, config.DbName, config.Host, config.Port)
+func New(ctx context.Context, config config.PostgresConfig) (DB, error) {
+	dsn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable host=%s port=%s", config.UserName, config.Password, config.DBName, config.Host, config.Port)
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {

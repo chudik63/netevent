@@ -3,17 +3,25 @@ package migrator
 import (
 	"fmt"
 
-	"github.com/chudik63/netevent/events_service/internal/config"
-
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func Start(cfg *config.Config) error {
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.Config.UserName, cfg.Config.Password, cfg.Config.Host, cfg.Config.Port, cfg.Config.DbName)
+type Config interface {
+	GetUserName() string
+	GetPassword() string
+	GetHost() string
+	GetPort() string
+	GetDBName() string
+	GetMigrationsPath() string
+	GetSSLMode() string
+}
 
-	m, err := migrate.New("file://"+cfg.MigrationsPath, dbURL)
+func Start(cfg Config) error {
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", cfg.GetUserName(), cfg.GetPassword(), cfg.GetHost(), cfg.GetPort(), cfg.GetDBName(), cfg.GetSSLMode())
+
+	m, err := migrate.New("file://"+cfg.GetMigrationsPath(), dbURL)
 	if err != nil {
 		return fmt.Errorf("failed to create migration: %w", err)
 	}

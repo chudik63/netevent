@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/chudik63/netevent/events_service/internal/config"
 	"github.com/chudik63/netevent/events_service/pkg/logger"
 
 	"github.com/IBM/sarama"
@@ -22,8 +23,10 @@ type Producer struct {
 	logger   logger.Logger
 }
 
-func New(ctx context.Context, address []string) (*Producer, error) {
+func New(ctx context.Context, cfg config.KafkaConfig) (*Producer, error) {
 	l := logger.GetLoggerFromCtx(ctx)
+
+	address := []string{cfg.KafkaHost + ":" + cfg.KafkaPort}
 
 	config := sarama.NewConfig()
 	config.Producer.Retry.Max = 5

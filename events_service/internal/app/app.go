@@ -32,13 +32,13 @@ func Run(serviceName string) {
 		mainLogger.Fatal(ctx, "failed to read config", zap.Error(err))
 	}
 
-	db, err := postgres.New(ctx, cfg.Config)
+	db, err := postgres.New(ctx, cfg.Postgres)
 	if err != nil {
 		mainLogger.Fatal(ctx, "failed to create database", zap.Error(err))
 	}
-	redis := cache.New(cfg.RedisConfig)
+	redis := cache.New(cfg.Redis)
 
-	producer, err := producer.New(ctx, []string{cfg.KafkaHost + ":" + cfg.KafkaPort})
+	producer, err := producer.New(ctx, cfg.Kafka)
 	if err != nil {
 		mainLogger.Fatal(ctx, "failed to create broker", zap.Error(err))
 	}
